@@ -3,8 +3,6 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
-import { AwLogo } from "@/components/ui/AwLogo";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { Icon } from "@/components/ui/Icon";
 import { useConsumo } from "./ConsumoContext";
@@ -13,9 +11,10 @@ import { reportTypeDef } from "./report-types";
 import { DIMENSIONS } from "./explorer-model";
 
 /* ----------------------------------------------------------------------------
- * Trilho esquerdo. Seções planas: voltar + título, "Dividir por" (Serviço /
- * Agente) e "Por destino" (chips pra incluir/tirar cada pagador do dashboard).
- * Pode colapsar pra uma faixa estreita só com o botão de expandir.
+ * Trilho esquerdo. Seções planas: voltar + título, a lente "Dividir por" e os
+ * relatórios salvos. A lente voltou pro trilho (o Greg achou que, com a pill de
+ * agentes na topbar, o dropdown de lente ficava estranho lado a lado); o filtro
+ * de pagador segue na topbar. Pode colapsar pra uma faixa estreita.
  * ------------------------------------------------------------------------- */
 
 export function ExplorerRail() {
@@ -54,7 +53,7 @@ export function ExplorerRail() {
         "flex h-full shrink-0 flex-col overflow-y-auto border-r border-(--border-subtle) bg-(--bg-canvas) transition-[width] duration-aw-base ease-aw-out",
         collapsed ? "w-14" : "w-[280px]",
       )}
-      aria-label="Filtros do explorador"
+      aria-label="Relatórios e navegação do explorador"
     >
       {collapsed ? (
         <div className="flex flex-col items-center gap-4 px-2 pt-5">
@@ -64,7 +63,6 @@ export function ExplorerRail() {
         <div className="flex flex-col gap-7 px-6 pb-10 pt-5">
           <Header onBack={back} onCollapse={() => setCollapsed(true)} />
           <DimensionList />
-          <ByDestination />
           <SavedReportsSection />
         </div>
       )}
@@ -126,7 +124,7 @@ function Header({
               <Icon name={def.icon} size={14} fill={1} style={{ color: def.accentVar }} />
             </span>
           )}
-          <h4 className="m-0 min-w-0 truncate text-(--fg-primary)" title={title}>
+          <h4 className="m-0 min-w-0 break-words leading-tight text-(--fg-primary)">
             {title}
           </h4>
         </div>
@@ -149,6 +147,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return <span className="body-sm font-medium text-(--fg-secondary)">{children}</span>;
 }
 
+/** Lente "Dividir por" (Serviço × Agente) — de volta ao trilho a pedido do Greg. */
 function DimensionList() {
   const { grouping, setGrouping } = useConsumo();
   return (
@@ -183,43 +182,6 @@ function DimensionList() {
         })}
       </ul>
     </nav>
-  );
-}
-
-function ByDestination() {
-  const { destino, togglePayer } = useConsumo();
-  return (
-    <div className="flex flex-col gap-2.5">
-      <SectionLabel>Por destino · pagador</SectionLabel>
-      <p className="m-0 -mt-1 body-xs text-(--fg-muted)">
-        Clique pra incluir ou tirar um pagador do dashboard.
-      </p>
-      <div className="mt-1 flex flex-wrap gap-2">
-        {destino.map((d) => (
-          <button
-            key={d.id}
-            type="button"
-            onClick={() => togglePayer(d.id)}
-            aria-pressed={d.active}
-            className={cn(
-              "inline-flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 body-sm font-medium transition-colors duration-aw-fast",
-              d.active
-                ? "border-(--border-default) bg-(--bg-selected) text-(--fg-primary)"
-                : "border-(--border-subtle) bg-transparent text-(--fg-tertiary) hover:bg-(--bg-hover) hover:text-(--fg-secondary)",
-            )}
-          >
-            <span className={cn("inline-flex shrink-0", !d.active && "opacity-50 grayscale")}>
-              {d.id === "meta" ? (
-                <AwBrandLogo brand="meta" size={15} markOnly />
-              ) : (
-                <AwLogo variant="mark" height={13} className="text-(--aw-blue-500)" />
-              )}
-            </span>
-            {d.label}
-          </button>
-        ))}
-      </div>
-    </div>
   );
 }
 

@@ -2,13 +2,17 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwTrendDelta } from "@/components/ui/AwTrendDelta";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
+import { AwLogo } from "@/components/ui/AwLogo";
 import { Icon } from "@/components/ui/Icon";
 import { brl } from "../../financeiro/_components/data";
-import { useConsumo } from "./ConsumoContext";
-import { PeriodPicker } from "./controls";
+import { useConsumo, type ComparedAgent } from "./ConsumoContext";
+import { type ProviderId } from "./explorer-model";
+import { PeriodPicker, ScopeFilterDropdown } from "./controls";
 import { ExportCsvMenu } from "./ExportCsvMenu";
 import { HighlightCards } from "./KpiCards";
 import {
@@ -71,11 +75,11 @@ export function ExplorerMain() {
 
   const widgets: BoardWidget[] = React.useMemo(
     () => [
-      { id: "consumo", span: 2, render: (c) => <ConsumoChartWidget {...c} /> },
-      { id: "composicao", span: 1, render: (c) => <ComposicaoWidget {...c} /> },
-      { id: "usado-cobrado", span: 1, render: (c) => <UsadoCobradoWidget {...c} /> },
-      { id: "provedor", span: 1, render: (c) => <ProvedorWidget {...c} /> },
-      { id: "detalhamento", span: 2, render: (c) => <DetalhamentoWidget {...c} /> },
+      { id: "consumo", span: 2, label: "Uso por dia", icon: "bar_chart", render: (c) => <ConsumoChartWidget {...c} /> },
+      { id: "composicao", span: 1, label: "Composição do período", icon: "donut_small", render: (c) => <ComposicaoWidget {...c} /> },
+      { id: "usado-cobrado", span: 1, label: "Uso do período", icon: "sync_alt", render: (c) => <UsadoCobradoWidget {...c} /> },
+      { id: "provedor", span: 1, label: "Valor atribuído ao provedor", icon: "account_balance", render: (c) => <ProvedorWidget {...c} /> },
+      { id: "detalhamento", span: 2, label: "Detalhamento", icon: "table_rows", render: (c) => <DetalhamentoWidget {...c} /> },
     ],
     [],
   );
@@ -125,6 +129,7 @@ export function ExplorerMain() {
             editing={editing}
             hidden={hiddenWidgets}
             onRemove={toggleWidgetHidden}
+            onAdd={toggleWidgetHidden}
           />
         </div>
       </div>
@@ -150,6 +155,7 @@ function Toolbar({
   return (
     <div className="flex shrink-0 items-center gap-3 border-b border-(--border-subtle) px-8 py-3.5">
       <SearchBar />
+      <ActiveFilterPills />
       {editing ? (
         <div className="flex shrink-0 items-center gap-2.5">
           <span className="inline-flex items-center gap-1.5 body-xs font-medium text-(--accent-brand)">
@@ -165,6 +171,7 @@ function Toolbar({
         </div>
       ) : (
         <>
+          <ScopeFilters />
           <PeriodPicker />
           <SaveReportButton />
           <ExportCsvMenu />
@@ -188,6 +195,153 @@ function Toolbar({
         </>
       )}
     </div>
+  );
+}
+
+/* ----------------------------------------------------------------------------
+ * Filtro de pagador ("Por destino") na topbar — um dropdown compacto (estilo do
+ * period picker) na mesma linha da busca/período. A lente "Dividir por" voltou
+ * pro trilho esquerdo (ficava estranha lado a lado com a pill de agentes).
+ * ------------------------------------------------------------------------- */
+function ScopeFilters() {
+  const { payers, selectPayers } = useConsumo();
+  // 3-way derivado do conjunto de pagadores: os dois → "all"; só um → ele.
+  const payerMode =
+    payers.has("meta") && payers.has("aswork")
+      ? "all"
+      : payers.has("meta")
+        ? "meta"
+        : "aswork";
+  return (
+    <div className="flex shrink-0 items-center gap-2">
+      <ScopeFilterDropdown
+        ariaLabel="Filtrar por destino do pagamento"
+        value={payerMode}
+        onChange={(v) =>
+          selectPayers(v === "all" ? (["aswork", "meta"] as ProviderId[]) : ([v] as ProviderId[]))
+        }
+        options={[
+          {
+            value: "meta",
+            label: "Meta",
+            leading: <AwBrandLogo brand="meta" size={15} markOnly />,
+          },
+          {
+            value: "aswork",
+            label: "Aswork",
+            leading: <AwLogo variant="mark" height={13} className="text-(--aw-blue-500)" />,
+          },
+          {
+            value: "all",
+            label: "Aswork e Meta",
+            // Os dois logos juntos se confundiam (pedido do Greg): cada um ganha
+            // um disco branco com anel, ficando dois "selos" separados.
+            leading: (
+              <span className="inline-flex items-center">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-(--bg-raised) ring-1 ring-(--border-subtle)">
+                  <AwLogo variant="mark" height={11} className="text-(--aw-blue-500)" />
+                </span>
+                <span className="-ml-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-(--bg-raised) ring-1 ring-(--border-subtle)">
+                  <AwBrandLogo brand="meta" size={12} markOnly />
+                </span>
+              </span>
+            ),
+          },
+        ]}
+      />
+    </div>
+  );
+}
+
+/* ----------------------------------------------------------------------------
+ * Pills de "visão filtrada" na topbar (pedido do José): deixam claro que o
+ * usuário está vendo um recorte — os agentes que ele comparou e/ou só um
+ * pagador. Ficam logo depois da busca e somem quando não há filtro. O ✕ limpa.
+ * (Inspiração: o Google Ads ao comparar campanhas selecionadas.)
+ * ------------------------------------------------------------------------- */
+function ActiveFilterPills() {
+  const { agentComparison, clearAgentComparison, payers, selectPayers } = useConsumo();
+  const payerMode =
+    payers.has("meta") && payers.has("aswork")
+      ? "all"
+      : payers.has("meta")
+        ? "meta"
+        : "aswork";
+  if (!agentComparison && payerMode === "all") return null;
+  return (
+    <div className="flex min-w-0 shrink items-center gap-2">
+      {agentComparison && (
+        <AgentFilterPill agents={agentComparison} onClear={clearAgentComparison} />
+      )}
+      {payerMode !== "all" && (
+        <PayerFilterPill
+          mode={payerMode}
+          onClear={() => selectPayers(["aswork", "meta"] as ProviderId[])}
+        />
+      )}
+    </div>
+  );
+}
+
+function formatAgentNames(names: string[]): string {
+  if (names.length <= 1) return names[0] ?? "";
+  if (names.length === 2) return `${names[0]} e ${names[1]}`;
+  if (names.length === 3) return `${names[0]}, ${names[1]} e ${names[2]}`;
+  return `${names[0]}, ${names[1]} e mais ${names.length - 2}`;
+}
+
+function PillShell({ children, onClear, clearLabel }: { children: React.ReactNode; onClear: () => void; clearLabel: string }) {
+  return (
+    <span className="inline-flex h-9 min-w-0 shrink items-center gap-2 rounded-full border border-(--border-default) bg-(--bg-raised) pl-1.5 pr-1 shadow-xs">
+      {children}
+      <button
+        type="button"
+        onClick={onClear}
+        aria-label={clearLabel}
+        className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-(--fg-tertiary) transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+      >
+        <Icon name="close" size={16} />
+      </button>
+    </span>
+  );
+}
+
+function AgentFilterPill({ agents, onClear }: { agents: ComparedAgent[]; onClear: () => void }) {
+  return (
+    <PillShell onClear={onClear} clearLabel="Limpar comparação de agentes">
+      <span className="flex shrink-0 items-center pl-0.5">
+        {agents.slice(0, 3).map((a, i) => (
+          <span
+            key={a.id}
+            className={cn("inline-flex rounded-full ring-2 ring-(--bg-raised)", i > 0 && "-ml-2")}
+            style={{ zIndex: 3 - i }}
+          >
+            <AwAvatar size="sm" src={a.avatar} alt={a.label} initials={a.label.slice(0, 1)} />
+          </span>
+        ))}
+      </span>
+      <span className="inline-flex min-w-0 items-baseline gap-1.5 body-sm">
+        <span className="shrink-0 font-medium text-(--fg-primary)">Agentes</span>
+        <span className="max-w-[210px] truncate text-(--fg-tertiary)">
+          {formatAgentNames(agents.map((a) => a.label))}
+        </span>
+      </span>
+    </PillShell>
+  );
+}
+
+function PayerFilterPill({ mode, onClear }: { mode: "meta" | "aswork"; onClear: () => void }) {
+  return (
+    <PillShell onClear={onClear} clearLabel="Ver Aswork e Meta">
+      <span className="inline-flex shrink-0 items-center gap-1.5 pl-1 body-sm">
+        {mode === "meta" ? (
+          <AwBrandLogo brand="meta" size={16} markOnly />
+        ) : (
+          <AwLogo variant="mark" height={13} className="text-(--aw-blue-500)" />
+        )}
+        <span className="font-medium text-(--fg-primary)">{mode === "meta" ? "Meta" : "Aswork"}</span>
+      </span>
+    </PillShell>
   );
 }
 
