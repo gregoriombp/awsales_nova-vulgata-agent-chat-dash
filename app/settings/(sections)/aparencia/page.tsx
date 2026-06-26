@@ -3,14 +3,25 @@
 import { useState } from "react";
 import { AwField } from "@/components/ui/AwInput";
 import { AwSelect } from "@/components/ui/AwSelect";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwToggleRow } from "@/components/ui/AwToggle";
 import { Icon } from "@/components/ui/Icon";
 import { useAwTheme, type ThemePreference } from "@/components/ui/AwThemeProvider";
 import { SettingsPageHeader } from "../_components/shared";
 
+/* Idiomas suportados pela interface. PT-BR é o padrão do produto. */
+const INTERFACE_LANGUAGES = [
+  "Português (Brasil)",
+  "English (US)",
+  "Español",
+] as const;
+
 export default function AppearanceSettingsPage() {
   const { theme, setTheme } = useAwTheme();
   const [reduceMotion, setReduceMotion] = useState(false);
+  const [language, setLanguage] = useState<(typeof INTERFACE_LANGUAGES)[number]>(
+    "Português (Brasil)",
+  );
 
   return (
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
@@ -58,7 +69,16 @@ export default function AppearanceSettingsPage() {
 
         <section className="py-6">
           <AwField label="Idioma da interface">
-            <AwSelect>Português (Brasil)</AwSelect>
+            <AwDropdownMenu
+              aria-label="Idioma da interface"
+              trigger={<AwSelect>{language}</AwSelect>}
+              items={INTERFACE_LANGUAGES.map((lang) => ({
+                id: lang,
+                label: lang,
+                checked: lang === language,
+                onSelect: () => setLanguage(lang),
+              }))}
+            />
           </AwField>
         </section>
 
