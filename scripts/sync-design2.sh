@@ -53,11 +53,20 @@ PRESERVE_PATHS=(
   # dele; + hooks/commentAssist/elementAnchor/useVoiceTranscription). Preservo SÓ esses — os
   # módulos novos do Greg (agents/skills/commandParse/agentSettingsStore/mobbin/…) sobem normal,
   # senão o build do design2 quebra com "Module not found" (consumidores sem suas dependências).
+  #
+  # REGRA (vale pra qualquer arquivo novo do review-bridge): um arquivo do Greg que SOBE não pode
+  # importar um símbolo que só existe na MINHA versão de um arquivo preservado — o design2 fica com
+  # a versão do PG, sem o símbolo, e o build quebra. Por isso revealTrail.ts (modal-reveal) entra
+  # aqui: importa captureElementRef (elementAnchor, preservado) e ReviewRevealStep (em
+  # components/bombardier-review/types, preservado), e o design2 usa o provider/store do PG, que
+  # nem importam revealTrail. O guard de integridade (passo 5b) pega esse caso sozinho se alguém
+  # esquecer de listar o arquivo aqui.
   "lib/bombardier-review/store.ts"
   "lib/bombardier-review/hooks.ts"
   "lib/bombardier-review/commentAssist.ts"
   "lib/bombardier-review/elementAnchor.ts"
   "lib/bombardier-review/useVoiceTranscription.ts"
+  "lib/bombardier-review/revealTrail.ts"
   "components/bombardier-review"       # provider/canvas do review
   # subsistemas que são só do PG (eu nem tenho)
   "prototype-studio"                   # studio inteiro do PG
@@ -197,6 +206,98 @@ fi
 
 if [[ ${#TO_SEND[@]} -eq 0 && ${#PRUNE_DEL[@]} -eq 0 ]]; then
   echo "✓ Nada a enviar — design2 já está em dia com o seu protótipo nesses caminhos."; exit 0
+fi
+
+# 5b. GUARD de integridade de imports (fail-closed) — a REGRA que evita subir "metade de
+#     uma feature": nenhum arquivo que SOBE pode importar um símbolo que só existe na MINHA
+#     versão de um arquivo PRESERVE. No design2 esse arquivo fica na versão do PG (sem o
+#     símbolo) → "Module has no exported member". Pega o caso automaticamente, mesmo que o
+#     arquivo novo não tenha sido listado em PRESERVE_PATHS. Roda também no --dry-run.
+GUARD_OUT="$(
+  for e in "${TO_SEND[@]+"${TO_SEND[@]}"}"; do printf '%s\n' "${e#*$'\t'}"; done \
+  | python3 - "$BASE" "$SOURCE_REF" "${PRESERVE_PATHS[@]}" <<'PY'
+import sys, subprocess, re, os
+BASE, SRC = sys.argv[1], sys.argv[2]
+preserve = sys.argv[3:]
+pushed = [l.strip() for l in sys.stdin if l.strip()]
+
+def in_preserve(p):
+    return any(p == q or p.startswith(q + "/") for q in preserve)
+
+def show(ref, path):
+    r = subprocess.run(["git", "show", f"{ref}:{path}"], capture_output=True, text=True)
+    return r.stdout if r.returncode == 0 else None
+
+def exists(ref, path):
+    return subprocess.run(["git", "cat-file", "-e", f"{ref}:{path}"],
+                          capture_output=True).returncode == 0
+
+def resolve(spec, importer):
+    if spec.startswith("@/"):
+        base = spec[2:]
+    elif spec.startswith("."):
+        base = os.path.normpath(os.path.join(os.path.dirname(importer), spec))
+    else:
+        return None  # bare module (node_modules) — fora do escopo
+    for cand in (base + ".ts", base + ".tsx", base + "/index.ts", base + "/index.tsx"):
+        if exists(SRC, cand):
+            return cand
+    return None
+
+STMT = re.compile(r"\bimport\b(.*?)\bfrom\s+[\"']([^\"']+)[\"']", re.S)
+NAMED = re.compile(r"{([^}]*)}", re.S)
+
+def exported(src, sym):
+    if re.search(r"\bexport\s+(?:default\s+)?(?:abstract\s+)?"
+                 r"(?:const|let|var|function|class|interface|type|enum)\s+"
+                 + re.escape(sym) + r"\b", src):
+        return True
+    for blk in re.findall(r"\bexport\s*{([^}]*)}", src):           # export { a, b as c }
+        for part in blk.split(","):
+            name = re.sub(r"^type\s+", "", part.split(" as ")[-1].strip()).strip()
+            if name == sym:
+                return True
+    return False
+
+viol = []
+for f in pushed:
+    if not (f.endswith(".ts") or f.endswith(".tsx")):
+        continue
+    content = show(SRC, f)
+    if not content:
+        continue
+    for m in STMT.finditer(content):
+        clause, spec = m.group(1), m.group(2)
+        target = resolve(spec, f)
+        if not target or not in_preserve(target):
+            continue
+        d2 = show(BASE, target)
+        if d2 is None:        # design2 não tem o preservado — caso aditivo, não é esse problema
+            continue
+        if re.search(r"\bexport\s*\*", d2):  # re-export wildcard: não dá pra ter certeza → não acusa
+            continue
+        nb = NAMED.search(clause)
+        if not nb:            # default/namespace import — sem símbolo nomeado pra checar
+            continue
+        for part in nb.group(1).split(","):
+            name = re.sub(r"^type\s+", "", part.split(" as ")[0].strip()).strip()
+            if not name or name == "*":
+                continue
+            if not exported(d2, name):
+                viol.append((f, name, target))
+
+for f, s, t in viol:
+    print(f"{f}\t{s}\t{t}")
+PY
+)"
+if [[ -n "$GUARD_OUT" ]]; then
+  echo "✗ ABORT (guard de integridade): arquivo(s) que sobem importam símbolos que o design2 não tem nos arquivos PRESERVE:"
+  printf '%s\n' "$GUARD_OUT" | while IFS=$'\t' read -r gf gs gt; do
+    echo "    • $gf importa '$gs' de '$gt' (PRESERVE) → no design2 o import fica quebrado."
+  done
+  echo "  Conserte: liste o(s) arquivo(s) acima em PRESERVE_PATHS (se forem plumbing que o design2 não"
+  echo "  consome) ou coordene com o PG pra ele absorver as exports nos arquivos preservados. Nada empurrado."
+  exit 1
 fi
 
 # 6. dry-run para aqui
