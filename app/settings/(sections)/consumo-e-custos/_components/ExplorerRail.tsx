@@ -21,13 +21,8 @@ export function ExplorerRail() {
   const router = useRouter();
   const [collapsed, setCollapsed] = React.useState(false);
 
-  const back = () => {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
-    } else {
-      router.push("/settings/financeiro/visao-geral");
-    }
-  };
+  // Volta pra a página inicial "Análises detalhadas" (a lista de relatórios).
+  const back = () => router.push("/settings/consumo-e-custos");
 
   return (
     <aside
@@ -184,14 +179,14 @@ function ByDestination() {
 
 function SavedReportsSection() {
   const { reports, activeReportId, applyReport } = useConsumo();
-  const { openCreate, openRename, openDelete } = useReportsUI();
+  const { openTypeChooser, openRename, openDelete } = useReportsUI();
 
   return (
     <div className="flex flex-col gap-2.5">
       <SectionLabel>Relatórios</SectionLabel>
       <button
         type="button"
-        onClick={openCreate}
+        onClick={openTypeChooser}
         className="inline-flex w-full items-center gap-2 rounded-lg border border-dashed border-(--border-default) px-2.5 py-2 text-left body-sm font-medium text-(--fg-secondary) transition-colors duration-aw-fast hover:border-(--border-strong) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
       >
         <Icon name="add" size={16} className="text-(--fg-tertiary)" />

@@ -27,6 +27,24 @@ import {
   trendPct,
 } from "./explorer-model";
 import { useBoardOrder, useBoardSpans, type Span } from "./WidgetBoard";
+import {
+  BOARD_DEFAULT_ORDER,
+  BOARD_DEFAULT_SPANS,
+  CURRENT_ORG,
+  CURRENT_USER,
+  DEFAULT_REPORTS,
+  reportTypeDef,
+  snapshotForType,
+  type ExplorerSnapshot,
+  type ReportKind,
+  type ReportType,
+  type SavedReport,
+  type StoredSelection,
+} from "./report-types";
+
+// Re-exporta a taxonomia pra quem já importava daqui (SavedReports, etc.).
+export type { ExplorerSnapshot, ReportKind, ReportType, SavedReport } from "./report-types";
+export { BOARD_DEFAULT_ORDER, BOARD_DEFAULT_SPANS };
 
 /* ----------------------------------------------------------------------------
  * Estado do explorador "Explorar custos".
@@ -58,62 +76,17 @@ export type ChartModel = {
 const MAX_CHART_SERIES = 5;
 const MAX_AGENT_CHART_SERIES = 9;
 
-/* ---------- board (layout dos widgets) — fonte única aqui no provider ---------- */
+/* ---------- board (layout dos widgets) — chaves de persistência ---------- */
+/* Os defaults (BOARD_DEFAULT_ORDER/SPANS) e os tipos do snapshot vivem em
+ * ./report-types (importados/reexportados acima) pra a taxonomia de relatórios
+ * ficar num lugar só, sem ciclo de import. */
 
 const BOARD_ORDER_KEY = "consumo-dash-order-v3";
 const BOARD_SPANS_KEY = "consumo-dash-spans-v3";
 
-export const BOARD_DEFAULT_ORDER = [
-  "consumo",
-  "composicao",
-  "usado-cobrado",
-  "provedor",
-  "detalhamento",
-];
-export const BOARD_DEFAULT_SPANS: Record<string, Span> = {
-  consumo: 2,
-  composicao: 1,
-  "usado-cobrado": 1,
-  provedor: 1,
-  detalhamento: 2,
-};
-
 /* ---------- relatórios salvos ---------- */
 
 const REPORTS_KEY = "aw:consumo-explorer:reports";
-
-/** Período serializável (datas viram ISO pra caber no localStorage). */
-type StoredSelection =
-  | { kind: "preset"; id: SpendingPeriod }
-  | { kind: "custom"; from: string; to: string };
-
-/** Snapshot completo do explorador: filtros + drill + layout do board. */
-/** Tipo de relatório: explorador de custos (livre) ou recorte de uma fatura. */
-export type ReportKind = "exploration" | "invoice";
-
-export type ExplorerSnapshot = {
-  grouping: SpendingGrouping;
-  selection: StoredSelection;
-  payers: ProviderId[];
-  search: string;
-  drill: DrillNode[];
-  order: string[];
-  spans: Record<string, Span>;
-  /** Widgets removidos desta visualização (ids do board). */
-  hidden?: string[];
-  /** Tipo do relatório (default: exploração de custos). */
-  kind?: ReportKind;
-  /** Fatura recortada, quando kind === "invoice". */
-  invoiceId?: string;
-};
-
-export type SavedReport = {
-  id: string;
-  name: string;
-  createdAt: number;
-  updatedAt: number;
-  snapshot: ExplorerSnapshot;
-};
 
 function serializeSelection(s: PeriodSelection): StoredSelection {
   return s.kind === "custom"
@@ -219,8 +192,9 @@ type ConsumoContextValue = {
   toggleWidgetHidden: (id: string) => void;
   restoreAllWidgets: () => void;
 
-  /* tipo do relatório (exploração × fatura) */
+  /* tipo do relatório (exploração × fatura) + categoria da página inicial */
   reportKind: ReportKind;
+  reportType: ReportType | null;
   invoiceId: string | null;
 
   /* relatórios salvos (snapshot do explorador) */
@@ -229,7 +203,12 @@ type ConsumoContextValue = {
   activeReport: SavedReport | null;
   /** Há mudanças não salvas em relação ao relatório ativo. */
   isReportDirty: boolean;
-  saveNewReport: (name: string, opts?: { kind?: ReportKind; invoiceId?: string | null }) => void;
+  saveNewReport: (
+    name: string,
+    opts?: { type?: ReportType; kind?: ReportKind; invoiceId?: string | null; applyPreset?: boolean },
+  ) => string;
+  /** Abre um dashboard pré-configurado do tipo (sem salvar). Salvar é manual. */
+  startReport: (type: ReportType, opts?: { invoiceId?: string | null }) => void;
   updateActiveReport: () => void;
   renameReport: (id: string, name: string) => void;
   deleteReport: (id: string) => void;
@@ -275,6 +254,8 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
   // Tipo do relatório (exploração livre × recorte de fatura) + fatura escolhida.
   const [reportKind, setReportKind] = React.useState<ReportKind>("exploration");
   const [invoiceId, setInvoiceId] = React.useState<string | null>(null);
+  // Categoria do relatório (a escolhida na página inicial) — define os presets.
+  const [reportType, setReportType] = React.useState<ReportType | null>(null);
 
   // Trocar de lente zera o drill (os nós são por-lente).
   const setGrouping = React.useCallback((g: SpendingGrouping) => {
@@ -322,8 +303,9 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
       hidden: [...hidden],
       kind: reportKind,
       invoiceId: invoiceId ?? undefined,
+      reportType: reportType ?? undefined,
     }),
-    [grouping, selection, payers, search, drill, order, spans, hidden, reportKind, invoiceId],
+    [grouping, selection, payers, search, drill, order, spans, hidden, reportKind, invoiceId, reportType],
   );
 
   const applySnapshot = React.useCallback(
@@ -338,6 +320,7 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
       setHidden(new Set(snap.hidden ?? []));
       setReportKind(snap.kind ?? "exploration");
       setInvoiceId(snap.invoiceId ?? null);
+      setReportType(snap.reportType ?? null);
     },
     [setOrder, setSpans],
   );
@@ -349,14 +332,33 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     reportsHydrated.current = true;
     try {
       const raw = window.localStorage.getItem(REPORTS_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as { reports?: SavedReport[]; activeReportId?: string | null };
-      const list = Array.isArray(parsed.reports) ? parsed.reports : [];
+      // Primeiro acesso: semeia os relatórios-exemplo da página inicial.
+      let list: SavedReport[];
+      let storedActiveId: string | null = null;
+      if (!raw) {
+        list = DEFAULT_REPORTS;
+        persistReports(DEFAULT_REPORTS, null);
+      } else {
+        const parsed = JSON.parse(raw) as { reports?: SavedReport[]; activeReportId?: string | null };
+        list = Array.isArray(parsed.reports) ? parsed.reports : [];
+        storedActiveId = parsed.activeReportId ?? null;
+      }
       setReports(list);
-      const active = parsed.activeReportId ? list.find((r) => r.id === parsed.activeReportId) : undefined;
-      if (active) {
-        setActiveReportId(active.id);
-        applySnapshot(active.snapshot);
+
+      // Deep link `?relatorio=<id>` (nova guia / refresh) tem prioridade sobre o
+      // relatório que estava ativo; cai pro ativo salvo quando não há param.
+      let deepLinkId: string | null = null;
+      try {
+        deepLinkId = new URLSearchParams(window.location.search).get("relatorio");
+      } catch {
+        /* sem window.location */
+      }
+      const target =
+        (deepLinkId ? list.find((r) => r.id === deepLinkId) : undefined) ??
+        (storedActiveId ? list.find((r) => r.id === storedActiveId) : undefined);
+      if (target) {
+        setActiveReportId(target.id);
+        applySnapshot(target.snapshot);
       }
     } catch {
       /* localStorage indisponível */
@@ -365,32 +367,69 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const saveNewReport = React.useCallback(
-    (name: string, opts?: { kind?: ReportKind; invoiceId?: string | null }) => {
+    (
+      name: string,
+      opts?: { type?: ReportType; kind?: ReportKind; invoiceId?: string | null; applyPreset?: boolean },
+    ): string => {
       const now = Date.now();
-      // Aplica tipo/fatura escolhidos no modal sequencial ao snapshot salvo (e
-      // ao estado vivo, pra a visualização já refletir o recorte).
-      const snapshot: ExplorerSnapshot = {
-        ...currentSnapshot(),
-        kind: opts?.kind ?? reportKind,
-        invoiceId: (opts?.invoiceId ?? invoiceId) ?? undefined,
-      };
+      const type = opts?.type ?? reportType ?? undefined;
+      const def = type ? reportTypeDef(type) : null;
+      const resolvedKind = opts?.kind ?? def?.kind ?? reportKind;
+      const resolvedInvoiceId = (opts?.invoiceId ?? invoiceId) ?? undefined;
+
+      // applyPreset (vindo da página inicial): o relatório abre no PRESET do board
+      // — os cards que fazem sentido pra esse tipo, o "ajuste de matemática" que o
+      // Greg pediu. Sem isso (ex.: "Salvar" dentro do explorador), guarda o estado
+      // atual como está, só etiquetando o tipo — sem mexer no board montado.
+      const base = currentSnapshot();
+      const snapshot: ExplorerSnapshot =
+        opts?.applyPreset && def
+          ? {
+              ...base,
+              grouping: def.grouping,
+              order: def.order,
+              hidden: [...def.hidden],
+              kind: resolvedKind,
+              invoiceId: resolvedKind === "invoice" ? resolvedInvoiceId : undefined,
+              reportType: type,
+            }
+          : {
+              ...base,
+              kind: resolvedKind,
+              invoiceId: resolvedKind === "invoice" ? resolvedInvoiceId : undefined,
+              reportType: type,
+            };
+
       const report: SavedReport = {
         id: newReportId(),
         name: name.trim() || "Relatório sem nome",
         createdAt: now,
         updatedAt: now,
         snapshot,
+        owner: CURRENT_USER,
+        org: CURRENT_ORG,
       };
-      if (opts?.kind) setReportKind(opts.kind);
-      if (opts?.invoiceId !== undefined) setInvoiceId(opts.invoiceId);
+
+      if (opts?.applyPreset && def) {
+        // Sincroniza o estado vivo com o preset pra a próxima tela (o explorador)
+        // já abrir no recorte certo.
+        applySnapshot(snapshot);
+      } else {
+        // Só etiqueta o tipo/fatura no estado vivo, sem resetar o board montado.
+        setReportKind(resolvedKind);
+        setInvoiceId(resolvedKind === "invoice" ? resolvedInvoiceId ?? null : null);
+        setReportType(type ?? null);
+      }
+
       setReports((prev) => {
         const next = [...prev, report];
         persistReports(next, report.id);
         return next;
       });
       setActiveReportId(report.id);
+      return report.id;
     },
-    [currentSnapshot, persistReports, reportKind, invoiceId],
+    [currentSnapshot, applySnapshot, persistReports, reportKind, invoiceId, reportType],
   );
 
   const updateActiveReport = React.useCallback(() => {
@@ -441,6 +480,17 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
       });
     },
     [applySnapshot, persistReports],
+  );
+
+  // Abre um dashboard pré-configurado do tipo escolhido SEM salvar — o usuário
+  // explora e só vira relatório se clicar em "Salvar". Aplica o preset ao estado
+  // vivo e zera o relatório ativo (não há nada salvo ainda).
+  const startReport = React.useCallback(
+    (type: ReportType, opts?: { invoiceId?: string | null }) => {
+      applySnapshot(snapshotForType(type, { invoiceId: opts?.invoiceId ?? undefined }));
+      setActiveReportId(null);
+    },
+    [applySnapshot],
   );
 
   const activeReport = React.useMemo(
@@ -758,6 +808,7 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     toggleWidgetHidden,
     restoreAllWidgets,
     reportKind,
+    reportType,
     invoiceId,
     order,
     setOrder,
@@ -771,6 +822,7 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     activeReport,
     isReportDirty,
     saveNewReport,
+    startReport,
     updateActiveReport,
     renameReport,
     deleteReport,

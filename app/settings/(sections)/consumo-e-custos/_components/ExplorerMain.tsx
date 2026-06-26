@@ -192,7 +192,7 @@ function Toolbar({
 
 function SaveReportButton() {
   const { activeReport, isReportDirty, updateActiveReport } = useConsumo();
-  const { openCreate } = useReportsUI();
+  const { openSave } = useReportsUI();
 
   // Com relatório ativo, "Salvar" atualiza o snapshot direto (sem perguntar
   // nome, como o Greg pediu); sem alterações, vira um "Salvo" passivo. Sem
@@ -223,7 +223,7 @@ function SaveReportButton() {
       type="button"
       variant="secondary"
       iconLeft="bookmark_add"
-      onClick={openCreate}
+      onClick={openSave}
       title="Salvar como relatório"
       className="h-11! shrink-0 rounded-xl!"
     >

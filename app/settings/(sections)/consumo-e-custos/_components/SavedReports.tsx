@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwInput } from "@/components/ui/AwInput";
@@ -8,22 +9,36 @@ import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
 import { brl, INVOICE_HISTORY } from "../../financeiro/_components/data";
-import { useConsumo, type ReportKind } from "./ConsumoContext";
+import { useConsumo } from "./ConsumoContext";
+import { REPORT_TYPES, reportTypeDef, type ReportType } from "./report-types";
 
 /* ----------------------------------------------------------------------------
- * UI dos "Relatórios salvos". O estado/CRUD vive no ConsumoContext; aqui ficam
- * só os diálogos (nomear / renomear / excluir) e um provider leve que deixa
- * tanto o trilho (criar/renomear/excluir) quanto a toolbar (salvar como novo)
- * abrirem o mesmo modal, sem duplicar markup.
+ * UI dos relatórios. O estado/CRUD vive no ConsumoContext; aqui ficam os
+ * diálogos e um provider leve que centraliza os fluxos.
+ *
+ * Fluxo (como o Greg pediu): escolher um tipo NÃO pede nome — abre direto um
+ * dashboard pré-configurado (preset do board). O relatório só é salvo se o
+ * usuário clicar em "Salvar" lá dentro (modal só de nome). "Detalhamento de
+ * faturas" ainda pede a fatura antes de abrir.
  * ------------------------------------------------------------------------- */
 
-type NameDialogState =
-  | { kind: "create" }
-  | { kind: "rename"; id: string; current: string };
+const EXPLORER_PATH = "/settings/consumo-e-custos/explorar";
+
+type CreateFlow =
+  // Seletor de tipo ("Criar novo relatório") → pode ir pro passo de fatura.
+  | { mode: "chooser" }
+  // Direto na fatura (card "Detalhamento de faturas").
+  | { mode: "invoice" };
 
 type ReportsUIValue = {
-  /** Abre o modal de nomear pra salvar o estado atual como um novo relatório. */
-  openCreate: () => void;
+  /** Card de tipo: abre o dashboard do tipo (faturas pede a fatura antes). */
+  beginReport: (type: ReportType) => void;
+  /** "Criar novo relatório": abre o seletor de tipo. */
+  openTypeChooser: () => void;
+  /** Abre um relatório salvo no explorador. */
+  openSavedReport: (id: string) => void;
+  /** "Salvar" (dentro do explorador): salva o painel atual — só pede o nome. */
+  openSave: () => void;
   openRename: (id: string, current: string) => void;
   openDelete: (id: string, name: string) => void;
 };
@@ -37,199 +52,148 @@ export function useReportsUI(): ReportsUIValue {
 }
 
 export function ReportsUIProvider({ children }: { children: React.ReactNode }) {
-  const [nameDialog, setNameDialog] = React.useState<NameDialogState | null>(null);
+  const router = useRouter();
+  const { startReport, applyReport } = useConsumo();
+
+  const [createFlow, setCreateFlow] = React.useState<CreateFlow | null>(null);
+  const [saveOpen, setSaveOpen] = React.useState(false);
+  const [renameTarget, setRenameTarget] = React.useState<{ id: string; current: string } | null>(null);
   const [deleteTarget, setDeleteTarget] = React.useState<{ id: string; name: string } | null>(null);
+
+  const goExplorer = React.useCallback(() => router.push(EXPLORER_PATH), [router]);
 
   const value = React.useMemo<ReportsUIValue>(
     () => ({
-      openCreate: () => setNameDialog({ kind: "create" }),
-      openRename: (id, current) => setNameDialog({ kind: "rename", id, current }),
+      beginReport: (type) => {
+        // Faturas precisa escolher a fatura; os outros abrem direto.
+        if (type === "faturas") {
+          setCreateFlow({ mode: "invoice" });
+        } else {
+          startReport(type);
+          goExplorer();
+        }
+      },
+      openTypeChooser: () => setCreateFlow({ mode: "chooser" }),
+      openSavedReport: (id) => {
+        applyReport(id);
+        router.push(`${EXPLORER_PATH}?relatorio=${encodeURIComponent(id)}`);
+      },
+      openSave: () => setSaveOpen(true),
+      openRename: (id, current) => setRenameTarget({ id, current }),
       openDelete: (id, name) => setDeleteTarget({ id, name }),
     }),
-    [],
+    [startReport, applyReport, goExplorer, router],
   );
 
   return (
     <ReportsUIContext.Provider value={value}>
       {children}
-      <ReportNameDialog state={nameDialog} onClose={() => setNameDialog(null)} />
-      <ReportDeleteDialog target={deleteTarget} onClose={() => setDeleteTarget(null)} />
+      <CreateFlowDialog
+        flow={createFlow}
+        onClose={() => setCreateFlow(null)}
+        onStart={(type, invoiceId) => {
+          startReport(type, { invoiceId });
+          setCreateFlow(null);
+          goExplorer();
+        }}
+      />
+      <SaveReportDialog open={saveOpen} onClose={() => setSaveOpen(false)} />
+      <RenameDialog target={renameTarget} onClose={() => setRenameTarget(null)} />
+      <DeleteDialog target={deleteTarget} onClose={() => setDeleteTarget(null)} />
     </ReportsUIContext.Provider>
   );
 }
 
-/** Passos do modal sequencial de criação: tipo → (fatura) → nome. */
-type CreateStep = "type" | "invoice" | "name";
+/* ---------- criar: tipo → (fatura) → abre o dashboard (sem nome) ---------- */
 
-const REPORT_TYPES: {
-  kind: ReportKind;
-  icon: string;
-  title: string;
-  desc: string;
-}[] = [
-  {
-    kind: "exploration",
-    icon: "dashboard",
-    title: "Exploração de custos",
-    desc: "Os gráficos completos do explorador, com a lente, o período e os filtros que você montar.",
-  },
-  {
-    kind: "invoice",
-    icon: "receipt_long",
-    title: "Visualização de fatura",
-    desc: "Os mesmos gráficos, mas recortados em uma única fatura — pra revisar o que entrou naquele ciclo.",
-  },
-];
+type CreateStep = "type" | "invoice";
 
-function ReportNameDialog({
-  state,
+function CreateFlowDialog({
+  flow,
   onClose,
+  onStart,
 }: {
-  state: NameDialogState | null;
+  flow: CreateFlow | null;
   onClose: () => void;
+  onStart: (type: ReportType, invoiceId: string | null) => void;
 }) {
-  const { saveNewReport, renameReport } = useConsumo();
-  const [name, setName] = React.useState("");
-  // Fluxo sequencial (só na criação): tipo → fatura (se for fatura) → nome.
-  const [step, setStep] = React.useState<CreateStep>("type");
-  const [kind, setKind] = React.useState<ReportKind>("exploration");
+  const [type, setType] = React.useState<ReportType>("variaveis");
   const [invoiceId, setInvoiceId] = React.useState<string | null>(null);
+  const [step, setStep] = React.useState<CreateStep>("type");
 
-  // Semeia ao abrir: vazio + passo 1 pra criar; nome atual pra renomear.
   React.useEffect(() => {
-    if (!state) return;
-    if (state.kind === "rename") {
-      setName(state.current);
+    if (!flow) return;
+    setInvoiceId(null);
+    if (flow.mode === "invoice") {
+      setType("faturas");
+      setStep("invoice");
     } else {
-      setName("");
+      setType("variaveis");
       setStep("type");
-      setKind("exploration");
-      setInvoiceId(null);
     }
-  }, [state]);
+  }, [flow]);
 
-  const open = state !== null;
-  const isRename = state?.kind === "rename";
-  const trimmed = name.trim();
+  const open = flow !== null;
+  const def = reportTypeDef(type);
+  const needsInvoice = def.kind === "invoice";
   const selectedInvoice = INVOICE_HISTORY.find((i) => i.id === invoiceId) ?? null;
+  // No modo "invoice" (card de faturas) não há passo de tipo pra voltar.
+  const canGoBack = step === "invoice" && flow?.mode === "chooser";
 
-  const submit = () => {
-    if (state?.kind === "rename") {
-      if (!trimmed) return;
-      renameReport(state.id, trimmed);
-      onClose();
+  const proceed = () => {
+    if (step === "type" && needsInvoice) {
+      setStep("invoice");
       return;
     }
-    if (!trimmed) return;
-    saveNewReport(trimmed, { kind, invoiceId: kind === "invoice" ? invoiceId : null });
-    onClose();
+    onStart(type, needsInvoice ? invoiceId : null);
   };
-
-  // ----- Renomear: modal simples de um passo (inalterado) -----
-  if (isRename) {
-    return (
-      <AwModal
-        open={open}
-        onClose={onClose}
-        size="md"
-        title="Renomear relatório"
-        footer={
-          <div className="flex w-full items-center justify-end gap-2">
-            <AwButton variant="ghost" onClick={onClose}>
-              Cancelar
-            </AwButton>
-            <AwButton variant="primary" disabled={!trimmed} onClick={submit}>
-              Renomear
-            </AwButton>
-          </div>
-        }
-      >
-        <div className="flex flex-col gap-2">
-          <label htmlFor="aw-report-name" className="body-sm font-medium text-(--fg-secondary)">
-            Nome do relatório
-          </label>
-          <AwInput
-            id="aw-report-name"
-            autoFocus
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") submit();
-            }}
-            placeholder="Ex.: Custos de Meta · últimos 30 dias"
-            maxLength={60}
-          />
-        </div>
-      </AwModal>
-    );
-  }
-
-  // ----- Criar: fluxo sequencial -----
-  const stepIndex = step === "type" ? 1 : step === "invoice" ? 2 : kind === "invoice" ? 3 : 2;
-  const stepTotal = kind === "invoice" ? 3 : 2;
-  const goNext = () => {
-    if (step === "type") setStep(kind === "invoice" ? "invoice" : "name");
-    else if (step === "invoice") setStep("name");
-  };
-  const goBack = () => {
-    if (step === "name") setStep(kind === "invoice" ? "invoice" : "type");
-    else if (step === "invoice") setStep("type");
-  };
-
-  const footer = (
-    <div className="flex w-full items-center justify-between gap-2">
-      <span className="body-xs text-(--fg-tertiary)">
-        Passo {stepIndex} de {stepTotal}
-      </span>
-      <div className="flex items-center gap-2">
-        {step === "type" ? (
-          <AwButton variant="ghost" onClick={onClose}>
-            Cancelar
-          </AwButton>
-        ) : (
-          <AwButton variant="ghost" iconLeft="arrow_back" onClick={goBack}>
-            Voltar
-          </AwButton>
-        )}
-        {step === "name" ? (
-          <AwButton variant="primary" disabled={!trimmed} onClick={submit}>
-            Salvar
-          </AwButton>
-        ) : (
-          <AwButton
-            variant="primary"
-            iconRight="arrow_forward"
-            disabled={step === "invoice" && !invoiceId}
-            onClick={goNext}
-          >
-            Continuar
-          </AwButton>
-        )}
-      </div>
-    </div>
-  );
 
   return (
     <AwModal
       open={open}
       onClose={onClose}
       size="md"
-      title="Criar novo relatório"
-      footer={footer}
+      title={step === "invoice" ? "Detalhamento de faturas" : "Criar novo relatório"}
+      stepKey={step}
+      footer={
+        <div className="flex w-full items-center justify-end gap-2">
+          {canGoBack ? (
+            <AwButton variant="ghost" iconLeft="arrow_back" onClick={() => setStep("type")}>
+              Voltar
+            </AwButton>
+          ) : (
+            <AwButton variant="ghost" onClick={onClose}>
+              Cancelar
+            </AwButton>
+          )}
+          {step === "type" && needsInvoice ? (
+            <AwButton variant="primary" iconRight="arrow_forward" onClick={proceed}>
+              Continuar
+            </AwButton>
+          ) : (
+            <AwButton
+              variant="primary"
+              iconRight="arrow_forward"
+              disabled={step === "invoice" && !invoiceId}
+              onClick={proceed}
+            >
+              Abrir relatório
+            </AwButton>
+          )}
+        </div>
+      }
     >
       {step === "type" && (
         <div className="flex flex-col gap-3">
-          <p className="m-0 body-sm text-(--fg-secondary)">
-            O que você quer montar?
-          </p>
+          <p className="m-0 body-sm text-(--fg-secondary)">O que você quer analisar?</p>
           <div className="flex flex-col gap-2.5">
             {REPORT_TYPES.map((t) => {
-              const active = kind === t.kind;
+              const active = type === t.type;
               return (
                 <button
-                  key={t.kind}
+                  key={t.type}
                   type="button"
-                  onClick={() => setKind(t.kind)}
+                  onClick={() => setType(t.type)}
                   className={cn(
                     "flex items-start gap-3 rounded-xl border p-4 text-left transition-colors duration-aw-fast",
                     active
@@ -260,14 +224,15 @@ function ReportNameDialog({
               );
             })}
           </div>
+          <p className="m-0 body-xs text-(--fg-muted)">
+            O painel abre pronto, com os gráficos certos. Salve depois, se quiser guardar.
+          </p>
         </div>
       )}
 
       {step === "invoice" && (
         <div className="flex flex-col gap-3">
-          <p className="m-0 body-sm text-(--fg-secondary)">
-            Qual fatura você quer visualizar?
-          </p>
+          <p className="m-0 body-sm text-(--fg-secondary)">Qual fatura você quer detalhar?</p>
           <ul className="m-0 flex max-h-72 list-none flex-col gap-2 overflow-y-auto p-0">
             {INVOICE_HISTORY.map((inv) => {
               const active = invoiceId === inv.id;
@@ -302,41 +267,136 @@ function ReportNameDialog({
               );
             })}
           </ul>
-        </div>
-      )}
-
-      {step === "name" && (
-        <div className="flex flex-col gap-2">
-          <label htmlFor="aw-report-name" className="body-sm font-medium text-(--fg-secondary)">
-            Nome do relatório
-          </label>
-          <AwInput
-            id="aw-report-name"
-            autoFocus
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") submit();
-            }}
-            placeholder={
-              kind === "invoice" && selectedInvoice
-                ? `Ex.: Fatura ${selectedInvoice.refMonth}`
-                : "Ex.: Custos de Meta · últimos 30 dias"
-            }
-            maxLength={60}
-          />
-          <p className="m-0 body-xs text-(--fg-tertiary)">
-            {kind === "invoice" && selectedInvoice
-              ? `Recorte da fatura ${selectedInvoice.refMonth} (${selectedInvoice.id}). Guarda os gráficos, filtros e layout atuais.`
-              : "Guarda a lente, o período, os filtros e o layout atuais. Você pode reabrir quando quiser."}
-          </p>
+          {selectedInvoice && (
+            <p className="m-0 body-xs text-(--fg-muted)">
+              Abre o detalhamento da fatura {selectedInvoice.refMonth} ({selectedInvoice.id}).
+            </p>
+          )}
         </div>
       )}
     </AwModal>
   );
 }
 
-function ReportDeleteDialog({
+/* ---------- salvar: só o nome (o tipo e o painel já vêm do estado atual) ---------- */
+
+function SaveReportDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { saveNewReport, reportType } = useConsumo();
+  const [name, setName] = React.useState("");
+  const def = reportType ? reportTypeDef(reportType) : null;
+
+  React.useEffect(() => {
+    if (open) setName("");
+  }, [open]);
+
+  const trimmed = name.trim();
+  const submit = () => {
+    if (!trimmed) return;
+    saveNewReport(trimmed);
+    onClose();
+  };
+
+  return (
+    <AwModal
+      open={open}
+      onClose={onClose}
+      size="md"
+      title="Salvar relatório"
+      titleAdornment={def ? <AwPill variant="neutral">{def.title}</AwPill> : undefined}
+      footer={
+        <div className="flex w-full items-center justify-end gap-2">
+          <AwButton variant="ghost" onClick={onClose}>
+            Cancelar
+          </AwButton>
+          <AwButton variant="primary" iconLeft="bookmark_add" disabled={!trimmed} onClick={submit}>
+            Salvar
+          </AwButton>
+        </div>
+      }
+    >
+      <div className="flex flex-col gap-2">
+        <label htmlFor="aw-report-name" className="body-sm font-medium text-(--fg-secondary)">
+          Nome do relatório
+        </label>
+        <AwInput
+          id="aw-report-name"
+          autoFocus
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") submit();
+          }}
+          placeholder={`Ex.: ${def?.title ?? "Análise"} · ${new Date().toLocaleDateString("pt-BR", { month: "long" })}`}
+          maxLength={60}
+        />
+        <p className="m-0 body-xs text-(--fg-tertiary)">
+          Guarda este painel — a lente, o período, os filtros e os gráficos atuais. Você pode reabrir
+          e ajustar quando quiser.
+        </p>
+      </div>
+    </AwModal>
+  );
+}
+
+function RenameDialog({
+  target,
+  onClose,
+}: {
+  target: { id: string; current: string } | null;
+  onClose: () => void;
+}) {
+  const { renameReport } = useConsumo();
+  const [name, setName] = React.useState("");
+
+  React.useEffect(() => {
+    if (target) setName(target.current);
+  }, [target]);
+
+  const trimmed = name.trim();
+  const submit = () => {
+    if (!trimmed || !target) return;
+    renameReport(target.id, trimmed);
+    onClose();
+  };
+
+  return (
+    <AwModal
+      open={target !== null}
+      onClose={onClose}
+      size="md"
+      title="Renomear relatório"
+      footer={
+        <div className="flex w-full items-center justify-end gap-2">
+          <AwButton variant="ghost" onClick={onClose}>
+            Cancelar
+          </AwButton>
+          <AwButton variant="primary" disabled={!trimmed} onClick={submit}>
+            Renomear
+          </AwButton>
+        </div>
+      }
+    >
+      <div className="flex flex-col gap-2">
+        <label htmlFor="aw-report-rename" className="body-sm font-medium text-(--fg-secondary)">
+          Nome do relatório
+        </label>
+        <AwInput
+          id="aw-report-rename"
+          autoFocus
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") submit();
+          }}
+          placeholder="Ex.: Custos de Meta · últimos 30 dias"
+          maxLength={60}
+        />
+      </div>
+    </AwModal>
+  );
+}
+
+function DeleteDialog({
   target,
   onClose,
 }: {
