@@ -7,6 +7,7 @@ import { AwButton } from "@/components/ui/AwButton";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
+import { useToast } from "@/components/ui/AwToast";
 import { Icon } from "@/components/ui/Icon";
 import { brl, INVOICE_HISTORY } from "../../financeiro/_components/data";
 import { useConsumo } from "./ConsumoContext";
@@ -282,6 +283,7 @@ function CreateFlowDialog({
 
 function SaveReportDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { saveNewReport, reportType } = useConsumo();
+  const toast = useToast();
   const [name, setName] = React.useState("");
   const def = reportType ? reportTypeDef(reportType) : null;
 
@@ -293,6 +295,11 @@ function SaveReportDialog({ open, onClose }: { open: boolean; onClose: () => voi
   const submit = () => {
     if (!trimmed) return;
     saveNewReport(trimmed);
+    toast.push({
+      variant: "success",
+      title: "Relatório salvo",
+      description: `"${trimmed}" está nos seus relatórios.`,
+    });
     onClose();
   };
 
@@ -346,6 +353,7 @@ function RenameDialog({
   onClose: () => void;
 }) {
   const { renameReport } = useConsumo();
+  const toast = useToast();
   const [name, setName] = React.useState("");
 
   React.useEffect(() => {
@@ -356,6 +364,7 @@ function RenameDialog({
   const submit = () => {
     if (!trimmed || !target) return;
     renameReport(target.id, trimmed);
+    toast.push({ variant: "success", title: "Relatório renomeado", description: `Agora é "${trimmed}".` });
     onClose();
   };
 
@@ -404,6 +413,7 @@ function DeleteDialog({
   onClose: () => void;
 }) {
   const { deleteReport } = useConsumo();
+  const toast = useToast();
   return (
     <AwModal
       open={target !== null}
@@ -419,7 +429,10 @@ function DeleteDialog({
             variant="danger"
             iconLeft="delete"
             onClick={() => {
-              if (target) deleteReport(target.id);
+              if (target) {
+                deleteReport(target.id);
+                toast.push({ variant: "success", title: "Relatório excluído", description: `"${target.name}" foi removido.` });
+              }
               onClose();
             }}
           >
