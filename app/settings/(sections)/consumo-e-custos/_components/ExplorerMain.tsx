@@ -260,25 +260,14 @@ function ScopeFilters() {
  * (Inspiração: o Google Ads ao comparar campanhas selecionadas.)
  * ------------------------------------------------------------------------- */
 function ActiveFilterPills() {
-  const { agentComparison, clearAgentComparison, payers, selectPayers } = useConsumo();
-  const payerMode =
-    payers.has("meta") && payers.has("aswork")
-      ? "all"
-      : payers.has("meta")
-        ? "meta"
-        : "aswork";
-  if (!agentComparison && payerMode === "all") return null;
+  // Só o comparativo de agentes vira pill aqui — carrega info única (QUAIS
+  // agentes). O filtro de pagador NÃO entra: o dropdown da topbar já indica
+  // Aswork/Meta, então repetir numa pill seria redundante (pedido do Greg).
+  const { agentComparison, clearAgentComparison } = useConsumo();
+  if (!agentComparison) return null;
   return (
     <div className="flex min-w-0 shrink items-center gap-2">
-      {agentComparison && (
-        <AgentFilterPill agents={agentComparison} onClear={clearAgentComparison} />
-      )}
-      {payerMode !== "all" && (
-        <PayerFilterPill
-          mode={payerMode}
-          onClear={() => selectPayers(["aswork", "meta"] as ProviderId[])}
-        />
-      )}
+      <AgentFilterPill agents={agentComparison} onClear={clearAgentComparison} />
     </div>
   );
 }
@@ -325,21 +314,6 @@ function AgentFilterPill({ agents, onClear }: { agents: ComparedAgent[]; onClear
         <span className="max-w-[210px] truncate text-(--fg-tertiary)">
           {formatAgentNames(agents.map((a) => a.label))}
         </span>
-      </span>
-    </PillShell>
-  );
-}
-
-function PayerFilterPill({ mode, onClear }: { mode: "meta" | "aswork"; onClear: () => void }) {
-  return (
-    <PillShell onClear={onClear} clearLabel="Ver Aswork e Meta">
-      <span className="inline-flex shrink-0 items-center gap-1.5 pl-1 body-sm">
-        {mode === "meta" ? (
-          <AwBrandLogo brand="meta" size={16} markOnly />
-        ) : (
-          <AwLogo variant="mark" height={13} className="text-(--aw-blue-500)" />
-        )}
-        <span className="font-medium text-(--fg-primary)">{mode === "meta" ? "Meta" : "Aswork"}</span>
       </span>
     </PillShell>
   );

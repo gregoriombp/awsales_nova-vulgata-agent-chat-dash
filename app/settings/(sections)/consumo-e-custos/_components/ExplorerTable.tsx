@@ -4,6 +4,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
+import { AwLogo } from "@/components/ui/AwLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwDropdownMenu, type AwDropdownItem } from "@/components/ui/AwDropdownMenu";
@@ -574,8 +575,8 @@ function MetaPayerRows({
                 <AwBrandLogo brand="meta" size={16} markOnly />
               </span>
             ) : (
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-(--bg-muted) text-(--fg-secondary)">
-                <Icon name="account_balance_wallet" size={16} fill={1} />
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-(--bg-muted) text-(--fg-primary)">
+                <AwLogo variant="mark" height={15} className="text-(--fg-primary)" />
               </span>
             )}
             <span className="truncate body-sm font-medium text-(--fg-primary)">{node.label}</span>
@@ -644,8 +645,13 @@ function ProviderTag({ provider }: { provider: ProviderId | "mixed" }) {
     );
   }
   if (provider === "aswork") {
-    // Serviços da própria plataforma não têm fornecedor externo — traço, não "Aswork".
-    return <span className="text-(--fg-tertiary)">—</span>;
+    // Aswork com a própria marca (mark preto) + nome, igual ao Meta (pedido do Greg).
+    return (
+      <span className="inline-flex items-center gap-2 body-sm text-(--fg-secondary)">
+        <AwLogo variant="mark" height={14} className="text-(--fg-primary)" />
+        Aswork
+      </span>
+    );
   }
   // Só sobra "mixed" (meta/aswork retornaram acima).
   return (

@@ -8,6 +8,7 @@ import {
   SPENDING_CATEGORIES,
   SPENDING_PERIODS,
   type PeriodSummary,
+  type ServiceBreakdownRow,
   type SpendingCategory,
   type SpendingGrouping,
   type SpendingPeriod,
@@ -121,6 +122,29 @@ const SERVICE_CAT_TO_ROW_IDS: Record<string, string[]> = {
   leads: ["leads"],
   tokens: ["tok-k", "tok-b", "tok-s"],
 };
+
+// Drill em Tokens (e qualquer categoria do gráfico que agregue várias linhas do
+// detalhamento) explode em UMA série por linha — Skills/Brain/Knowledge — pra o
+// gráfico espelhar a tabela em vez de uma série única "Tokens". Rampa de azuis
+// (tons da Aswork) como cor-base; os widgets re-tingem por ranking, então isto é
+// só o fallback de cor.
+const LEAF_SERIES_RAMP = [
+  "var(--aw-blue-600)",
+  "var(--aw-blue-500)",
+  "var(--aw-blue-400)",
+  "var(--aw-blue-300)",
+];
+
+function leafSeriesCategory(
+  id: string,
+  index: number,
+  byId: Map<string, ServiceBreakdownRow>,
+): SpendingCategory {
+  // "Tokens · Skills" → "Skills": o breadcrumb já diz "Tokens", então a série
+  // fica com o nome curto da folha (legenda mais limpa).
+  const label = (byId.get(id)?.label ?? id).replace(/^Tokens\s*·\s*/i, "");
+  return { id, label, colorVar: LEAF_SERIES_RAMP[index % LEAF_SERIES_RAMP.length] };
+}
 
 function diffInDaysInclusive(from: Date, to: Date): number {
   const a = new Date(from.getFullYear(), from.getMonth(), from.getDate());
@@ -679,9 +703,31 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
       return raw.map((day) => day.map((v, c) => (v ?? 0) * factor[c]));
     }
 
-    // Lente Serviço: re-escala por pagador — as categorias Aswork passam a somar
-    // payerTotals.aswork e as do Meta payerTotals.meta. Assim o gráfico concilia
-    // com o detalhamento e "Por destino", inclusive ao desligar um pagador.
+    // Lente Serviço, COM drill: cada categoria do gráfico passa a somar EXATO o
+    // seu total autoritativo do detalhamento (soma das linhas-filha). Sem isso, a
+    // re-escala por pagador (abaixo) "espalha" Telefone/Outros nas categorias e o
+    // total de uma categoria (ex.: Tokens) diverge da tabela — gritante ao descer
+    // num escopo só. A forma diária (curva) vem do gerador; só a magnitude é
+    // ancorada no detalhamento (mesma ideia da lente Agente). Assim o headline, a
+    // composição e o "Uso por dia" do escopo conciliam com o Detalhamento.
+    if (drill.length > 0) {
+      const authTotal = (catId: string) =>
+        (SERVICE_CAT_TO_ROW_IDS[catId] ?? []).reduce(
+          (s, rid) => s + (byId.get(rid)?.total ?? 0),
+          0,
+        );
+      const factor = categories.map((cat, c) =>
+        colSum[c] > 0 ? authTotal(cat.id) / colSum[c] : 0,
+      );
+      // Sem arredondar célula a célula: cada coluna soma EXATO o total da
+      // categoria, então as agregações downstream batem ao centavo com a tabela.
+      return raw.map((day) => day.map((v, c) => (v ?? 0) * factor[c]));
+    }
+
+    // Lente Serviço (nível 0): re-escala por pagador — as categorias Aswork passam
+    // a somar payerTotals.aswork e as do Meta payerTotals.meta. Preserva o total
+    // cheio do período (inclui Telefone/Outros, que não têm série), conciliando
+    // com "Por destino" inclusive ao desligar um pagador.
     let asworkChart = 0;
     let metaChart = 0;
     categories.forEach((cat, c) => {
@@ -696,15 +742,19 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
         return Math.round((v ?? 0) * f * 100) / 100;
       }),
     );
-  }, [grouping, selection, customDays, categories, payerTotals, agentRows]);
+  }, [grouping, selection, customDays, categories, payerTotals, agentRows, drill.length, byId]);
 
   const chartPeriod: SpendingPeriod = selection.kind === "preset" ? selection.id : "last-30";
 
-  const fullAccumulated = React.useMemo(() => {
-    let sum = 0;
-    daily.forEach((day) => day.forEach((v) => (sum += v ?? 0)));
-    return Math.round(sum * 100) / 100;
-  }, [daily]);
+  // Total cheio do período (todas as categorias, sem recorte) — denominador do
+  // scopeFactor. Vem dos totais por pagador pra ficar ESTÁVEL no drill: ao descer,
+  // a daily vira autoritativa por categoria (e some Telefone/Outros, que não têm
+  // série), então somar a daily encolheria o denominador e inflaria o scopeFactor.
+  // No nível 0 isto é idêntico a somar a daily (payer-scaled). Vale nas 2 lentes.
+  const fullAccumulated = React.useMemo(
+    () => Math.round((payerTotals.aswork + payerTotals.meta) * 100) / 100,
+    [payerTotals],
+  );
 
   const accumulated = React.useMemo(() => {
     let sum = 0;
@@ -737,42 +787,82 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     return set;
   }, [grouping, visibleIds, drill.length, payers]);
 
+  // Séries que os gráficos de categoria ("Uso por dia" / "Composição") realmente
+  // renderizam: as categorias visíveis com a coluna diária de cada uma — MAS, ao
+  // descer (drill) numa categoria que agrega várias linhas do detalhamento (ex.:
+  // Tokens → Skills/Brain/Knowledge), ela EXPLODE em uma série por linha. Cada
+  // sub-série recebe a coluna da categoria fatiada na proporção do total da linha
+  // (autoritativo, da daily já ancorada no detalhamento), então o gráfico passa a
+  // mostrar as três e bate ao centavo com a tabela. Fora do drill, ou numa
+  // categoria 1-pra-1, segue série única (comportamento de antes).
+  const chartSeries = React.useMemo<{ cat: SpendingCategory; column: number[] }[]>(() => {
+    const visible = categories
+      .map((cat, idx) => ({ cat, idx }))
+      .filter((v) => visibleIds.has(v.cat.id));
+
+    const out: { cat: SpendingCategory; column: number[] }[] = [];
+    for (const { cat, idx } of visible) {
+      const column = daily.map((day) => day[idx] ?? 0);
+      const rowIds = SERVICE_CAT_TO_ROW_IDS[cat.id] ?? [];
+      if (grouping === "service" && drill.length > 0 && rowIds.length > 1) {
+        const totals = rowIds.map((id) => byId.get(id)?.total ?? 0);
+        const sum = totals.reduce((a, b) => a + b, 0) || 1;
+        rowIds.forEach((id, i) => {
+          out.push({
+            cat: leafSeriesCategory(id, i, byId),
+            column: column.map((v) => (v * totals[i]) / sum),
+          });
+        });
+      } else {
+        out.push({ cat, column });
+      }
+    }
+    return out;
+  }, [categories, daily, visibleIds, grouping, drill.length, byId]);
+
   const seriesTotals = React.useMemo<SeriesTotal[]>(
     () =>
-      categories
-        .map((cat, idx) => ({
+      chartSeries
+        .map(({ cat, column }) => ({
           cat,
-          total: Math.round(daily.reduce((s, day) => s + (day[idx] ?? 0), 0) * 100) / 100,
+          total: Math.round(column.reduce((s, v) => s + v, 0) * 100) / 100,
         }))
-        .filter((s) => visibleIds.has(s.cat.id))
         .sort((a, b) => b.total - a.total),
-    [categories, daily, visibleIds],
+    [chartSeries],
   );
 
   const chartModel = React.useMemo<ChartModel>(() => {
-    const visible = categories
-      .map((cat, idx) => ({ cat, idx, total: daily.reduce((s, day) => s + (day[idx] ?? 0), 0) }))
-      .filter((v) => visibleIds.has(v.cat.id));
+    const dayCount = daily.length;
+    const withTotals = chartSeries.map((s) => ({
+      ...s,
+      total: s.column.reduce((sum, v) => sum + v, 0),
+    }));
 
     const maxSeries = grouping === "agent" ? MAX_AGENT_CHART_SERIES : MAX_CHART_SERIES;
-    if (visible.length <= maxSeries + 1) {
+    if (withTotals.length <= maxSeries + 1) {
       return {
-        categories: visible.map((v) => v.cat),
-        data: daily.map((day) => visible.map((v) => day[v.idx] ?? 0)),
+        categories: withTotals.map((v) => v.cat),
+        data: Array.from({ length: dayCount }, (_, d) => withTotals.map((v) => v.column[d] ?? 0)),
         othersLabels: [],
       };
     }
-    const ranked = [...visible].sort((a, b) => b.total - a.total);
-    const top = ranked.slice(0, maxSeries);
-    top.sort((a, b) => a.idx - b.idx);
-    const rest = ranked.slice(maxSeries);
+    const topIds = new Set(
+      [...withTotals].sort((a, b) => b.total - a.total).slice(0, maxSeries).map((v) => v.cat.id),
+    );
+    // Preserva a ordem original das séries (estabilidade da pilha); só agrega o
+    // restante em "Outros".
+    const top = withTotals.filter((v) => topIds.has(v.cat.id));
+    const rest = withTotals.filter((v) => !topIds.has(v.cat.id));
     const othersCat: SpendingCategory = { id: "__others__", label: `Outros · ${rest.length}`, colorVar: "var(--aw-gray-200)" };
     return {
       categories: [...top.map((v) => v.cat), othersCat],
-      data: daily.map((day) => [...top.map((v) => day[v.idx] ?? 0), rest.reduce((s, v) => s + (day[v.idx] ?? 0), 0)]),
+      data: Array.from({ length: dayCount }, (_, d) => [
+        ...top.map((v) => v.column[d] ?? 0),
+        rest.reduce((s, v) => s + (v.column[d] ?? 0), 0),
+      ]),
       othersLabels: rest.map((v) => v.cat.label),
     };
-  }, [daily, categories, visibleIds, grouping]);
+  }, [chartSeries, daily.length, grouping]);
 
   const chartIds = React.useMemo(() => new Set(chartModel.categories.map((c) => c.id)), [chartModel]);
 

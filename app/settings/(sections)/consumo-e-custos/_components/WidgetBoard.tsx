@@ -3,7 +3,9 @@
 import * as React from "react";
 import { Reorder, useDragControls } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
+import { AwModal } from "@/components/ui/AwModal";
 import { Icon } from "@/components/ui/Icon";
 import { AddWidgetCard, type AddableWidget } from "./AddWidgetCard";
 
@@ -252,6 +254,7 @@ function BoardItem({
 }) {
   const controls = useDragControls();
   const [dragging, setDragging] = React.useState(false);
+  const [confirmRemove, setConfirmRemove] = React.useState(false);
 
   const dragHandle = editing ? (
     <button
@@ -281,21 +284,20 @@ function BoardItem({
     </button>
   ) : undefined;
 
-  // "Remover este gráfico da visualização" — terceiro ícone do chrome do header,
-  // como o Germano desenhou. Fica oculto e só aparece no hover do card; visível
-  // sempre no modo de edição. Não apaga nada permanente: só oculta o widget
-  // desta visualização (o snapshot do relatório guarda).
-  // Por padrão, um card só pode ser removido no MODO DE EDIÇÃO (como o Greg pediu)
-  // — fora dele o board é só leitura, sem botão de remover no hover.
+  // "Excluir este gráfico do painel" — terceiro ícone do chrome do header. Ícone
+  // de LIXEIRA + modal de confirmação (pedido do Greg, no lugar do antigo olho).
+  // Visível só no MODO DE EDIÇÃO. Não apaga nada permanente: oculta o widget desta
+  // visualização (o snapshot do relatório guarda) e dá pra readicionar pelo card
+  // "Adicionar gráfico".
   const removeButton = editing && onRemove ? (
     <button
       type="button"
-      aria-label="Remover gráfico desta visualização"
-      title="Remover desta visualização"
-      onClick={onRemove}
+      aria-label="Excluir gráfico do painel"
+      title="Excluir do painel"
+      onClick={() => setConfirmRemove(true)}
       className="inline-flex h-8 w-8 items-center justify-center rounded-md text-(--fg-tertiary) transition-all duration-aw-fast hover:bg-(--bg-hover) hover:text-(--accent-danger)"
     >
-      <Icon name="visibility_off" size={16} />
+      <Icon name="delete" size={16} />
     </button>
   ) : undefined;
 
@@ -323,6 +325,40 @@ function BoardItem({
       >
         {widget.render({ dragHandle, resizeButton, removeButton })}
       </div>
+
+      <AwModal
+        open={confirmRemove}
+        onClose={() => setConfirmRemove(false)}
+        title="Excluir gráfico?"
+        footer={
+          <>
+            <AwButton size="sm" variant="ghost" onClick={() => setConfirmRemove(false)}>
+              Cancelar
+            </AwButton>
+            <AwButton
+              size="sm"
+              variant="danger"
+              iconLeft="delete"
+              onClick={() => {
+                onRemove?.();
+                setConfirmRemove(false);
+              }}
+            >
+              Excluir
+            </AwButton>
+          </>
+        }
+      >
+        <p className="m-0 body-sm text-(--fg-secondary) text-pretty">
+          Tirar{" "}
+          {widget.label ? (
+            <strong className="font-medium text-(--fg-primary)">“{widget.label}”</strong>
+          ) : (
+            "este gráfico"
+          )}{" "}
+          do painel? Você pode adicionar de volta depois pelo card “Adicionar gráfico”.
+        </p>
+      </AwModal>
     </Reorder.Item>
   );
 }
