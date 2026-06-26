@@ -225,7 +225,7 @@ export function AwDropzone({
           <AwButton
             type="button"
             variant="primary"
-            size="sm"
+            size="md"
             iconLeft="add"
             onClick={() => inputRef.current?.click()}
           >

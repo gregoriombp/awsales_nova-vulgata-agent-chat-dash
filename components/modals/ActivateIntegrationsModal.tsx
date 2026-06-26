@@ -151,13 +151,13 @@ export default function ActivateIntegrationsModal({
         </div>
 
         <div className="flex justify-end gap-2 border-t border-(--border-subtle) px-6 py-4">
-          <AwButton type="button" variant="secondary" size="sm" className="w-auto" onClick={handleClose}>
+          <AwButton type="button" variant="secondary" size="md" className="w-auto" onClick={handleClose}>
             Cancelar
           </AwButton>
           <AwButton
             type="button"
             variant="primary"
-            size="sm"
+            size="md"
             className="w-auto"
             disabled={selectedCount === 0}
             onClick={handleConfirm}

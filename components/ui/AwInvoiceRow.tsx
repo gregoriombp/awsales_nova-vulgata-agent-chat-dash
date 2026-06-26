@@ -8,7 +8,7 @@ export type AwInvoiceStatus =
   | "Paga"
   | "Em aberto"
   | "Em atraso"
-  | "Falhou"
+  | "Falha no Pagamento"
   | "Disputada"
 
 /** Mapeia cada status para o variant do AwPill que melhor o representa. */
@@ -16,14 +16,14 @@ const STATUS_VARIANT: Record<AwInvoiceStatus, AwPillVariant> = {
   Paga: "live",
   "Em aberto": "draft",
   "Em atraso": "warning",
-  Falhou: "error",
+  "Falha no Pagamento": "warning",
   Disputada: "beta",
 }
 
 /** Status que tratamos como "vencidos" — muda o rótulo de data para "Venceu em". */
 const OVERDUE_STATUSES: ReadonlySet<AwInvoiceStatus> = new Set([
   "Em atraso",
-  "Falhou",
+  "Falha no Pagamento",
 ])
 
 const defaultFormatValue = (value: number) =>
