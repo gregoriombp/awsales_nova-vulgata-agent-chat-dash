@@ -67,6 +67,22 @@ export type ReviewAnchor =
   | { kind: "pin"; position: ReviewPoint; el?: ReviewElementAnchor }
   | { kind: "draw"; path: ReviewDrawPath; centroid: ReviewPoint; el?: ReviewDrawAnchor }
 
+/**
+ * One step on the path that re-opens a comment's anchored element when it lives
+ * behind a closed overlay — a modal, drawer, popover, dropdown, tab or
+ * accordion. We record the interactive elements the author clicked to reach the
+ * state where they dropped the pin; on focus they're replayed so clicking the
+ * comment lands the reviewer exactly there (modal already open). Each step is
+ * re-resolved with the same selector + fingerprint fallback as an anchor.
+ * Optional/additive — comments without a path just fall back to the bare pin.
+ */
+export interface ReviewRevealStep {
+  selector: string
+  fingerprint?: ReviewAnchorFingerprint
+  /** Short label (trigger text) — for the inbox/debugging only, never matched on. */
+  label?: string
+}
+
 export interface ReviewElementContext {
   tag: string
   role?: string
@@ -200,6 +216,12 @@ export interface ReviewComment {
   origin?: ReviewCommentOrigin
   /** Present when origin === "ux-flow". */
   flowRef?: ReviewFlowRef
+  /**
+   * Click path the author took to reveal the anchored element (modal/drawer/
+   * tab/accordion). Replayed on focus so the pin is reachable again. Absent for
+   * comments dropped on always-visible page content (and for older comments).
+   */
+  revealPath?: ReviewRevealStep[]
 }
 
 export interface ReviewExportPayload {

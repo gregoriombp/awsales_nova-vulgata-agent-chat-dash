@@ -107,6 +107,19 @@ export function cssPath(start: Element): string | null {
   return `body > ${parts.join(" > ")}`
 }
 
+/** Referência resolvível (seletor + fingerprint) de um elemento — base da
+ *  TRILHA de revelação: os gatilhos que o autor clicou (botão que abre um modal,
+ *  opção de wizard, aba) pra chegar ao estado onde soltou o pino. Reusa o mesmo
+ *  par seletor+fingerprint que ancora pins, então re-resolve com o mesmo
+ *  fallback. */
+export function captureElementRef(
+  el: Element,
+): { selector: string; fingerprint?: ReviewAnchorFingerprint } | null {
+  const selector = cssPath(el)
+  if (!selector) return null
+  return { selector, fingerprint: fingerprintOf(el) }
+}
+
 /** Captura a âncora-de-elemento sob um ponto de viewport, ou null. */
 export function captureElementAnchor(
   clientX: number,
