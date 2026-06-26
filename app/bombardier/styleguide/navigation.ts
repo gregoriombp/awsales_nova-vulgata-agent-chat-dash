@@ -117,6 +117,11 @@ export const navigation: NavSection[] = [
         href: "/bombardier/styleguide/components/aw-radial-progress",
         aliases: ["AwRadialProgress", "anel", "circular", "ring", "donut", "consumo", "quota"],
       },
+      {
+        name: "Segmented",
+        href: "/bombardier/styleguide/components/aw-segmented",
+        aliases: ["AwSegmented", "segmented control", "toggle group", "segmentado", "seleção única", "SegmentedToggle", "SegmentedFilter"],
+      },
       { name: "Select", href: "/bombardier/styleguide/components/aw-select" },
       { name: "Skeleton", href: "/bombardier/styleguide/components/skeleton" },
       { name: "Slider", href: "/bombardier/styleguide/components/aw-slider" },
