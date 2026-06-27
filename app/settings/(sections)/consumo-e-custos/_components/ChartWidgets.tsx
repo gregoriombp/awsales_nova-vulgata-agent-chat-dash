@@ -808,12 +808,16 @@ export function UsadoCobradoWidget({
               />
             }
           />
+          {/* Aswork + Meta empilham na MESMA barra (vertical), não lado a lado
+              (pedido do Greg): é um custo único do dia repartido entre os dois.
+              Aswork na base, Meta por cima; só o topo da pilha é arredondado. */}
           <Bar
             dataKey="wc"
+            stackId="uso"
             fill="var(--aw-blue-500)"
             opacity={seriesOpacity(activeSeries, "wc")}
             maxBarSize={36}
-            radius={[3, 3, 0, 0]}
+            radius={metaIncluded ? [0, 0, 0, 0] : [3, 3, 0, 0]}
             isAnimationActive
             animationDuration={CHART_ANIMATION_DURATION}
             onMouseEnter={() => setActiveSeries("wc")}
@@ -822,6 +826,7 @@ export function UsadoCobradoWidget({
           {metaIncluded && (
             <Bar
               dataKey="meta"
+              stackId="uso"
               fill="var(--aw-purple-500)"
               opacity={seriesOpacity(activeSeries, "meta")}
               maxBarSize={36}
