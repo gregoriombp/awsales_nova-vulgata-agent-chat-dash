@@ -33,8 +33,12 @@ export type AwReportPromoProps = {
   title: React.ReactNode
   /** Linha de apoio. Mantenha curta (1–2 linhas). */
   description?: React.ReactNode
-  /** Destino do CTA. */
-  href: string
+  /** Destino do CTA (link direto). Ignorado quando `onCtaClick` é passado. */
+  href?: string
+  /** Intercepta o CTA: vira `<button>` e chama isto em vez de navegar — útil
+   *  pra abrir uma confirmação antes de levar o usuário pra fora da página.
+   *  Tem prioridade sobre `href`. */
+  onCtaClick?: () => void
   /** Rótulo do botão. */
   ctaLabel?: string
   /** Arte do tile de marca. Default "arcs". */
@@ -48,6 +52,7 @@ export function AwReportPromo({
   title,
   description,
   href,
+  onCtaClick,
   ctaLabel = "Acessar relatório",
   art = "arcs",
   illustrationSrc,
@@ -71,9 +76,20 @@ export function AwReportPromo({
           </p>
         )}
       </div>
-      <AwButton asChild variant="primary" size="lg" className="shrink-0">
-        <Link href={href}>{ctaLabel}</Link>
-      </AwButton>
+      {onCtaClick ? (
+        <AwButton
+          variant="primary"
+          size="lg"
+          className="shrink-0"
+          onClick={onCtaClick}
+        >
+          {ctaLabel}
+        </AwButton>
+      ) : (
+        <AwButton asChild variant="primary" size="lg" className="shrink-0">
+          <Link href={href ?? "#"}>{ctaLabel}</Link>
+        </AwButton>
+      )}
     </AwCard>
   )
 }
