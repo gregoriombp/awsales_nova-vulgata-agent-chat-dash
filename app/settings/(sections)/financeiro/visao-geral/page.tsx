@@ -307,7 +307,7 @@ function ConsumoVariavelCard() {
         <span className="inline-flex items-center gap-1.5">
           <span
             aria-hidden="true"
-            className="h-2 w-2 rounded-full bg-(--aw-blue-300)"
+            className="h-2 w-2 rounded-full bg-(--aw-blue-500)"
           />
           Aswork cobrou
           <span className="tabular-nums font-medium text-(--fg-secondary)">
@@ -317,7 +317,7 @@ function ConsumoVariavelCard() {
         <span className="inline-flex items-center gap-1.5">
           <span
             aria-hidden="true"
-            className="h-2 w-2 rounded-full bg-(--aw-purple-300)"
+            className="h-2 w-2 rounded-full bg-(--aw-purple-500)"
           />
           Meta cobra
           <span className="tabular-nums font-medium text-(--fg-secondary)">
@@ -358,7 +358,7 @@ function OverlaidUsageBars({
     >
       <div className="absolute inset-0 rounded-full bg-(--bg-muted)" />
       <div
-        className="absolute inset-y-0 left-0 rounded-full bg-(--aw-blue-300) transition-[width] duration-500 ease-out"
+        className="absolute inset-y-0 left-0 rounded-full bg-(--aw-blue-500) transition-[width] duration-500 ease-out"
         style={{
           width: `${Math.min(wcPct, 100)}%`,
           zIndex: wcIsBigger ? 1 : 2,
@@ -366,7 +366,7 @@ function OverlaidUsageBars({
         }}
       />
       <div
-        className="absolute inset-y-0 left-0 rounded-full bg-(--aw-purple-300) transition-[width] duration-500 ease-out"
+        className="absolute inset-y-0 left-0 rounded-full bg-(--aw-purple-500) transition-[width] duration-500 ease-out"
         style={{
           width: `${Math.min(metaPct, 100)}%`,
           zIndex: wcIsBigger ? 2 : 1,
