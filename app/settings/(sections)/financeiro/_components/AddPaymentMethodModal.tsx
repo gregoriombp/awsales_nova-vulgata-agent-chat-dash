@@ -152,8 +152,13 @@ export function AddPaymentMethodModal({
         ? Object.values(boletoErrors).every((e) => !e)
         : Object.values(pixErrors).every((e) => !e);
 
+  // Endereço de cobrança só existe pro cartão (boleto/Pix não têm esse passo) —
+  // sem isso, o submit de boleto/Pix travava num addressValid que checava campos
+  // de endereço nunca coletados, e o botão "Adicionar método" não fazia nada.
   const addressValid =
-    country !== "Brasil" || Object.values(addressErrors).every((e) => !e);
+    kind !== "card" ||
+    country !== "Brasil" ||
+    Object.values(addressErrors).every((e) => !e);
 
   const goToDetails = () => setStep("details");
 
