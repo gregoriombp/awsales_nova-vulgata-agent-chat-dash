@@ -22,7 +22,9 @@ export type AwRunStepStatus = "done" | "active" | "error" | "pending"
 
 const KIND_ICON: Record<AwRunStepKind, string> = {
   checkpoint: "flag",
-  tool: "bolt",
+  // Chamada de tool = gesto do agente: o glyph "agent" (linha animada) no lugar
+  // do raio, pintado com o gradient iridescente da marca.
+  tool: "agent",
   decision: "alt_route",
   handoff: "support_agent",
   message: "chat_bubble",
@@ -76,7 +78,12 @@ export function AwAgentRunTrace({ steps, className }: AwAgentRunTraceProps) {
                     : STATUS_NODE[status],
                 )}
               >
-                <Icon name={KIND_ICON[step.kind]} size={16} fill={status === "active" ? 1 : 0} />
+                <Icon
+                  name={KIND_ICON[step.kind]}
+                  size={16}
+                  fill={status === "active" ? 1 : 0}
+                  gradient={step.kind === "tool" || undefined}
+                />
               </span>
               {!last && (
                 <span
