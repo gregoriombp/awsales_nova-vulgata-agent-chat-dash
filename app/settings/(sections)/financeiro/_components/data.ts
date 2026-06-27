@@ -387,6 +387,129 @@ export function fmtUsdLabel(brlValue: number): string {
   })}`;
 }
 
+/* ---------------------------------------------------------------------------
+ * Gastos variáveis — recorte simbólico (Visão geral)
+ * ---------------------------------------------------------------------------
+ * Um recorte do ciclo vigente pra overview: gasto variável por dia, empilhado
+ * por SERVIÇO ou por AGENTE (toggle), SEM a quebra Meta/Aswork — essa leitura
+ * por pagador mora no relatório completo (explorador). O gráfico e a tabela
+ * bebem EXATAMENTE desta fonte, então trocar o agrupamento muda os dois juntos.
+ * O total fecha com o "Uso variável" do ciclo (OVERVIEW_KPIS.accumulated), pra
+ * a overview se ler como um número só.
+ *
+ * Cores: rampa índigo→ciano própria do gráfico (fora dos tokens, autorizado
+ * pelo Greg pra este gráfico). Vivem aqui como constantes e são aplicadas via
+ * `style` inline — não entram no globals.css nem viram utilitárias arbitrárias.
+ */
+
+/** Rampa do gráfico de gastos — índigo (maior peso) → água (menor). Aplicada
+ *  por ordem de empilhamento; a base da barra recebe a cor mais forte. */
+export const SPEND_RAMP = [
+  "#5d55b8", // índigo
+  "#877dff", // violeta
+  "#75b0fd", // azul
+  "#7ed1f1", // ciano
+  "#9aecec", // água
+] as const;
+
+/** Neutro da fatia agregada ("Outros") — não compete com a rampa. */
+export const SPEND_REST_COLOR = "#aeb7c2";
+
+export type OverviewSpendCategory = {
+  id: string;
+  label: string;
+  /** Cor da fatia/legenda — hex direto (fora dos tokens; ver nota acima). */
+  color: string;
+  /** Ícone Material Symbols (modo serviço). */
+  icon?: string;
+  /** Avatar do agente (modo agente). */
+  avatar?: string;
+};
+
+export const OVERVIEW_SPEND_CATEGORIES: Record<
+  SpendingGrouping,
+  OverviewSpendCategory[]
+> = {
+  service: [
+    { id: "leads", label: "Leads ativos", color: SPEND_RAMP[0], icon: "person_check" },
+    { id: "tokens", label: "Tokens", color: SPEND_RAMP[1], icon: "toll" },
+    { id: "mensagens", label: "Mensagens transacionadas", color: SPEND_RAMP[2], icon: "forum" },
+    { id: "disparos", label: "Disparos", color: SPEND_RAMP[3], icon: "send" },
+    { id: "telefone", label: "Telefone", color: SPEND_RAMP[4], icon: "call" },
+  ],
+  agent: [
+    { id: "aria", label: "Aria", color: SPEND_RAMP[0], avatar: "/assets/agent_imgs/orbs/orb_model-a_01-1.png" },
+    { id: "atlas", label: "Atlas", color: SPEND_RAMP[1], avatar: "/assets/agent_imgs/orbs/orb_model-a_05-1.png" },
+    { id: "nova", label: "Nova", color: SPEND_RAMP[2], avatar: "/assets/agent_imgs/orbs/orb_model-a_08-1.png" },
+    { id: "stella", label: "Stella", color: SPEND_RAMP[3], avatar: "/assets/agent_imgs/orbs/orb_model-a_11-1.png" },
+    { id: "iris", label: "Íris", color: SPEND_RAMP[4], avatar: "/assets/agent_imgs/orbs/orb_model-a_02-1.png" },
+    { id: "outros", label: "Outros agentes", color: SPEND_REST_COLOR, icon: "groups" },
+  ],
+};
+
+/** Dias do recorte (ciclo vigente, 01–15/05). */
+export const OVERVIEW_SPEND_DAYS = 15;
+
+/** Pesos por categoria — dão à rampa um decaimento natural (base maior, topo
+ *  menor), pra a leitura empilhada bater com a ordem das cores. */
+const OVERVIEW_SPEND_WEIGHTS: Record<SpendingGrouping, number[]> = {
+  service: [1.5, 1.2, 1.0, 0.78, 0.5],
+  agent: [1.5, 1.2, 0.95, 0.72, 0.5, 0.32],
+};
+
+export type OverviewSpendBar = {
+  /** Rótulo do dia, ex. "03/05". */
+  label: string;
+  /** Valor por categoria, na ordem de OVERVIEW_SPEND_CATEGORIES[grouping]. */
+  values: number[];
+};
+
+function overviewDayLabel(index: number): string {
+  // Âncora fixa (maio/2026) — rótulos estáveis, sem depender do relógio.
+  const d = new Date(2026, 4, index + 1);
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+}
+
+/** Série diária empilhada do recorte, escalada pra fechar com o uso variável
+ *  do ciclo. Determinística — mesmo desenho a cada render. */
+export function overviewSpendSeries(
+  grouping: SpendingGrouping,
+): OverviewSpendBar[] {
+  const cats = OVERVIEW_SPEND_CATEGORIES[grouping];
+  const weights = OVERVIEW_SPEND_WEIGHTS[grouping];
+  const seed = grouping === "service" ? 23 : 41;
+  const raw = genDaily(seed, OVERVIEW_SPEND_DAYS, cats.length).map((day) =>
+    day.map((v, c) => v * (weights[c] ?? 1)),
+  );
+  const rawTotal = raw.reduce((s, day) => s + day.reduce((a, v) => a + v, 0), 0);
+  const factor = rawTotal > 0 ? OVERVIEW_KPIS.accumulated / rawTotal : 0;
+  return raw.map((day, i) => ({
+    label: overviewDayLabel(i),
+    values: day.map((v) => Math.round(v * factor * 100) / 100),
+  }));
+}
+
+/** Total por categoria no recorte — fonte única da tabela vinculada. */
+export function overviewSpendTotals(
+  grouping: SpendingGrouping,
+): { category: OverviewSpendCategory; total: number }[] {
+  const cats = OVERVIEW_SPEND_CATEGORIES[grouping];
+  const series = overviewSpendSeries(grouping);
+  return cats.map((category, c) => ({
+    category,
+    total:
+      Math.round(series.reduce((s, day) => s + (day.values[c] ?? 0), 0) * 100) /
+      100,
+  }));
+}
+
+/** Marcador de evento no gráfico — o dia em que o limite do ciclo foi
+ *  restaurado após a cobrança parcial. `dayIndex` é 0-based. */
+export const OVERVIEW_SPEND_EVENT = {
+  dayIndex: 10, // 11/05
+  label: "Limite restaurado",
+} as const;
+
 export type ServiceCategory =
   | "Meta / WhatsApp"
   | "IA / Tokens"

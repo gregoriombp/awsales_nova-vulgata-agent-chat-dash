@@ -23,6 +23,10 @@ import { CardBrandLogo } from "../_components/CardBrandLogo";
 import { InvoiceBreakdownCard } from "../_components/InvoiceBreakdownCard";
 import { PlanDetailModal } from "../_components/PlanDetailModal";
 import {
+  VariableSpendBreakdown,
+  ReportExitModal,
+} from "../_components/VariableSpendBreakdown";
+import {
   brl,
   CURRENT_INVOICE,
   CURRENT_PLAN,
@@ -49,6 +53,11 @@ function planKey(name: string): PlanKey {
  * logo abaixo, consumo variável e plano lado a lado.
  */
 export default function VisaoGeralPage() {
+  // Tanto o card de CTA quanto o botão "Relatório completo" do detalhamento
+  // levam pro explorador — sempre passando por esta confirmação de saída.
+  const [reportExitOpen, setReportExitOpen] = React.useState(false);
+  const openReport = React.useCallback(() => setReportExitOpen(true), []);
+
   return (
     <div className="flex flex-col gap-(--space-12)">
       <ForecastBlock />
@@ -57,7 +66,12 @@ export default function VisaoGeralPage() {
         art="blocks"
         title="Consumo e custos"
         description="Concilie o que foi usado com o que foi cobrado, item a item, e acompanhe a evolução do uso variável ao longo do período."
-        href="/settings/consumo-e-custos"
+        onCtaClick={openReport}
+      />
+      <VariableSpendBreakdown onOpenReport={openReport} />
+      <ReportExitModal
+        open={reportExitOpen}
+        onClose={() => setReportExitOpen(false)}
       />
     </div>
   );
