@@ -424,7 +424,7 @@ function AgentFilterPill({ agents, onClear }: { agents: ComparedAgent[]; onClear
 }
 
 function SaveReportButton() {
-  const { activeReport, isDraft, isReportDirty, updateActiveReport } = useConsumo();
+  const { activeReport, isReportDirty, updateActiveReport } = useConsumo();
   const { openSave } = useReportsUI();
 
   // Com relatório ativo, "Salvar" atualiza o snapshot direto (sem perguntar
@@ -434,8 +434,7 @@ function SaveReportButton() {
     return (
       <AwButton
         type="button"
-        variant="secondary"
-        iconLeft={isReportDirty ? "save" : "check"}
+        variant="ghost"
         onClick={() => {
           if (isReportDirty) updateActiveReport();
         }}
@@ -456,11 +455,10 @@ function SaveReportButton() {
   return (
     <AwButton
       type="button"
-      variant={isDraft ? "primary" : "secondary"}
-      iconLeft="bookmark_add"
+      variant="ghost"
       onClick={openSave}
       title="Salvar como relatório"
-      className="h-11! shrink-0 rounded-xl!"
+      className="h-11! shrink-0"
     >
       Salvar
     </AwButton>
