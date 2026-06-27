@@ -143,15 +143,19 @@ function ToolRow({
         (dimmed ? "opacity-55" : "")
       }
     >
-      {/* Tool icon — the semantic Material symbol from the catalog. The
-       * brand logo lives only on the pack header so we don't repeat it
-       * on every row. The container reserves a fixed slot so names
-       * align across rows even when the icon glyph differs in width. */}
+      {/* Ícone do tool — quando vem de uma integração, mostra o BRAND ICON
+       * (deixa claro de qual integração é, mesmo fora do pack header); tools
+       * custom caem no símbolo semântico do catálogo. Slot de largura fixa
+       * pra os nomes alinharem entre as linhas. */}
       <div
         className="flex shrink-0 items-center justify-center text-(--fg-secondary)"
         style={{ width: 28, height: 28 }}
       >
-        <Icon name={row.icon} size={20} />
+        {row.brand ? (
+          <AwBrandLogo brand={row.brand} size={26} />
+        ) : (
+          <Icon name={row.icon} size={20} />
+        )}
       </div>
 
       {/* Name + description — the row's whole signal. */}
