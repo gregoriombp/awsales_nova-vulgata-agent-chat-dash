@@ -56,7 +56,7 @@ export function AddWidgetCard({
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--ring-focus)",
         )}
       >
-        <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-(--border-subtle) bg-(--bg-raised) text-(--fg-tertiary) transition-colors duration-aw-fast group-hover/add:border-(--accent-brand) group-hover/add:text-(--accent-brand)">
+        <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-(--border-subtle) bg-(--bg-raised) text-(--fg-tertiary) transition-colors duration-aw-fast group-hover/add:border-(--fg-primary) group-hover/add:bg-(--fg-primary) group-hover/add:text-(--bg-raised)">
           <Icon name="add" size={24} />
         </span>
         <span className="flex flex-col items-center gap-1">
