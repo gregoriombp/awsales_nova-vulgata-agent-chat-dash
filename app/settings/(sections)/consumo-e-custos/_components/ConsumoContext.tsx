@@ -874,11 +874,15 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     const top = withTotals.filter((v) => topIds.has(v.cat.id));
     const rest = withTotals.filter((v) => !topIds.has(v.cat.id));
     const othersCat: SpendingCategory = { id: "__others__", label: `Outros · ${rest.length}`, colorVar: "var(--aw-gray-200)" };
+    // No app real o "Outros" tende a ser a maioria (cauda longa de serviços/
+    // agentes); o mock infla o agregado pra refletir isso e o resto dominar a
+    // pilha (pedido do Greg). Só afeta este gráfico de "Uso por dia".
+    const OUTROS_SIM_BOOST = 2.4;
     return {
       categories: [...top.map((v) => v.cat), othersCat],
       data: Array.from({ length: dayCount }, (_, d) => [
         ...top.map((v) => v.column[d] ?? 0),
-        rest.reduce((s, v) => s + (v.column[d] ?? 0), 0),
+        rest.reduce((s, v) => s + (v.column[d] ?? 0), 0) * OUTROS_SIM_BOOST,
       ]),
       othersLabels: rest.map((v) => v.cat.label),
     };

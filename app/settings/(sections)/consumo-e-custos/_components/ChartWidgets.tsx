@@ -213,9 +213,11 @@ export function ConsumoChartWidget({
       }))
       .sort((a, b) => {
         // "Outros" é o resto agregado — sempre no topo da pilha (último a
-        // renderizar), nunca no meio/base, independente do total.
-        if (a.id === "outros") return 1;
-        if (b.id === "outros") return -1;
+        // renderizar), nunca no meio/base, independente do total. O id real é
+        // "__others__" (gerado no ConsumoContext); comparar com "outros" deixava
+        // o resto cair pro fundo pela ordem de total.
+        if (a.id === "__others__") return 1;
+        if (b.id === "__others__") return -1;
         return (totalById.get(b.id) ?? 0) - (totalById.get(a.id) ?? 0);
       });
   }, [chartModel, chartIds, grouping]);
@@ -821,10 +823,6 @@ export function UsadoCobradoWidget({
             <Bar
               dataKey="meta"
               fill="var(--aw-purple-500)"
-              fillOpacity={0.55}
-              stroke="var(--aw-purple-500)"
-              strokeWidth={1.5}
-              strokeDasharray="3 3"
               opacity={seriesOpacity(activeSeries, "meta")}
               maxBarSize={36}
               radius={[3, 3, 0, 0]}
@@ -837,9 +835,7 @@ export function UsadoCobradoWidget({
         </BarChart>
       </ChartContainer>
       <p className="m-0 mt-2 body-xs text-(--fg-tertiary)">
-      A faixa tracejada (Meta) é aproximada e cobrada direto pela plataforma do Meta no seu cartão — não pela Aswork.
-
-
+        A faixa roxa (Meta) é aproximada e cobrada direto pela plataforma do Meta no seu cartão — não pela Aswork.
       </p>
     </WidgetShell>
   );
@@ -1211,9 +1207,9 @@ function VizToggle<T extends string>({
   );
 }
 
-// Avatar do agente com uma "bolotinha" de cor abaixo, representando a cor da
-// série dele no gráfico — sem isso, a legenda de agente perde a ligação entre o
-// rosto e a cor da barra/linha.
+// Avatar do agente com uma "bolotinha" de cor no canto inferior-direito (estilo
+// indicador de online/offline), representando a cor da série dele no gráfico —
+// sem isso, a legenda de agente perde a ligação entre o rosto e a cor da barra.
 function AgentSwatch({
   avatar,
   label,
@@ -1224,11 +1220,11 @@ function AgentSwatch({
   color: string;
 }) {
   return (
-    <span className="inline-flex flex-col items-center gap-1">
+    <span className="relative inline-flex items-center justify-center">
       <AwAvatar size="sm" src={avatar} alt={label} />
       <span
         aria-hidden="true"
-        className="block h-1.5 w-1.5 rounded-full ring-1 ring-(--bg-raised)"
+        className="absolute -bottom-0.5 -right-0.5 block h-2 w-2 rounded-full ring-2 ring-(--bg-raised)"
         style={{ background: color }}
       />
     </span>
