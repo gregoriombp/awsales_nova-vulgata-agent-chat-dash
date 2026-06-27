@@ -60,14 +60,29 @@ export default function MetodosPagamentoPage() {
   const [pendingRemoveId, setPendingRemoveId] = React.useState<string | null>(
     null,
   );
+  // Trocar o método padrão muda pra onde a cobrança vai primeiro — pede
+  // confirmação antes (pedido do Greg), igual ao fluxo de remover.
+  const [pendingDefaultId, setPendingDefaultId] = React.useState<string | null>(
+    null,
+  );
 
   const pendingRemove =
     pendingRemoveId === null
       ? null
       : (methods.find((m) => m.id === pendingRemoveId) ?? null);
 
+  const pendingDefault =
+    pendingDefaultId === null
+      ? null
+      : (methods.find((m) => m.id === pendingDefaultId) ?? null);
+
   const setAsDefault = (id: string) => {
     setMethods((prev) => prev.map((m) => ({ ...m, isDefault: m.id === id })));
+  };
+
+  const confirmDefault = () => {
+    if (pendingDefaultId !== null) setAsDefault(pendingDefaultId);
+    setPendingDefaultId(null);
   };
 
   const confirmRemove = () => {
@@ -165,7 +180,7 @@ export default function MetodosPagamentoPage() {
                   key={m.id}
                   method={m}
                   canRemove={canRemoveAny}
-                  onSetDefault={() => setAsDefault(m.id)}
+                  onSetDefault={() => setPendingDefaultId(m.id)}
                   onRemoveRequest={() => setPendingRemoveId(m.id)}
                 />
               ))}
@@ -188,6 +203,28 @@ export default function MetodosPagamentoPage() {
         onClose={() => setPendingRemoveId(null)}
         onConfirm={confirmRemove}
       />
+
+      <AwModal
+        open={!!pendingDefault}
+        onClose={() => setPendingDefaultId(null)}
+        size="md"
+        title="Definir como padrão?"
+        footer={
+          <div className="flex w-full items-center justify-end gap-2">
+            <AwButton variant="ghost" onClick={() => setPendingDefaultId(null)}>
+              Cancelar
+            </AwButton>
+            <AwButton variant="primary" onClick={confirmDefault}>
+              Definir como padrão
+            </AwButton>
+          </div>
+        }
+      >
+        <p className="m-0 body-sm text-(--fg-secondary)">
+          As próximas cobranças passam a tentar este método primeiro. Você pode
+          trocar de volta quando quiser.
+        </p>
+      </AwModal>
     </div>
   );
 }
