@@ -37,7 +37,7 @@ const KIND_OPTIONS: {
   {
     id: "boleto",
     label: "Boleto bancário",
-    description: "Boleto registrado enviado por e-mail a cada ciclo.",
+    description: "A cada ciclo, enviamos um boleto por e-mail. Compensa em até 3 dias úteis.",
     brand: "boleto",
   },
   {
@@ -80,6 +80,7 @@ export function AddPaymentMethodModal({
   const [country, setCountry] = React.useState(COUNTRIES[0]);
   const [stateUF, setStateUF] = React.useState<string>("");
   const [addr1, setAddr1] = React.useState("");
+  const [addrNumber, setAddrNumber] = React.useState("");
   const [city, setCity] = React.useState("");
   const [zip, setZip] = React.useState("");
   const [setAsDefault, setSetAsDefault] = React.useState(false);
@@ -101,6 +102,7 @@ export function AddPaymentMethodModal({
     setCountry(COUNTRIES[0]);
     setStateUF("");
     setAddr1("");
+    setAddrNumber("");
     setCity("");
     setZip("");
     setSetAsDefault(false);
@@ -327,6 +329,8 @@ export function AddPaymentMethodModal({
             onStateChange={setStateUF}
             addr1={addr1}
             onAddr1={setAddr1}
+            addrNumber={addrNumber}
+            onAddrNumber={setAddrNumber}
             city={city}
             onCity={setCity}
             zip={zip}
@@ -767,6 +771,8 @@ function AddressStep({
   onStateChange,
   addr1,
   onAddr1,
+  addrNumber,
+  onAddrNumber,
   city,
   onCity,
   zip,
@@ -781,6 +787,8 @@ function AddressStep({
   onStateChange: (v: string) => void;
   addr1: string;
   onAddr1: (v: string) => void;
+  addrNumber: string;
+  onAddrNumber: (v: string) => void;
   city: string;
   onCity: (v: string) => void;
   zip: string;
@@ -816,16 +824,26 @@ function AddressStep({
             }))}
           />
         </AwField>
-        <AwField label="Endereço" htmlFor="bill-addr1" error={errors.addr1}>
-          <AwInput
-            id="bill-addr1"
-            placeholder="Rua, número"
-            invalid={!!errors.addr1}
-            value={addr1}
-            onChange={(e) => onAddr1(e.target.value)}
-            autoFocus
-          />
-        </AwField>
+        <div className="grid grid-cols-[1fr_7rem] gap-3">
+          <AwField label="Endereço" htmlFor="bill-addr1" error={errors.addr1}>
+            <AwInput
+              id="bill-addr1"
+              placeholder="Rua / Avenida"
+              invalid={!!errors.addr1}
+              value={addr1}
+              onChange={(e) => onAddr1(e.target.value)}
+              autoFocus
+            />
+          </AwField>
+          <AwField label="Número" htmlFor="bill-number">
+            <AwInput
+              id="bill-number"
+              placeholder="Nº"
+              value={addrNumber}
+              onChange={(e) => onAddrNumber(e.target.value)}
+            />
+          </AwField>
+        </div>
         <AwField label="Complemento" htmlFor="bill-addr2">
           <AwInput
             id="bill-addr2"
