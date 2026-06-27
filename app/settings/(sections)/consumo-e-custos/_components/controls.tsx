@@ -137,11 +137,15 @@ export function ScopeFilterDropdown<T extends string>({
   value,
   onChange,
   ariaLabel,
+  collapsed = false,
 }: {
   options: { value: T; label: string; leading?: React.ReactNode }[];
   value: T;
   onChange: (v: T) => void;
   ariaLabel: string;
+  /** Gatilho mostra só o `leading` (logos), sem o rótulo — economiza espaço
+   *  na topbar (pedido do Greg). Os rótulos completos aparecem ao abrir. */
+  collapsed?: boolean;
 }) {
   const [open, setOpen] = React.useState(false);
   const current = options.find((o) => o.value === value) ?? options[0];
@@ -151,12 +155,16 @@ export function ScopeFilterDropdown<T extends string>({
         <button
           type="button"
           aria-label={ariaLabel}
-          className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-xl border border-(--border-subtle) bg-(--bg-raised) px-3.5 body-sm font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover)"
+          title={collapsed ? current.label : undefined}
+          className={cn(
+            "inline-flex h-11 shrink-0 items-center rounded-full border border-(--border-subtle) bg-(--bg-raised) body-sm font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover)",
+            collapsed ? "gap-1 px-2.5" : "gap-1.5 px-3.5",
+          )}
         >
           {current.leading && (
             <span className="inline-flex shrink-0 items-center">{current.leading}</span>
           )}
-          {current.label}
+          {!collapsed && current.label}
           <Icon name="expand_more" size={16} className="text-(--fg-tertiary)" />
         </button>
       </PopoverTrigger>
@@ -226,7 +234,7 @@ export function PeriodPicker() {
         <button
           type="button"
           aria-label="Selecionar período"
-          className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-xl border border-(--border-subtle) bg-(--bg-raised) px-3.5 body-sm font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover)"
+          className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border border-(--border-subtle) bg-(--bg-raised) px-3.5 body-sm font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover)"
         >
           <Icon name="calendar_month" size={16} className="text-(--fg-tertiary)" />
           {triggerLabel}

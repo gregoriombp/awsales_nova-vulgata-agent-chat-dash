@@ -182,7 +182,7 @@ function Toolbar({
               <button
                 type="button"
                 aria-label="Opções do dashboard"
-                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-(--border-subtle) bg-(--bg-raised) text-(--fg-tertiary) transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-(--border-subtle) bg-(--bg-raised) text-(--fg-tertiary) transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
               >
                 <Icon name="more_vert" size={18} />
               </button>
@@ -205,27 +205,19 @@ function Toolbar({
  * ------------------------------------------------------------------------- */
 function ScopeFilters() {
   const { payers, selectPayers } = useConsumo();
-  // 3-way derivado do conjunto de pagadores: os dois → "all"; só um → ele.
-  const payerMode =
-    payers.has("meta") && payers.has("aswork")
-      ? "all"
-      : payers.has("meta")
-        ? "meta"
-        : "aswork";
+  // 2-way: os dois pagadores → "all"; senão → "aswork". A opção "só Meta" saiu
+  // (pedido do Greg) — sempre há Aswork no recorte; Meta só acompanha junto.
+  const payerMode = payers.has("aswork") && payers.has("meta") ? "all" : "aswork";
   return (
     <div className="flex shrink-0 items-center gap-2">
       <ScopeFilterDropdown
+        collapsed
         ariaLabel="Filtrar por destino do pagamento"
         value={payerMode}
         onChange={(v) =>
           selectPayers(v === "all" ? (["aswork", "meta"] as ProviderId[]) : ([v] as ProviderId[]))
         }
         options={[
-          {
-            value: "meta",
-            label: "Meta",
-            leading: <AwBrandLogo brand="meta" size={15} markOnly />,
-          },
           {
             value: "aswork",
             label: "Aswork",
@@ -341,7 +333,7 @@ function SaveReportButton() {
             ? `Salvar alterações em "${activeReport.name}"`
             : `"${activeReport.name}" está salvo`
         }
-        className="h-11! shrink-0 rounded-xl!"
+        className="h-11! shrink-0"
       >
         {isReportDirty ? "Salvar" : "Salvo"}
       </AwButton>
@@ -392,7 +384,7 @@ function SearchBar() {
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Buscar qualquer item de custo…"
         aria-label="Buscar item de custo"
-        className="h-11 w-full rounded-xl border border-(--border-subtle) bg-(--bg-raised) pl-11 pr-16 body-sm text-(--fg-primary) outline-none placeholder:text-(--fg-muted) hover:border-(--border-default) focus:border-(--border-strong) focus:ring-2 focus:ring-(--ring-focus)"
+        className="h-11 w-full rounded-full border border-(--border-subtle) bg-(--bg-raised) pl-11 pr-16 body-sm text-(--fg-primary) outline-none placeholder:text-(--fg-muted) hover:border-(--border-default) focus:border-(--border-strong) focus:ring-2 focus:ring-(--ring-focus)"
       />
       <kbd className="pointer-events-none absolute right-3.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-1.5 py-0.5 font-mono text-3xs text-(--fg-tertiary)">
         ⌘K
