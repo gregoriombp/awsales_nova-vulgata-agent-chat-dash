@@ -107,8 +107,7 @@ function ForecastBlock() {
                       >
                         Ao atingir o limite do ciclo ({brl(VARIABLE_SPENDING_LIMIT)}),
                         o uso variável acumulado é cobrado na hora — então pode
-                        aparecer mais de uma cobrança no mesmo mês, separada da
-                        fatura do plano.
+                        aparecer mais de uma cobrança no mesmo mês.
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
