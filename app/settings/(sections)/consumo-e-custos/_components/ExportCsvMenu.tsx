@@ -233,9 +233,9 @@ export function ExportCsvMenu() {
       <PopoverTrigger asChild>
         <AwButton
           variant="primary"
-          size="sm"
+          size="md"
           iconLeft="download"
-          className="h-8!"
+          className="h-11!"
         >
           Exportar
           <Icon name="expand_more" size={15} className="ml-0.5" />
