@@ -84,15 +84,18 @@ function HighlightCard({
         <span>{label}</span>
         <InfoTip text={tooltip} />
       </div>
-      <div
-        className={
-          "text-(length:--h3-size) font-semibold leading-none tracking-heading-tighter tabular-nums " +
-          (valueClassName ?? "text-(--fg-primary)")
-        }
-      >
-        {value}
+      <div className="flex items-center justify-between gap-3">
+        <div
+          className={
+            "text-(length:--h3-size) font-semibold leading-none tracking-heading-tighter tabular-nums " +
+            (valueClassName ?? "text-(--fg-primary)")
+          }
+        >
+          {value}
+        </div>
+        {/* "Saiba mais" (Ajustes) fica à direita, centrado com o número. */}
+        {footer}
       </div>
-      {footer}
     </div>
   );
 }
@@ -111,7 +114,7 @@ function AdjustmentsDetail() {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="mt-1 inline-flex w-fit items-center gap-1 body-xs font-medium text-(--fg-tertiary) transition-colors duration-aw-fast hover:text-(--fg-primary)"
+          className="inline-flex w-fit shrink-0 items-center gap-1 body-xs font-medium text-(--fg-tertiary) transition-colors duration-aw-fast hover:text-(--fg-primary)"
         >
           Saiba mais
           <Icon name="chevron_right" size={14} />
