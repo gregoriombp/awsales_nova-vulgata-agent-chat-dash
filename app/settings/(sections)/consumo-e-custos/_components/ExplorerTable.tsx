@@ -520,6 +520,20 @@ export function DetalhamentoWidget({ dragHandle, resizeButton, removeButton }: W
                 );
               })}
             </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan={4} className="font-medium text-(--fg-secondary)">
+                  Total por serviço
+                </td>
+                <td className="text-right font-semibold tabular-nums text-(--fg-primary)">
+                  {brl(detailTotal)}
+                </td>
+                <td className="text-right font-medium tabular-nums text-(--fg-secondary)">
+                  {fmtUsd(detailUsdTotal)}
+                </td>
+                <td colSpan={2} aria-hidden="true" />
+              </tr>
+            </tfoot>
           </AwTable>
           )}
         </div>
