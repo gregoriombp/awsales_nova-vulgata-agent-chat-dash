@@ -658,44 +658,109 @@ function ShareBars({
 }) {
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const max = totals.reduce((m, s) => Math.max(m, s.total), 0) || 1;
+  // Mesma leitura do anel interno do donut: disparos são compartilhados entre
+  // Aswork (taxa de plataforma) e Meta (repasse), então a barra também mostra
+  // a divisão. Só na lente Serviço e quando há de fato split.
+  const anySplit =
+    grouping === "service" &&
+    totals.some((s) => {
+      const sp = categoryPayerSplit(s.cat.id, s.total);
+      return sp.aswork > 0 && sp.meta > 0;
+    });
   return (
-    <ul className="m-0 flex list-none flex-col gap-3 p-0">
-      {totals.map((s) => {
-        const pct = total > 0 ? (s.total / total) * 100 : 0;
-        return (
-          <li
-            key={s.cat.id}
-            onMouseEnter={() => setActiveId(s.cat.id)}
-            onMouseLeave={() => setActiveId(null)}
-            className="flex items-center gap-3 body-xs transition-opacity duration-aw-fast"
-            style={{ opacity: seriesOpacity(activeId, s.cat.id) }}
-          >
-            <span className="inline-flex w-28 shrink-0 items-center gap-2 text-(--fg-secondary)">
-              {grouping === "agent" && s.cat.avatar ? (
-                <AgentSwatch avatar={s.cat.avatar} label={s.cat.label} color={s.cat.colorVar} />
-              ) : (
-                <span
-                  aria-hidden="true"
-                  className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
-                  style={{ background: s.cat.colorVar }}
-                />
-              )}
-              <span className="truncate">{s.cat.label}</span>
-            </span>
-            <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-(--bg-muted)">
-              <div
-                className="h-full rounded-full"
-                style={{ width: `${(s.total / max) * 100}%`, background: s.cat.colorVar }}
-              />
-            </div>
-            <span className="shrink-0 tabular-nums text-(--fg-secondary)">
-              {brl(s.total)}{" "}
-              <span className="text-(--fg-tertiary)">· {pct.toFixed(0)}%</span>
-            </span>
-          </li>
-        );
-      })}
-    </ul>
+    <div className="flex flex-col gap-3">
+      {anySplit && (
+        <div className="flex items-center gap-4 body-xs text-(--fg-tertiary)">
+          <span className="inline-flex items-center gap-1.5">
+            <span
+              aria-hidden="true"
+              className="inline-block h-2.5 w-2.5 rounded-full"
+              style={{ background: PROVIDERS.aswork.colorVar }}
+            />
+            Aswork
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span
+              aria-hidden="true"
+              className="inline-block h-2.5 w-2.5 rounded-full"
+              style={{ background: PROVIDERS.meta.colorVar }}
+            />
+            Meta
+          </span>
+        </div>
+      )}
+      <ul className="m-0 flex list-none flex-col gap-3 p-0">
+        {totals.map((s) => {
+          const pct = total > 0 ? (s.total / total) * 100 : 0;
+          const split =
+            grouping === "service"
+              ? categoryPayerSplit(s.cat.id, s.total)
+              : { aswork: 0, meta: 0 };
+          const hasSplit = split.aswork > 0 && split.meta > 0;
+          return (
+            <li
+              key={s.cat.id}
+              onMouseEnter={() => setActiveId(s.cat.id)}
+              onMouseLeave={() => setActiveId(null)}
+              className="flex items-center gap-3 body-xs transition-opacity duration-aw-fast"
+              style={{ opacity: seriesOpacity(activeId, s.cat.id) }}
+            >
+              <span className="inline-flex w-28 shrink-0 items-center gap-2 text-(--fg-secondary)">
+                {grouping === "agent" && s.cat.avatar ? (
+                  <AgentSwatch avatar={s.cat.avatar} label={s.cat.label} color={s.cat.colorVar} />
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ background: s.cat.colorVar }}
+                  />
+                )}
+                <span className="truncate">{s.cat.label}</span>
+              </span>
+              <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-(--bg-muted)">
+                <div
+                  className="flex h-full overflow-hidden rounded-full"
+                  style={{ width: `${(s.total / max) * 100}%` }}
+                  title={
+                    hasSplit
+                      ? `Aswork ${brl(split.aswork)} · Meta ${brl(split.meta)}`
+                      : undefined
+                  }
+                >
+                  {hasSplit ? (
+                    <>
+                      <span
+                        className="h-full"
+                        style={{
+                          width: `${(split.aswork / s.total) * 100}%`,
+                          background: PROVIDERS.aswork.colorVar,
+                        }}
+                      />
+                      <span
+                        className="h-full"
+                        style={{
+                          width: `${(split.meta / s.total) * 100}%`,
+                          background: PROVIDERS.meta.colorVar,
+                        }}
+                      />
+                    </>
+                  ) : (
+                    <span
+                      className="h-full w-full"
+                      style={{ background: s.cat.colorVar }}
+                    />
+                  )}
+                </div>
+              </div>
+              <span className="shrink-0 tabular-nums text-(--fg-secondary)">
+                {brl(s.total)}{" "}
+                <span className="text-(--fg-tertiary)">· {pct.toFixed(0)}%</span>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }
 
@@ -913,7 +978,7 @@ export function ProvedorWidget({
 
 type GastoLineKey = "total" | "aswork" | "meta";
 
-export function GastoTotalCard() {
+export function GastoTotalCard({ onHide }: { onHide?: () => void } = {}) {
   const { payerDaily, chartPeriod, metaIncluded, accumulated } = useConsumo();
   // Linha em foco no hover. As demais somem suavemente; a focada ganha um
   // "fio condutor": um segmento claro (grayscale + alpha) que percorre a curva
@@ -971,6 +1036,19 @@ export function GastoTotalCard() {
       title="Uso total no período"
       icon="show_chart"
       description={`Acumulado · ${brl(accumulated)}`}
+      removeButton={
+        onHide ? (
+          <button
+            type="button"
+            aria-label="Ocultar este card"
+            title="Ocultar este card"
+            onClick={onHide}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-(--fg-tertiary) transition-all duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+          >
+            <Icon name="visibility_off" size={16} />
+          </button>
+        ) : undefined
+      }
       actions={
         <AwDropdownMenu
           align="end"
