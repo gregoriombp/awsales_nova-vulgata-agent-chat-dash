@@ -4,6 +4,7 @@ import * as React from "react";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
+import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import {
   AwDropdownMenu,
   type AwDropdownItem,
@@ -17,6 +18,7 @@ import {
 } from "@/components/ui/AwEmpty";
 import { AwFileIcon } from "@/components/ui/AwFileIcon";
 import { AwInput } from "@/components/ui/AwInput";
+import { AwLogo } from "@/components/ui/AwLogo";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
@@ -80,6 +82,47 @@ function getInitials(name: string): string {
   const first = parts[0]?.charAt(0) ?? "";
   const last = parts.length > 1 ? (parts[parts.length - 1]?.charAt(0) ?? "") : "";
   return (first + last).toUpperCase();
+}
+
+/** Avatar do ator. Quando quem executou foi a própria Aswork (org), mostra a
+ *  marca da Aswork num tile escuro — a organização aparece no histórico como um
+ *  ator de verdade (ex.: "Aswork atribuiu um crédito"), assim como a foto de um
+ *  usuário aparece nas ações do cliente. Pedido do Greg (cmt-7437d212). */
+function ActorAvatar({
+  executor,
+  actor,
+  avatar,
+  size = "md",
+}: {
+  executor: AuditExecutor;
+  actor: string;
+  avatar?: string;
+  size?: "sm" | "md";
+}) {
+  if (executor === "Aswork") {
+    return (
+      <AwAvatar
+        size={size}
+        aria-label="Aswork"
+        className="bg-(--bg-inverse)! text-(--fg-on-inverse)"
+      >
+        <AwLogo
+          variant="mark"
+          height={size === "sm" ? 11 : 15}
+          aria-label="Aswork"
+        />
+      </AwAvatar>
+    );
+  }
+  return (
+    <AwAvatar
+      size={size}
+      src={avatar}
+      alt={actor}
+      initials={getInitials(actor)}
+      className={actor === "Cortex" ? "border-0!" : undefined}
+    />
+  );
 }
 
 function executorRole(executor: AuditExecutor): string {
@@ -334,16 +377,25 @@ function ExportCsvButton() {
   const [open, setOpen] = React.useState(false);
   const [mode, setMode] = React.useState<"confirm" | "done">("confirm");
   const [format, setFormat] = React.useState<ExportFormat>("pdf");
+  const [reason, setReason] = React.useState("");
+  const [consent, setConsent] = React.useState(false);
 
   const close = () => setOpen(false);
 
   const pickFormat = (next: ExportFormat) => {
     setFormat(next);
     setMode("confirm");
+    setReason("");
+    setConsent(false);
     setOpen(true);
   };
 
+  // Exigir uma justificativa e o aceite explícito antes de gerar o relatório
+  // com dados pessoais (LGPD / trilha de auditoria).
+  const canConfirm = reason.trim().length > 0 && consent;
+
   const confirm = () => {
+    if (!canConfirm) return;
     triggerExportDownload(format);
     setMode("done");
   };
@@ -387,6 +439,7 @@ function ExportCsvButton() {
                 variant="primary"
                 iconLeft="outgoing_mail"
                 onClick={confirm}
+                disabled={!canConfirm}
               >
                 Confirmar
               </AwButton>
@@ -426,6 +479,39 @@ function ExportCsvButton() {
                 </p>
               </div>
             </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="export-reason"
+                className="body-xs font-medium text-(--fg-primary)"
+              >
+                Por que você precisa deste relatório?
+              </label>
+              <textarea
+                id="export-reason"
+                rows={3}
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="Ex.: auditoria interna, solicitação contábil, fechamento do mês…"
+                className="w-full resize-none rounded-md border border-(--border-default) bg-(--bg-raised) px-3 py-2 body-xs text-(--fg-primary) outline-hidden transition-colors placeholder:text-(--fg-tertiary) focus-visible:border-(--fg-primary) focus-visible:ring-2 focus-visible:ring-(--fg-primary) focus-visible:ring-offset-1 focus-visible:ring-offset-(--bg-raised)"
+              />
+              <p className="m-0 body-xs text-(--fg-tertiary)">
+                A justificativa fica registrada na trilha de auditoria.
+              </p>
+            </div>
+
+            <label className="flex cursor-pointer items-start gap-2.5">
+              <AwCheckbox
+                checked={consent}
+                onChange={setConsent}
+                className="mt-0.5"
+              />
+              <span className="body-xs text-(--fg-secondary)">
+                Confirmo que tenho base legal para exportar estes dados pessoais
+                e que vou tratá-los conforme a LGPD e a política da minha
+                organização.
+              </span>
+            </label>
 
             <p className="m-0 inline-flex items-center gap-2 body-xs text-(--fg-secondary)">
               <Icon name="mail" size={14} className="text-(--fg-tertiary)" />
@@ -532,12 +618,11 @@ function ActorFilterMenu({
         id: p.actor,
         label: (
           <span className="inline-flex items-center gap-2">
-            <AwAvatar
+            <ActorAvatar
               size="sm"
-              src={p.avatar}
-              alt={p.actor}
-              initials={getInitials(p.actor)}
-              className={p.actor === "Cortex" ? "border-0!" : undefined}
+              executor={p.executor}
+              actor={p.actor}
+              avatar={p.avatar}
             />
             <span>{p.actor}</span>
           </span>
@@ -576,7 +661,6 @@ function EventRow({
   event: AuditEvent;
   onOpenInvoice: (id: string) => void;
 }) {
-  const isCortex = event.actor === "Cortex";
   const meta = TYPE_META[event.type];
   // Fatura referenciada no meta (se existir no histórico) — habilita ações.
   const invMatch = event.meta?.match(INV_PATTERN);
@@ -612,12 +696,10 @@ function EventRow({
     <li className="m-0 list-none">
       <div className="group grid w-full grid-cols-[1fr_auto_auto] items-center gap-4 rounded-md px-3 py-3 text-left transition-colors hover:bg-(--bg-hover)">
         <div className="flex min-w-0 items-start gap-3">
-          <AwAvatar
-            size="md"
-            src={event.actorAvatar}
-            alt={event.actor}
-            initials={getInitials(event.actor)}
-            className={isCortex ? "border-0!" : undefined}
+          <ActorAvatar
+            executor={event.executor}
+            actor={event.actor}
+            avatar={event.actorAvatar}
           />
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
