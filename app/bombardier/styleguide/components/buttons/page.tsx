@@ -175,6 +175,27 @@ export default function ButtonsPage() {
           </Stage>
 
           <Stage
+            label="primary · sem ícone (label puro)"
+            hint="Nem todo CTA precisa de ícone. O primary sozinho — só o verbo — nos três tamanhos e nos estados forçáveis."
+          >
+            <AwButton variant="primary" size="sm">
+              Salvar
+            </AwButton>
+            <AwButton variant="primary" size="md">
+              Salvar alterações
+            </AwButton>
+            <AwButton variant="primary" size="lg">
+              Salvar alterações
+            </AwButton>
+            <AwButton variant="primary" loading>
+              Salvando
+            </AwButton>
+            <AwButton variant="primary" disabled>
+              Indisponível
+            </AwButton>
+          </Stage>
+
+          <Stage
             label="Família AI · ai · ai-spectrum · ai-outline"
             hint="Mesma escala de intenção, gradients diferentes. Ai monocromático para o gesto principal; spectrum para um momento mais carregado de marca; outline pra ação secundária ou link de descoberta."
           >
@@ -1105,12 +1126,18 @@ function MatrixRow({
       <div className="flex items-center gap-3 flex-wrap">
         {ALL_SIZES.map((s) => {
           if (iconOnly) {
+            // Nas variantes AI, o icon-only mostra o glyph "agent" (linha
+            // animada em gradient) em vez do more_vert — é o gesto do agente.
+            const isAi =
+              variant === "ai" ||
+              variant === "ai-spectrum" ||
+              variant === "ai-outline"
             return (
               <AwButton
                 key={s.value}
                 variant={variant}
                 size={s.value}
-                iconOnly={iconOnly}
+                iconOnly={isAi ? "agent" : iconOnly}
                 aria-label={`${variant} ${s.value}`}
                 loading={loading}
                 disabled={disabled}

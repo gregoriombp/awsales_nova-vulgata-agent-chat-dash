@@ -1936,6 +1936,77 @@
   to { transform: rotate(360deg); }
 }
 
+/* Loading da família AI: nada de círculo girando. O spinner some nas três. */
+.aw-btn--ai.aw-btn--loading .aw-btn__spinner,
+.aw-btn--ai-spectrum.aw-btn--loading .aw-btn__spinner,
+.aw-btn--ai-outline.aw-btn--loading .aw-btn__spinner {
+  display: none;
+}
+
+/* ai-outline (interior limpo, fundo canvas): o próprio LABEL "pensa" — um
+ * degradê iridescente (azul → lavanda → pêssego) varre o texto. Como não há
+ * coreografia no miolo, o shimmer no texto fica alto contraste e legível. */
+.aw-btn--ai-outline.aw-btn--loading .aw-btn__label {
+  opacity: 1;
+  background: linear-gradient(
+    90deg,
+    var(--aw-blue-300) 0%,
+    var(--aw-purple-300) 25%,
+    var(--aw-amber-200) 50%,
+    var(--aw-purple-300) 75%,
+    var(--aw-blue-300) 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: aw-iridescent-drift 1.6s var(--ease-in-out, ease-in-out) infinite alternate;
+}
+
+/* ai / ai-spectrum (miolo já animado): o degradê no texto brigaria com o
+ * fundo. Então o texto fica SÓLIDO e legível, e um sweep branco translúcido
+ * cruza o botão pra sinalizar "pensando". Reaproveitamos o ::after (shimmer
+ * ocioso) como a faixa do sweep durante o loading. */
+.aw-btn--ai.aw-btn--loading .aw-btn__label,
+.aw-btn--ai-spectrum.aw-btn--loading .aw-btn__label {
+  opacity: 1;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  color: var(--fg-primary);
+}
+.aw-btn--ai.aw-btn--loading::after,
+.aw-btn--ai-spectrum.aw-btn--loading::after {
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  translate: 0 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  background: linear-gradient(
+    100deg,
+    transparent 35%,
+    color-mix(in srgb, var(--aw-white) 60%, transparent) 50%,
+    transparent 65%
+  );
+  background-size: 220% 100%;
+  mask-image: none;
+  opacity: 1;
+  z-index: 0;
+  animation: aw-iridescent-drift 1.4s var(--ease-in-out, ease-in-out) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aw-btn--ai-outline.aw-btn--loading .aw-btn__label {
+    animation: none;
+  }
+  .aw-btn--ai.aw-btn--loading::after,
+  .aw-btn--ai-spectrum.aw-btn--loading::after {
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
 /* ============================================================
  * AwCard — card surface with optional AI gradient mesh.
  * ============================================================ */

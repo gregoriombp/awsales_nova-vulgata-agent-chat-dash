@@ -58,6 +58,11 @@ export const AwButton = React.forwardRef<HTMLButtonElement, AwButtonProps>(
         : size === "lg"
           ? 24
           : 22
+    // Família AI: o glyph "agent" sai com o gradient iridescente da marca (a
+    // versão colorida do styleguide), combinando com o botão — em vez do traço
+    // monocromático. Icon ignora `gradient` em glyphs que não o "agent".
+    const isAi =
+      variant === "ai" || variant === "ai-spectrum" || variant === "ai-outline"
     const className_ = cn(
       "aw-btn",
       `aw-btn--${variant}`,
@@ -80,12 +85,12 @@ export const AwButton = React.forwardRef<HTMLButtonElement, AwButtonProps>(
         child,
         {},
         iconOnly ? (
-          <Icon name={iconOnly} size={iconSize} weight={300} />
+          <Icon name={iconOnly} size={iconSize} weight={300} gradient={isAi || undefined} />
         ) : (
           <>
-            {iconLeft && <Icon name={iconLeft} size={iconSize} weight={300} />}
+            {iconLeft && <Icon name={iconLeft} size={iconSize} weight={300} gradient={isAi || undefined} />}
             <span className="aw-btn__label">{childLabel}</span>
-            {iconRight && <Icon name={iconRight} size={iconSize} weight={300} />}
+            {iconRight && <Icon name={iconRight} size={iconSize} weight={300} gradient={isAi || undefined} />}
             {loading && <span aria-hidden="true" className="aw-btn__spinner" />}
           </>
         ),
@@ -111,12 +116,12 @@ export const AwButton = React.forwardRef<HTMLButtonElement, AwButtonProps>(
         {...rest}
       >
         {iconOnly ? (
-          <Icon name={iconOnly} size={iconSize} weight={300} />
+          <Icon name={iconOnly} size={iconSize} weight={300} gradient={isAi || undefined} />
         ) : (
           <>
-            {iconLeft && <Icon name={iconLeft} size={iconSize} weight={300} />}
+            {iconLeft && <Icon name={iconLeft} size={iconSize} weight={300} gradient={isAi || undefined} />}
             <span className="aw-btn__label">{children}</span>
-            {iconRight && <Icon name={iconRight} size={iconSize} weight={300} />}
+            {iconRight && <Icon name={iconRight} size={iconSize} weight={300} gradient={isAi || undefined} />}
           </>
         )}
         {loading && <span aria-hidden="true" className="aw-btn__spinner" />}
