@@ -97,7 +97,7 @@ function Header({
   onBack: () => void;
   onCollapse: () => void;
 }) {
-  const { periodLabel, reportType, activeReport, isDraft } = useConsumo();
+  const { periodLabel, reportType, activeReport } = useConsumo();
   const def = reportType ? reportTypeDef(reportType) : null;
   // Identidade do relatório: nome salvo > título do tipo > genérico.
   const title = activeReport?.name ?? def?.title ?? "Explorar custos";
@@ -128,16 +128,9 @@ function Header({
             {title}
           </h4>
         </div>
-        {isDraft ? (
-          <span className="inline-flex w-fit items-center gap-1 rounded-full bg-(--bg-muted) px-2 py-0.5 body-xs font-medium text-(--fg-tertiary)">
-            <Icon name="edit_note" size={13} />
-            Rascunho · não salvo
-          </span>
-        ) : (
-          <p className="m-0 body-xs text-(--fg-tertiary)">
-            {def && activeReport ? `${def.title} · ${periodLabel}` : periodLabel}
-          </p>
-        )}
+        <p className="m-0 body-xs text-(--fg-tertiary)">
+          {def && activeReport ? `${def.title} · ${periodLabel}` : periodLabel}
+        </p>
       </div>
     </div>
   );
