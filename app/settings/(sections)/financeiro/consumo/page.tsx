@@ -116,7 +116,7 @@ function CreditsKpis() {
       <AwStatCard
         label="Total economizado"
         value={brl(CREDITS_KPIS.totalSaved)}
-        hint="Acumulado · cupons + créditos já abatidos"
+        hint="Desde o início da conta · cupons + créditos já abatidos"
       />
       <AwStatCard
         label="Desconto disponível"
@@ -177,7 +177,10 @@ function VouchersBlock({
   return (
     <section className="flex flex-col gap-4">
       <header className="flex flex-col gap-1">
-        <h6 className="m-0 text-(--fg-primary)">Créditos</h6>
+        <h6 className="m-0 flex items-center gap-2 text-(--fg-primary)">
+          Créditos
+          <CreditInfoTooltip kind="voucher" />
+        </h6>
         <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
           Abatem do seu uso variável até a validade.
         </p>
