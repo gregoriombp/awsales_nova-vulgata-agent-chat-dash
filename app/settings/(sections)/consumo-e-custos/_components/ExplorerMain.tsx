@@ -1,15 +1,19 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
+import { AwModal } from "@/components/ui/AwModal";
+import { AwPill } from "@/components/ui/AwPill";
 import { AwTrendDelta } from "@/components/ui/AwTrendDelta";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwLogo } from "@/components/ui/AwLogo";
 import { Icon } from "@/components/ui/Icon";
-import { brl } from "../../financeiro/_components/data";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { brl, INVOICE_HISTORY } from "../../financeiro/_components/data";
 import { useConsumo, type ComparedAgent } from "./ConsumoContext";
 import { type ProviderId } from "./explorer-model";
 import { PeriodPicker, ScopeFilterDropdown } from "./controls";
@@ -172,7 +176,7 @@ function Toolbar({
       ) : (
         <>
           <ScopeFilters />
-          <PeriodPicker />
+          <PeriodOrInvoice />
           <SaveReportButton />
           <ExportCsvMenu />
           <AwDropdownMenu
@@ -242,6 +246,114 @@ function ScopeFilters() {
         ]}
       />
     </div>
+  );
+}
+
+/* ----------------------------------------------------------------------------
+ * Controle de recorte da topbar: relatório de faturas troca o controle temporal
+ * por um seletor de fatura (pedido do Greg) — uma fatura fechada não é um período
+ * que se arrasta no calendário, é um ciclo escolhido. Os outros tipos seguem com
+ * o PeriodPicker normal.
+ * ------------------------------------------------------------------------- */
+function PeriodOrInvoice() {
+  const { reportType } = useConsumo();
+  return reportType === "faturas" ? <InvoiceSelector /> : <PeriodPicker />;
+}
+
+function InvoiceSelector() {
+  const { invoiceId, selectInvoice } = useConsumo();
+  const router = useRouter();
+  const [open, setOpen] = React.useState(false);
+  // Fatura a confirmar (modal de troca) — null = sem modal aberto.
+  const [pending, setPending] = React.useState<(typeof INVOICE_HISTORY)[number] | null>(null);
+
+  const current = INVOICE_HISTORY.find((i) => i.id === invoiceId) ?? INVOICE_HISTORY[0];
+  const label = (inv: (typeof INVOICE_HISTORY)[number]) => `${inv.refMonth} · ${inv.description}`;
+
+  const confirmSwap = () => {
+    if (!pending) return;
+    selectInvoice(pending.id);
+    // Mantém a URL coerente (?fatura=) pra sobreviver a refresh/nova aba.
+    router.replace(
+      `/settings/consumo-e-custos/explorar?tipo=faturas&fatura=${encodeURIComponent(pending.id)}`,
+    );
+    setPending(null);
+  };
+
+  return (
+    <>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            aria-label="Selecionar fatura"
+            className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border border-(--border-subtle) bg-(--bg-raised) px-3.5 body-sm font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover)"
+          >
+            <Icon name="receipt_long" size={16} className="text-(--fg-tertiary)" />
+            {current ? label(current) : "Selecionar fatura"}
+            <Icon name="expand_more" size={16} className="text-(--fg-tertiary)" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent
+          align="end"
+          sideOffset={6}
+          className="flex max-h-80 w-72 flex-col gap-0.5 overflow-y-auto border border-(--border-subtle) bg-(--bg-raised) p-1.5 shadow-lg"
+        >
+          {INVOICE_HISTORY.map((inv) => {
+            const active = inv.id === current?.id;
+            return (
+              <button
+                key={inv.id}
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  // Troca direta só pede confirmação quando muda de fatura.
+                  if (inv.id !== current?.id) setPending(inv);
+                }}
+                className={cn(
+                  "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors duration-aw-fast",
+                  active
+                    ? "bg-(--bg-muted) text-(--fg-primary)"
+                    : "text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)",
+                )}
+              >
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="truncate body-sm font-medium">{label(inv)}</span>
+                  <span className="truncate body-xs text-(--fg-tertiary)">{inv.id}</span>
+                </span>
+                <AwPill variant={inv.status === "Paga" ? "live" : "warning"}>{inv.status}</AwPill>
+                {active && <Icon name="check" size={15} className="shrink-0 text-(--fg-primary)" />}
+              </button>
+            );
+          })}
+        </PopoverContent>
+      </Popover>
+
+      <AwModal
+        open={!!pending}
+        onClose={() => setPending(null)}
+        size="md"
+        title="Trocar de fatura?"
+        footer={
+          <div className="flex w-full items-center justify-end gap-2">
+            <AwButton variant="ghost" onClick={() => setPending(null)}>
+              Cancelar
+            </AwButton>
+            <AwButton variant="primary" onClick={confirmSwap}>
+              Ver esta fatura
+            </AwButton>
+          </div>
+        }
+      >
+        <p className="m-0 body-sm text-(--fg-secondary)">
+          Você está vendo{" "}
+          <strong className="font-medium text-(--fg-primary)">{current ? label(current) : "—"}</strong>.
+          Trocar para{" "}
+          <strong className="font-medium text-(--fg-primary)">{pending ? label(pending) : "—"}</strong>{" "}
+          recarrega o painel com os números dessa fatura.
+        </p>
+      </AwModal>
+    </>
   );
 }
 

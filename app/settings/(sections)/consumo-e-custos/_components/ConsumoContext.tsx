@@ -238,6 +238,8 @@ type ConsumoContextValue = {
   reportKind: ReportKind;
   reportType: ReportType | null;
   invoiceId: string | null;
+  /** Troca a fatura recortada (relatório de faturas) sem recriar o relatório. */
+  selectInvoice: (id: string) => void;
 
   /* relatórios salvos (snapshot do explorador) */
   reports: SavedReport[];
@@ -1006,6 +1008,8 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     return chips;
   }, [payers, search, togglePayer]);
 
+  const selectInvoice = React.useCallback((id: string) => setInvoiceId(id), []);
+
   const value: ConsumoContextValue = {
     grouping,
     setGrouping,
@@ -1051,6 +1055,7 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     reportKind,
     reportType,
     invoiceId,
+    selectInvoice,
     order,
     setOrder,
     spans,
