@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { AwSheet } from "@/components/ui/AwSheet";
@@ -41,6 +42,7 @@ export function InvoiceDetailsSheet({
   open: boolean;
   onClose: () => void;
 }) {
+  const router = useRouter();
   if (!invoice) return null;
 
   const paid = invoice.status === "Paga";
@@ -65,6 +67,17 @@ export function InvoiceDetailsSheet({
         <div className="flex flex-nowrap items-center justify-end gap-2">
           <AwButton variant="ghost" iconLeft="content_copy">
             Copiar ID
+          </AwButton>
+          <AwButton
+            variant="secondary"
+            iconLeft="open_in_new"
+            onClick={() =>
+              router.push(
+                `/settings/consumo-e-custos/explorar?tipo=faturas&fatura=${encodeURIComponent(invoice.id)}`,
+              )
+            }
+          >
+            Ver detalhes
           </AwButton>
           {paid && (
             <AwButton variant="secondary" iconLeft="receipt_long">
