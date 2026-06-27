@@ -17,6 +17,7 @@ import { CreditDetailModal } from "./CreditDetailModal";
 export function InvoiceBreakdownCard({
   subscription,
   subscriptionLabel = "Assinatura",
+  phoneLine = 0,
   variable,
   discounts,
   total,
@@ -27,6 +28,8 @@ export function InvoiceBreakdownCard({
   subscription: number;
   /** Rótulo da linha de assinatura (ex.: "Plano Enterprise"). */
   subscriptionLabel?: string;
+  /** Custo fixo da linha telefônica provisionada. 0 = não tem (linha simples). */
+  phoneLine?: number;
   /** Consumo variável acumulado no ciclo. */
   variable: number;
   /** Créditos que compõem o desconto (a soma vira a linha "Descontos"). */
@@ -45,9 +48,17 @@ export function InvoiceBreakdownCard({
       </h6>
 
       <ul className="m-0 flex list-none flex-col gap-0 p-0">
-        <BreakdownRow label={subscriptionLabel}>
-          <Money value={subscription} suffix="/mês" />
-        </BreakdownRow>
+        {phoneLine > 0 ? (
+          <PlanRow
+            label={subscriptionLabel}
+            subscription={subscription}
+            phoneLine={phoneLine}
+          />
+        ) : (
+          <BreakdownRow label={subscriptionLabel}>
+            <Money value={subscription} suffix="/mês" />
+          </BreakdownRow>
+        )}
 
         <BreakdownRow label="Uso variável">
           <Money value={variable} />
@@ -93,6 +104,56 @@ function Money({ value, suffix }: { value: number; suffix?: string }) {
         <span className="font-normal text-(--fg-tertiary)">{suffix}</span>
       )}
     </span>
+  );
+}
+
+/* ---------- plano: linha expansível (mensalidade + linha telefônica) ----------
+ * Mesmo padrão da linha de descontos: o valor à direita mostra o fixo do plano
+ * (inalterado), e abrir revela a composição — mensalidade base + linha
+ * telefônica, que somam o fixo. A linha telefônica NÃO soma de novo no total;
+ * ela é parte do plano fixo. Só aparece quando há linha provisionada. */
+
+function PlanRow({
+  label,
+  subscription,
+  phoneLine,
+}: {
+  label: string;
+  subscription: number;
+  phoneLine: number;
+}) {
+  const base = Math.round((subscription - phoneLine) * 100) / 100;
+  return (
+    <li className="flex flex-col">
+      <AwCollapsible
+        size="md"
+        trigger={label}
+        meta={<Money value={subscription} suffix="/mês" />}
+      >
+        <ul className="m-0 flex list-none flex-col gap-0 p-0 pb-1 pl-5">
+          <li className="flex items-center justify-between gap-4 py-1.5">
+            <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
+              <Icon name="workspace_premium" size={13} className="shrink-0" />
+              Mensalidade base
+            </span>
+            <span className="body-xs tabular-nums text-(--fg-secondary)">
+              {brl(base)}
+              <span className="text-(--fg-tertiary)">/mês</span>
+            </span>
+          </li>
+          <li className="flex items-center justify-between gap-4 py-1.5">
+            <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
+              <Icon name="call" size={13} className="shrink-0" />
+              Linha telefônica
+            </span>
+            <span className="body-xs tabular-nums text-(--fg-secondary)">
+              {brl(phoneLine)}
+              <span className="text-(--fg-tertiary)">/mês</span>
+            </span>
+          </li>
+        </ul>
+      </AwCollapsible>
+    </li>
   );
 }
 

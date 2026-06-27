@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
+import { AwCollapsible } from "@/components/ui/AwCollapsible";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwReportPromo } from "@/components/ui/AwReportPromo";
 import { AwInvoiceForecastCard } from "@/components/ui/AwInvoiceForecastCard";
@@ -26,7 +27,10 @@ import {
   CURRENT_INVOICE,
   CURRENT_PLAN,
   FORECAST_DISCOUNTS,
+  formatQuantity,
   OVERVIEW_KPIS,
+  PLAN_PHONE_LINE,
+  SERVICE_BREAKDOWN,
   USED_META_TOTAL,
   USED_WC_TOTAL,
   VARIABLE_SPENDING_LIMIT,
@@ -63,6 +67,9 @@ export default function VisaoGeralPage() {
 
 function ForecastBlock() {
   const discount = OVERVIEW_KPIS.monthSavings;
+  // Total = plano fixo (que já embute a linha telefônica) + uso variável −
+  // desconto. A linha telefônica aparece quebrada DENTRO do plano fixo, então
+  // não soma duas vezes no total.
   const total = CURRENT_PLAN.monthly + OVERVIEW_KPIS.accumulated - discount;
   const card = CURRENT_INVOICE.paymentMethod;
   const [invoiceOpen, setInvoiceOpen] = React.useState(false);
@@ -124,6 +131,7 @@ function ForecastBlock() {
           className="rounded-xl bg-(--bg-surface) p-7"
           subscription={CURRENT_PLAN.monthly}
           subscriptionLabel={CURRENT_PLAN.name}
+          phoneLine={PLAN_PHONE_LINE}
           variable={OVERVIEW_KPIS.accumulated}
           discounts={FORECAST_DISCOUNTS}
           total={total}
@@ -196,11 +204,14 @@ function InvoiceDetailModal({
         <InvoiceBreakdownCard
           subscription={CURRENT_PLAN.monthly}
           subscriptionLabel={CURRENT_PLAN.name}
+          phoneLine={PLAN_PHONE_LINE}
           variable={OVERVIEW_KPIS.accumulated}
           discounts={FORECAST_DISCOUNTS}
           total={total}
           totalLabel="Total em aberto"
         />
+
+        <VariableUsageDetail />
 
         <p className="m-0 body-xs text-(--fg-tertiary)">
           Próxima cobrança em {CURRENT_PLAN.nextChargeAt}. O uso variável
@@ -237,6 +248,56 @@ function InvoiceDetailModal({
         </p>
       </AwModal>
     </>
+  );
+}
+
+/* ---------- detalhamento do uso variável (dentro do modal) ----------
+ * O que compõe o "Uso variável" da fatura, item a item — disparos, mensagens,
+ * leads, tokens e operacional. A soma das linhas fecha com o número da linha
+ * "Uso variável" do detalhamento (mesma fonte de dados). */
+
+function VariableUsageDetail() {
+  const total = SERVICE_BREAKDOWN.reduce((s, r) => s + r.total, 0);
+  return (
+    <div className="rounded-xl bg-(--bg-surface) px-4 py-1">
+      <AwCollapsible
+        size="md"
+        trigger="Detalhamento do uso variável"
+        meta={
+          <span className="body-sm font-medium tabular-nums text-(--fg-primary)">
+            {brl(total)}
+          </span>
+        }
+      >
+        <ul className="m-0 flex list-none flex-col gap-0 p-0 pb-2">
+          {SERVICE_BREAKDOWN.map((row) => (
+            <li
+              key={row.id}
+              className="flex items-center justify-between gap-3 border-t border-(--border-subtle) py-2 first:border-t-0"
+            >
+              <span className="inline-flex min-w-0 items-center gap-2 text-(--fg-secondary)">
+                <Icon
+                  name={row.icon}
+                  size={16}
+                  className="shrink-0 text-(--fg-tertiary)"
+                />
+                <span className="min-w-0 truncate body-sm">{row.label}</span>
+              </span>
+              <span className="flex shrink-0 items-baseline gap-2 text-right">
+                <span className="body-xs tabular-nums text-(--fg-tertiary)">
+                  {row.quantityFormat === "lump"
+                    ? row.unitPriceLabel
+                    : `${formatQuantity(row.quantity, row.quantityFormat)} · ${row.unitPriceLabel}`}
+                </span>
+                <span className="body-sm font-medium tabular-nums text-(--fg-primary)">
+                  {brl(row.total)}
+                </span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </AwCollapsible>
+    </div>
   );
 }
 
@@ -426,6 +487,9 @@ function PlanoCard() {
         open={contactOpen}
         onClose={() => setContactOpen(false)}
         managerName={ONBOARDING_ORG.accountManager.name}
+        managerPhoto={ONBOARDING_ORG.accountManager.photo}
+        managerRole="Gerente de contas"
+        managerInitials={ONBOARDING_ORG.accountManager.initials}
       />
     </>
   );

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { FaSlack, FaWhatsapp } from "react-icons/fa6";
 import { AwModal } from "@/components/ui/AwModal";
+import { AwAvatar } from "@/components/ui/AwAvatar";
 import { Icon } from "@/components/ui/Icon";
 import { BRAND_COLORS } from "@/lib/brandColors";
 
@@ -45,6 +46,12 @@ export type AwContactChannelModalProps = {
   onClose: () => void;
   /** Nome do gerente exibido no corpo; cai num genérico quando ausente. */
   managerName?: string;
+  /** Foto do gerente — dá rosto ao card, reforçando que é uma pessoa real. */
+  managerPhoto?: string;
+  /** Cargo do gerente (ex.: "Gerente de contas"), exibido abaixo do nome. */
+  managerRole?: string;
+  /** Iniciais de fallback quando não há foto. */
+  managerInitials?: string;
   /** Disparado ao escolher um canal; recebe a key (whatsapp|slack). Por
    *  padrão apenas fecha o modal. */
   onSelect?: (key: string) => void;
@@ -54,11 +61,32 @@ export function AwContactChannelModal({
   open,
   onClose,
   managerName,
+  managerPhoto,
+  managerRole,
+  managerInitials,
   onSelect,
 }: AwContactChannelModalProps) {
   return (
     <AwModal open={open} onClose={onClose} title="Conversar com seu gerente">
       <div className="flex flex-col gap-4">
+        {/* Rosto do gerente: representação visual de que há uma pessoa real
+            dedicada à conta, não só um canal abstrato. */}
+        <div className="flex items-center gap-3 rounded-xl bg-(--bg-surface) px-4 py-3">
+          <AwAvatar
+            size="lg"
+            src={managerPhoto}
+            initials={managerInitials}
+            alt={managerName ?? "Gerente de contas"}
+          />
+          <span className="flex min-w-0 flex-col">
+            <span className="text-[15px] font-semibold text-(--fg-primary)">
+              {managerName ?? "Gerente de contas"}
+            </span>
+            <span className="body-xs text-(--fg-secondary)">
+              {managerRole ?? "Gerente de contas"} · dedicado à sua conta
+            </span>
+          </span>
+        </div>
         <p className="m-0 body-xs text-(--fg-secondary)">
           Escolha por onde falar com{" "}
           {managerName ?? "seu gerente de contas"}.
