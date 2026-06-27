@@ -112,7 +112,7 @@ export default function ConsumoPage() {
 
 function CreditsKpis() {
   return (
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-2 gap-4">
       <AwStatCard
         label="Total economizado"
         value={brl(CREDITS_KPIS.totalSaved)}
@@ -123,11 +123,6 @@ function CreditsKpis() {
         value={brl(CREDITS_KPIS.availableDiscount)}
         hint="Saldo de créditos ativos a abater"
       />
-      <AwStatCard
-        label="Créditos ativos"
-        value={CREDITS_KPIS.activeVouchers}
-        hint="Créditos em uso agora"
-      />
     </div>
   );
 }
@@ -136,7 +131,7 @@ function CreditInfoTooltip({ kind }: { kind: "voucher" | "coupon" }) {
   const text =
     kind === "voucher"
       ? "Crédito concedido pela Aswork (POC, cortesia, bônus de contrato). Abate do seu uso variável até a validade — não muda o limite."
-      : "Cupom é um código promocional aplicado pela sua equipe de conta. Abate uma única vez do valor do plano fixo.";
+      : "Cupom é um código promocional aplicado pela sua equipe de conta. Abate sobre a cobrança fixa do plano.";
   return (
     <TooltipProvider delayDuration={120}>
       <Tooltip>
