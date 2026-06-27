@@ -653,11 +653,11 @@ function BoletoStep({
     <>
       <p className="m-0 body-xs text-(--fg-secondary)">
         A cada ciclo, geramos um boleto registrado e enviamos para os e-mails de
-        faturamento. O pagamento compensa em até 2 dias úteis.
+        faturamento. O pagamento compensa em até 3 dias úteis.
       </p>
 
       <section className="flex flex-col gap-3">
-        <AwField label="Titular (sacado)" htmlFor="boleto-holder" error={errors.holder}>
+        <AwField label="Titular" htmlFor="boleto-holder" error={errors.holder}>
           <AwInput
             id="boleto-holder"
             placeholder="Razão social ou nome completo"
