@@ -424,6 +424,9 @@ export type OverviewSpendCategory = {
   icon?: string;
   /** Avatar do agente (modo agente). */
   avatar?: string;
+  /** Fatia agregada ("Outros"): renderiza com o gradient iridescente da marca
+   *  em vez de uma cor sólida — no gráfico, na legenda e na tabela. */
+  gradient?: boolean;
 };
 
 export const OVERVIEW_SPEND_CATEGORIES: Record<
@@ -443,7 +446,7 @@ export const OVERVIEW_SPEND_CATEGORIES: Record<
     { id: "nova", label: "Nova", color: SPEND_RAMP[2], avatar: "/assets/agent_imgs/orbs/orb_model-a_08-1.png" },
     { id: "stella", label: "Stella", color: SPEND_RAMP[3], avatar: "/assets/agent_imgs/orbs/orb_model-a_11-1.png" },
     { id: "iris", label: "Íris", color: SPEND_RAMP[4], avatar: "/assets/agent_imgs/orbs/orb_model-a_02-1.png" },
-    { id: "outros", label: "Outros agentes", color: SPEND_REST_COLOR, icon: "groups" },
+    { id: "outros", label: "Outros", color: SPEND_REST_COLOR, icon: "groups", gradient: true },
   ],
 };
 
@@ -503,12 +506,73 @@ export function overviewSpendTotals(
   }));
 }
 
-/** Marcador de evento no gráfico — o dia em que o limite do ciclo foi
- *  restaurado após a cobrança parcial. `dayIndex` é 0-based. */
+/** Marcador de evento no gráfico — o dia em que o limite do ciclo foi atingido,
+ *  a cobrança parcial caiu e o limite foi restaurado. `dayIndex` é 0-based. O
+ *  card que abre no hover conta essa história (pagamento + limite liberado). */
 export const OVERVIEW_SPEND_EVENT = {
   dayIndex: 10, // 11/05
   label: "Limite restaurado",
+  title: "Pagamento realizado",
+  description: `Você atingiu o limite de ${brl(VARIABLE_SPENDING_LIMIT)} de uso. Uma cobrança foi debitada no seu Cartão de Crédito e seu limite foi liberado.`,
 } as const;
+
+/* ---------------------------------------------------------------------------
+ * Tabela de detalhamento da Visão geral — por SERVIÇO.
+ * ---------------------------------------------------------------------------
+ * Mesma estrutura do explorador (Item · Quantidade · Unitário · Total BRL ·
+ * Total USD · Participação), porém SEM a coluna de provedor (Meta×Aswork) — na
+ * overview a leitura é só "quanto cada serviço custou". Grupos com sub-níveis
+ * canônicos (taxonomia W2C do PG): Disparos → marketing/utilidade/serviço;
+ * Tokens → Knowledge/Brain/Skills. A soma fecha com o uso variável do ciclo
+ * (OVERVIEW_KPIS.accumulated). A cor é a mesma da fatia no gráfico. */
+export type OverviewServiceLeaf = {
+  id: string;
+  label: string;
+  icon: string;
+  quantity: number;
+  quantityFormat: "decimal" | "abbrev" | "lump";
+  unitPriceLabel: string;
+  total: number;
+};
+export type OverviewServiceGroup = OverviewServiceLeaf & {
+  /** Cor da fatia no gráfico — liga a linha da tabela à pilha. */
+  color: string;
+  /** Sub-níveis canônicos, exibidos quando o serviço se expande. */
+  children?: OverviewServiceLeaf[];
+};
+
+export const OVERVIEW_SERVICE_GROUPS: OverviewServiceGroup[] = [
+  {
+    id: "disparos", label: "Disparos", icon: "send", color: SPEND_RAMP[3],
+    quantity: 3116, quantityFormat: "decimal", unitPriceLabel: "Misto", total: 388.57,
+    children: [
+      { id: "disp-mkt", label: "Disparo · marketing", icon: "campaign", quantity: 1245, quantityFormat: "decimal", unitPriceLabel: "R$ 0,12 / disparo", total: 149.4 },
+      { id: "disp-util", label: "Disparo · utilidade", icon: "campaign", quantity: 1560, quantityFormat: "decimal", unitPriceLabel: "R$ 0,08 / disparo", total: 124.8 },
+      { id: "disp-serv", label: "Disparo · serviço", icon: "support_agent", quantity: 311, quantityFormat: "decimal", unitPriceLabel: "R$ 0,3676 / conversa", total: 114.37 },
+    ],
+  },
+  {
+    id: "mensagens", label: "Mensagens transacionadas", icon: "forum", color: SPEND_RAMP[2],
+    quantity: 6205, quantityFormat: "decimal", unitPriceLabel: "R$ 0,03 / mensagem", total: 186.16,
+  },
+  {
+    id: "tokens", label: "Tokens", icon: "toll", color: SPEND_RAMP[1],
+    quantity: 35_600_000, quantityFormat: "abbrev", unitPriceLabel: "Misto", total: 181.9,
+    children: [
+      { id: "tok-s", label: "Tokens · Skills", icon: "extension", quantity: 10_100_000, quantityFormat: "abbrev", unitPriceLabel: "R$ 0,009 / 1K", total: 90.7 },
+      { id: "tok-b", label: "Tokens · Brain", icon: "neurology", quantity: 13_400_000, quantityFormat: "abbrev", unitPriceLabel: "R$ 0,005 / 1K", total: 67.0 },
+      { id: "tok-k", label: "Tokens · Knowledge", icon: "memory", quantity: 12_100_000, quantityFormat: "abbrev", unitPriceLabel: "R$ 0,002 / 1K", total: 24.2 },
+    ],
+  },
+  {
+    id: "leads", label: "Leads ativos", icon: "person_add", color: SPEND_RAMP[0],
+    quantity: 48, quantityFormat: "decimal", unitPriceLabel: "R$ 2,00 / lead", total: 96.0,
+  },
+  {
+    id: "telefone", label: "Telefone", icon: "call", color: SPEND_RAMP[4],
+    quantity: 1, quantityFormat: "decimal", unitPriceLabel: "R$ 39,00 / mês", total: 39.0,
+  },
+];
 
 export type ServiceCategory =
   | "Meta / WhatsApp"
