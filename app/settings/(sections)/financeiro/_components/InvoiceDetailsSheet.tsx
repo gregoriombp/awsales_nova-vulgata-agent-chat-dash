@@ -7,7 +7,12 @@ import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { AwSheet } from "@/components/ui/AwSheet";
 import { AwCardBrand, type AwCardBrandId } from "@/components/ui/AwCardBrand";
 import { Icon } from "@/components/ui/Icon";
-import { brl, type InvoiceHistoryRow } from "./data";
+import {
+  brl,
+  INVOICE_DISPUTE_STAGES,
+  invoiceStatusLabel,
+  type InvoiceHistoryRow,
+} from "./data";
 
 /** Bandeira do cartão a partir do texto "Visa •••• 3012". */
 export function paymentBrandId(method: string): AwCardBrandId {
@@ -56,7 +61,7 @@ export function InvoiceDetailsSheet({
       meta={
         <div className="flex flex-wrap items-center gap-2">
           <AwPill variant={statusVariant(invoice.status)}>
-            {invoice.status}
+            {invoiceStatusLabel(invoice.status)}
           </AwPill>
           <span className="body-xs text-(--fg-secondary)">
             {invoice.refMonth} · {invoice.description}
@@ -114,6 +119,10 @@ export function InvoiceDetailsSheet({
           </p>
         </section>
 
+        {invoice.status === "Disputada" && invoice.dispute && (
+          <DisputeTimeline dispute={invoice.dispute} />
+        )}
+
         <section>
           <p className="m-0 mb-2 aw-eyebrow text-(--fg-tertiary)">
             Composição
@@ -165,6 +174,98 @@ export function InvoiceDetailsSheet({
         </section>
       </div>
     </AwSheet>
+  );
+}
+
+/* ---------- linha do tempo da disputa ---------- */
+
+function DisputeTimeline({
+  dispute,
+}: {
+  dispute: NonNullable<InvoiceHistoryRow["dispute"]>;
+}) {
+  const currentIndex = INVOICE_DISPUTE_STAGES.findIndex(
+    (s) => s.id === dispute.stage,
+  );
+
+  return (
+    <section className="rounded-xl border border-(--border-subtle) bg-(--bg-muted) p-4">
+      <div className="mb-3 flex items-start gap-2">
+        <Icon
+          name="gavel"
+          size={18}
+          className="mt-0.5 shrink-0 text-(--fg-tertiary)"
+        />
+        <div className="min-w-0">
+          <p className="m-0 body-sm font-medium text-(--fg-primary)">
+            Em análise
+          </p>
+          <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+            Você contestou esta fatura em {dispute.openedAt}. Motivo:{" "}
+            {dispute.reason}
+          </p>
+        </div>
+      </div>
+
+      <ol className="m-0 flex list-none flex-col gap-0 p-0">
+        {INVOICE_DISPUTE_STAGES.map((stage, i) => {
+          const done = i < currentIndex;
+          const current = i === currentIndex;
+          const last = i === INVOICE_DISPUTE_STAGES.length - 1;
+          return (
+            <li key={stage.id} className="flex gap-3">
+              <div className="flex flex-col items-center">
+                <span
+                  aria-hidden="true"
+                  className={
+                    "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border " +
+                    (done
+                      ? "border-(--accent-success) bg-(--accent-success) text-(--bg-raised)"
+                      : current
+                        ? "border-(--fg-primary) bg-(--fg-primary) text-(--bg-raised)"
+                        : "border-(--border-default) bg-(--bg-raised) text-(--fg-tertiary)")
+                  }
+                >
+                  {done ? (
+                    <Icon name="check" size={12} />
+                  ) : current ? (
+                    <span className="h-1.5 w-1.5 rounded-full bg-(--bg-raised)" />
+                  ) : (
+                    <span className="h-1.5 w-1.5 rounded-full bg-(--border-default)" />
+                  )}
+                </span>
+                {!last && (
+                  <span
+                    aria-hidden="true"
+                    className={
+                      "w-px flex-1 " +
+                      (done ? "bg-(--accent-success)" : "bg-(--border-subtle)")
+                    }
+                  />
+                )}
+              </div>
+              <div className={"min-w-0 pb-3 " + (last ? "pb-0" : "")}>
+                <p
+                  className={
+                    "m-0 body-sm " +
+                    (current || done
+                      ? "font-medium text-(--fg-primary)"
+                      : "text-(--fg-tertiary)")
+                  }
+                >
+                  {stage.label}
+                </p>
+                {current && (
+                  <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+                    {stage.description}
+                  </p>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
   );
 }
 

@@ -22,6 +22,8 @@ import {
 import {
   brl,
   INVOICE_HISTORY,
+  invoiceStatusLabel,
+  PAYMENT_METHODS,
   type InvoiceHistoryRow,
 } from "../_components/data";
 
@@ -403,7 +405,9 @@ function InvoiceRow({
             <span className="body-sm font-medium text-(--fg-primary)">
               {row.description}
             </span>
-            <AwPill variant={statusVariant(row.status)}>{row.status}</AwPill>
+            <AwPill variant={statusVariant(row.status)}>
+              {invoiceStatusLabel(row.status)}
+            </AwPill>
           </div>
           <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 body-xs tabular-nums text-(--fg-tertiary)">
             <span>{row.id}</span>
@@ -460,7 +464,7 @@ function StatusFilter({
   const triggerLabel = allSelected
     ? "Todos os status"
     : selected.length === 1
-      ? selected[0]
+      ? invoiceStatusLabel(selected[0])
       : selected.length === 0
         ? "Nenhum status"
         : `Status · ${selected.length}`;
@@ -477,7 +481,7 @@ function StatusFilter({
     { id: "sep", separator: true },
     ...ALL_STATUSES.map((s) => ({
       id: s,
-      label: s,
+      label: invoiceStatusLabel(s),
       checked: selected.includes(s),
       closeOnSelect: false,
       onSelect: () => toggle(s),
@@ -520,7 +524,7 @@ function PeriodFilter({
 
 /* ---------- regularizar pagamento ---------- */
 
-type RegularizePhase = "select" | "method" | "success";
+type RegularizePhase = "select" | "method" | "checkout" | "success";
 
 type RegularizeMethod = {
   id: "pix" | "card" | "boleto";
@@ -533,7 +537,7 @@ const REGULARIZE_METHODS: RegularizeMethod[] = [
   {
     id: "pix",
     label: "Pix",
-    description: "Confirmação na hora.",
+    description: "Escaneie o QR Code e a confirmação chega na hora.",
     brand: "pix",
   },
   {
@@ -551,9 +555,11 @@ const REGULARIZE_METHODS: RegularizeMethod[] = [
 ];
 
 /**
- * Regulariza uma fatura pendente em três passos com transições suaves:
- * escolher a fatura → escolher pix/cartão/boleto → confirmação de sucesso.
- * Cada passo traz um "Voltar"; o conteúdo faz fade/slide ao trocar de fase.
+ * Regulariza faturas pendentes em quatro passos com transições suaves:
+ * escolher as faturas (pode ser mais de uma) → escolher pix/cartão/boleto →
+ * o processo real daquela forma de pagamento (QR do Pix, cobrança no cartão,
+ * boleto com linha digitável) → confirmação. Cada passo traz um "Voltar"; o
+ * conteúdo faz fade/slide ao trocar de fase.
  */
 function RegularizePaymentModal({
   open,
@@ -565,14 +571,14 @@ function RegularizePaymentModal({
   onClose: () => void;
 }) {
   const [phase, setPhase] = React.useState<RegularizePhase>("select");
-  const [invoiceId, setInvoiceId] = React.useState<string | null>(null);
+  const [invoiceIds, setInvoiceIds] = React.useState<string[]>([]);
   const [method, setMethod] = React.useState<RegularizeMethod["id"] | null>(
     null,
   );
 
   const reset = () => {
     setPhase("select");
-    setInvoiceId(null);
+    setInvoiceIds([]);
     setMethod(null);
   };
 
@@ -582,7 +588,13 @@ function RegularizePaymentModal({
     window.setTimeout(reset, 200);
   };
 
-  const selectedInvoice = invoices.find((r) => r.id === invoiceId) ?? null;
+  const toggleInvoice = (id: string) =>
+    setInvoiceIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+
+  const selectedInvoices = invoices.filter((r) => invoiceIds.includes(r.id));
+  const totalDue = selectedInvoices.reduce((s, r) => s + r.net, 0);
   const selectedMethod =
     REGULARIZE_METHODS.find((m) => m.id === method) ?? null;
 
@@ -591,7 +603,16 @@ function RegularizePaymentModal({
       ? undefined
       : phase === "select"
         ? "Regularizar pagamento"
-        : "Como você quer pagar?";
+        : phase === "method"
+          ? "Como você quer pagar?"
+          : selectedMethod?.id === "pix"
+            ? "Pague com Pix"
+            : selectedMethod?.id === "boleto"
+              ? "Boleto gerado"
+              : "Confirmar cobrança";
+
+  const checkoutCta =
+    selectedMethod?.id === "boleto" ? "Concluir" : "Confirmar pagamento";
 
   const footer =
     phase === "select" ? (
@@ -603,10 +624,12 @@ function RegularizePaymentModal({
           size="sm"
           variant="primary"
           iconRight="arrow_forward"
-          disabled={!invoiceId}
+          disabled={invoiceIds.length === 0}
           onClick={() => setPhase("method")}
         >
-          Continuar
+          {invoiceIds.length > 1
+            ? `Pagar ${invoiceIds.length} faturas`
+            : "Continuar"}
         </AwButton>
       </>
     ) : phase === "method" ? (
@@ -622,11 +645,30 @@ function RegularizePaymentModal({
         <AwButton
           size="sm"
           variant="primary"
-          iconLeft="check"
+          iconRight="arrow_forward"
           disabled={!method}
+          onClick={() => setPhase("checkout")}
+        >
+          Continuar
+        </AwButton>
+      </>
+    ) : phase === "checkout" ? (
+      <>
+        <AwButton
+          size="sm"
+          variant="ghost"
+          iconLeft="arrow_back"
+          onClick={() => setPhase("method")}
+        >
+          Voltar
+        </AwButton>
+        <AwButton
+          size="sm"
+          variant="primary"
+          iconLeft="check"
           onClick={() => setPhase("success")}
         >
-          Confirmar pagamento
+          {checkoutCta}
         </AwButton>
       </>
     ) : (
@@ -645,22 +687,32 @@ function RegularizePaymentModal({
         {phase === "select" && (
           <SelectInvoiceStep
             invoices={invoices}
-            selectedId={invoiceId}
-            onSelect={setInvoiceId}
+            selectedIds={invoiceIds}
+            onToggle={toggleInvoice}
           />
         )}
 
-        {phase === "method" && selectedInvoice && (
+        {phase === "method" && (
           <SelectMethodStep
-            invoice={selectedInvoice}
+            invoices={selectedInvoices}
+            total={totalDue}
             selected={method}
             onSelect={setMethod}
           />
         )}
 
-        {phase === "success" && selectedInvoice && selectedMethod && (
+        {phase === "checkout" && selectedMethod && (
+          <CheckoutStep
+            invoices={selectedInvoices}
+            total={totalDue}
+            method={selectedMethod}
+          />
+        )}
+
+        {phase === "success" && selectedMethod && (
           <PaymentSuccess
-            invoice={selectedInvoice}
+            invoices={selectedInvoices}
+            total={totalDue}
             method={selectedMethod}
           />
         )}
@@ -671,12 +723,12 @@ function RegularizePaymentModal({
 
 function SelectInvoiceStep({
   invoices,
-  selectedId,
-  onSelect,
+  selectedIds,
+  onToggle,
 }: {
   invoices: InvoiceHistoryRow[];
-  selectedId: string | null;
-  onSelect: (id: string) => void;
+  selectedIds: string[];
+  onToggle: (id: string) => void;
 }) {
   if (invoices.length === 0) {
     return (
@@ -697,22 +749,18 @@ function SelectInvoiceStep({
   return (
     <>
       <p className="m-0 body-xs text-(--fg-secondary)">
-        Escolha qual cobrança você quer quitar agora.
+        Marque quais cobranças você quer quitar — pode pagar várias de uma vez.
       </p>
-      <div
-        role="radiogroup"
-        aria-label="Fatura pendente"
-        className="flex flex-col gap-2"
-      >
+      <div aria-label="Faturas pendentes" className="flex flex-col gap-2">
         {invoices.map((inv) => {
-          const selected = inv.id === selectedId;
+          const selected = selectedIds.includes(inv.id);
           return (
             <button
               key={inv.id}
               type="button"
-              role="radio"
+              role="checkbox"
               aria-checked={selected}
-              onClick={() => onSelect(inv.id)}
+              onClick={() => onToggle(inv.id)}
               className={
                 "flex items-center gap-3 rounded-xl border p-3 text-left transition-colors duration-aw-fast " +
                 (selected
@@ -720,13 +768,24 @@ function SelectInvoiceStep({
                   : "border-(--border-subtle) hover:border-(--border-default) hover:bg-(--bg-hover)")
               }
             >
+              <span
+                aria-hidden="true"
+                className={
+                  "flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors duration-aw-fast " +
+                  (selected
+                    ? "border-(--fg-primary) bg-(--fg-primary) text-(--bg-raised)"
+                    : "border-(--border-default)")
+                }
+              >
+                {selected && <Icon name="check" size={14} />}
+              </span>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="body-sm font-medium text-(--fg-primary)">
                     {inv.description}
                   </span>
                   <AwPill variant={statusVariant(inv.status)}>
-                    {inv.status}
+                    {invoiceStatusLabel(inv.status)}
                   </AwPill>
                 </div>
                 <p className="m-0 mt-0.5 body-xs tabular-nums text-(--fg-tertiary)">
@@ -736,19 +795,6 @@ function SelectInvoiceStep({
               <span className="shrink-0 body-sm font-medium tabular-nums text-(--fg-primary)">
                 {brl(inv.net)}
               </span>
-              <span
-                aria-hidden="true"
-                className={
-                  "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors duration-aw-fast " +
-                  (selected
-                    ? "border-(--fg-primary) bg-(--fg-primary)"
-                    : "border-(--border-default)")
-                }
-              >
-                {selected && (
-                  <span className="h-1.5 w-1.5 rounded-full bg-(--bg-raised)" />
-                )}
-              </span>
             </button>
           );
         })}
@@ -757,25 +803,42 @@ function SelectInvoiceStep({
   );
 }
 
+/** Resumo das faturas escolhidas — reaproveitado nos passos seguintes. */
+function SelectionSummary({
+  invoices,
+  total,
+}: {
+  invoices: InvoiceHistoryRow[];
+  total: number;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-3 py-2">
+      <span className="body-xs text-(--fg-secondary)">
+        {invoices.length === 1
+          ? `${invoices[0].description} · ${invoices[0].id}`
+          : `${invoices.length} faturas selecionadas`}
+      </span>
+      <span className="body-sm font-medium tabular-nums text-(--fg-primary)">
+        {brl(total)}
+      </span>
+    </div>
+  );
+}
+
 function SelectMethodStep({
-  invoice,
+  invoices,
+  total,
   selected,
   onSelect,
 }: {
-  invoice: InvoiceHistoryRow;
+  invoices: InvoiceHistoryRow[];
+  total: number;
   selected: RegularizeMethod["id"] | null;
   onSelect: (id: RegularizeMethod["id"]) => void;
 }) {
   return (
     <>
-      <div className="flex items-center justify-between gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-3 py-2">
-        <span className="body-xs text-(--fg-secondary)">
-          {invoice.description} · {invoice.id}
-        </span>
-        <span className="body-sm font-medium tabular-nums text-(--fg-primary)">
-          {brl(invoice.net)}
-        </span>
-      </div>
+      <SelectionSummary invoices={invoices} total={total} />
 
       <div
         role="radiogroup"
@@ -828,30 +891,270 @@ function SelectMethodStep({
   );
 }
 
-function PaymentSuccess({
-  invoice,
+/* ---------- checkout: o processo real de cada forma de pagamento ---------- */
+
+function CheckoutStep({
+  invoices,
+  total,
   method,
 }: {
-  invoice: InvoiceHistoryRow;
+  invoices: InvoiceHistoryRow[];
+  total: number;
   method: RegularizeMethod;
 }) {
   return (
+    <>
+      <SelectionSummary invoices={invoices} total={total} />
+      {method.id === "pix" && <PixCheckout total={total} />}
+      {method.id === "card" && <CardCheckout total={total} />}
+      {method.id === "boleto" && <BoletoCheckout total={total} />}
+    </>
+  );
+}
+
+function PixCheckout({ total }: { total: number }) {
+  const payload = `pix-aswork-${total.toFixed(2)}`;
+  const copyPaste =
+    "00020126580014br.gov.bcb.pix0136aswork-" + total.toFixed(2).replace(".", "");
+
+  return (
+    <div className="flex flex-col items-center gap-3 text-center">
+      <div className="rounded-2xl border border-(--border-subtle) bg-(--bg-raised) p-4">
+        <QrMatrix payload={payload} />
+      </div>
+      <p className="m-0 body-sm font-medium text-(--fg-primary)">
+        Escaneie o QR Code no app do seu banco
+      </p>
+      <p className="m-0 max-w-[320px] body-xs text-(--fg-secondary)">
+        Assim que o Pix de{" "}
+        <strong className="font-medium text-(--fg-primary)">{brl(total)}</strong>{" "}
+        cair, a confirmação aparece aqui automaticamente.
+      </p>
+      <CopyField label="Pix copia e cola" value={copyPaste} />
+      <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
+        <Icon name="schedule" size={14} />
+        Aguardando o pagamento…
+      </span>
+    </div>
+  );
+}
+
+function CardCheckout({ total }: { total: number }) {
+  const defaultCard = PAYMENT_METHODS.find(
+    (m) => m.kind === "card" && m.isDefault,
+  );
+  const cardLabel =
+    defaultCard && defaultCard.kind === "card"
+      ? `${defaultCard.brand} •••• ${defaultCard.last4}`
+      : "cartão padrão";
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-3 rounded-xl border border-(--border-subtle) p-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-primary)">
+          <Icon name="credit_card" size={20} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="m-0 body-sm font-medium text-(--fg-primary)">
+            {cardLabel}
+          </p>
+          <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
+            Cobrança imediata neste cartão.
+          </p>
+        </div>
+        <span className="shrink-0 body-sm font-medium tabular-nums text-(--fg-primary)">
+          {brl(total)}
+        </span>
+      </div>
+      <p className="m-0 body-xs text-(--fg-secondary)">
+        Confirme para lançar a cobrança de{" "}
+        <strong className="font-medium text-(--fg-primary)">{brl(total)}</strong>{" "}
+        agora. Você recebe o comprovante por e-mail.
+      </p>
+    </div>
+  );
+}
+
+function BoletoCheckout({ total }: { total: number }) {
+  const line =
+    "34191.79001 01043.510047 91020.150008 1 99870000" +
+    Math.round(total * 100).toString().padStart(6, "0");
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="rounded-2xl border border-(--border-subtle) bg-(--bg-raised) p-4">
+        <BarcodeStrip payload={line} />
+      </div>
+      <CopyField label="Linha digitável" value={line} />
+      <p className="m-0 body-xs text-(--fg-secondary)">
+        O boleto de{" "}
+        <strong className="font-medium text-(--fg-primary)">{brl(total)}</strong>{" "}
+        também foi enviado para os e-mails de faturamento. Compensa em até 2
+        dias úteis após o pagamento.
+      </p>
+    </div>
+  );
+}
+
+/** Campo só-leitura com botão de copiar — usado no Pix e no boleto. */
+function CopyField({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = React.useState(false);
+  const copy = () => {
+    navigator.clipboard?.writeText(value).then(
+      () => {
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 1600);
+      },
+      () => {},
+    );
+  };
+  return (
+    <div className="flex w-full items-center gap-2 rounded-lg border border-(--border-subtle) bg-(--bg-muted) px-3 py-2">
+      <div className="min-w-0 flex-1 text-left">
+        <p className="m-0 body-xs text-(--fg-tertiary)">{label}</p>
+        <p className="m-0 truncate body-xs font-medium tabular-nums text-(--fg-primary)">
+          {value}
+        </p>
+      </div>
+      <AwButton
+        size="sm"
+        variant="ghost"
+        iconLeft={copied ? "check" : "content_copy"}
+        onClick={copy}
+      >
+        {copied ? "Copiado" : "Copiar"}
+      </AwButton>
+    </div>
+  );
+}
+
+/** QR ilustrativo — matriz determinística a partir do payload. Não é um QR
+ *  válido (o real vem do provedor de pagamento), mas lê como um na prévia. */
+function QrMatrix({ payload }: { payload: string }) {
+  const N = 25;
+  const cells: boolean[] = [];
+  let s = 0;
+  for (let i = 0; i < payload.length; i++) s = (s * 31 + payload.charCodeAt(i)) >>> 0;
+  const isFinder = (r: number, c: number) => {
+    const inBox = (br: number, bc: number) =>
+      r >= br && r < br + 7 && c >= bc && c < bc + 7;
+    return inBox(0, 0) || inBox(0, N - 7) || inBox(N - 7, 0);
+  };
+  const finderOn = (r: number, c: number) => {
+    const local = (br: number, bc: number) => {
+      const rr = r - br;
+      const cc = c - bc;
+      const edge = rr === 0 || rr === 6 || cc === 0 || cc === 6;
+      const core = rr >= 2 && rr <= 4 && cc >= 2 && cc <= 4;
+      return edge || core;
+    };
+    if (r < 7 && c < 7) return local(0, 0);
+    if (r < 7 && c >= N - 7) return local(0, N - 7);
+    if (r >= N - 7 && c < 7) return local(N - 7, 0);
+    return false;
+  };
+  for (let r = 0; r < N; r++) {
+    for (let c = 0; c < N; c++) {
+      if (isFinder(r, c)) {
+        cells.push(finderOn(r, c));
+      } else {
+        s = (s * 1103515245 + 12345) >>> 0;
+        cells.push((s & 0xff) > 128);
+      }
+    }
+  }
+  return (
+    <svg
+      width={150}
+      height={150}
+      viewBox={`0 0 ${N} ${N}`}
+      role="img"
+      aria-label="QR Code do Pix (ilustrativo)"
+      shapeRendering="crispEdges"
+    >
+      {cells.map((on, i) =>
+        on ? (
+          <rect
+            key={i}
+            x={i % N}
+            y={Math.floor(i / N)}
+            width={1}
+            height={1}
+            fill="var(--fg-primary)"
+          />
+        ) : null,
+      )}
+    </svg>
+  );
+}
+
+/** Código de barras ilustrativo do boleto. */
+function BarcodeStrip({ payload }: { payload: string }) {
+  let s = 0;
+  for (let i = 0; i < payload.length; i++) s = (s * 31 + payload.charCodeAt(i)) >>> 0;
+  const bars: { w: number; on: boolean }[] = [];
+  for (let i = 0; i < 60; i++) {
+    s = (s * 1103515245 + 12345) >>> 0;
+    bars.push({ w: ((s >> 4) % 3) + 1, on: i % 2 === 0 });
+  }
+  return (
+    <div
+      className="flex h-16 w-full items-stretch gap-px overflow-hidden"
+      role="img"
+      aria-label="Código de barras do boleto (ilustrativo)"
+    >
+      {bars.map((b, i) => (
+        <span
+          key={i}
+          style={{ flexGrow: b.w }}
+          className={b.on ? "bg-(--fg-primary)" : "bg-transparent"}
+        />
+      ))}
+    </div>
+  );
+}
+
+function PaymentSuccess({
+  invoices,
+  total,
+  method,
+}: {
+  invoices: InvoiceHistoryRow[];
+  total: number;
+  method: RegularizeMethod;
+}) {
+  const isBoleto = method.id === "boleto";
+  const target =
+    invoices.length === 1 ? `da fatura ${invoices[0].id}` : `de ${invoices.length} faturas`;
+
+  return (
     <div className="flex flex-col items-center gap-3 py-6 text-center">
       <span className="flex h-14 w-14 items-center justify-center rounded-full bg-(--aw-emerald-100) text-(--aw-emerald-700) animate-in zoom-in-50 duration-300 ease-aw-out motion-reduce:animate-none">
-        <Icon name="check_circle" size={30} />
+        <Icon name={isBoleto ? "schedule" : "check_circle"} size={30} />
       </span>
-      <h6 className="m-0 text-(--fg-primary)">Pagamento bem-sucedido</h6>
+      <h6 className="m-0 text-(--fg-primary)">
+        {isBoleto ? "Boleto enviado" : "Pagamento bem-sucedido"}
+      </h6>
       <p className="m-0 max-w-[360px] body-xs text-(--fg-secondary)">
-        Recebemos o pagamento de{" "}
-        <strong className="font-medium text-(--fg-primary)">
-          {brl(invoice.net)}
-        </strong>{" "}
-        da fatura{" "}
-        <strong className="font-medium text-(--fg-primary)">
-          {invoice.id}
-        </strong>{" "}
-        via {method.label.toLowerCase()}. O comprovante segue para os e-mails de
-        faturamento.
+        {isBoleto ? (
+          <>
+            O boleto de{" "}
+            <strong className="font-medium text-(--fg-primary)">
+              {brl(total)}
+            </strong>{" "}
+            {target} foi enviado para os e-mails de faturamento. Assim que
+            compensar, a fatura é marcada como paga.
+          </>
+        ) : (
+          <>
+            Recebemos o pagamento de{" "}
+            <strong className="font-medium text-(--fg-primary)">
+              {brl(total)}
+            </strong>{" "}
+            {target} via {method.label.toLowerCase()}. O comprovante segue para
+            os e-mails de faturamento.
+          </>
+        )}
       </p>
     </div>
   );
