@@ -2,26 +2,14 @@
 
 import { useState } from "react";
 import { AwField } from "@/components/ui/AwInput";
-import { AwSelect } from "@/components/ui/AwSelect";
-import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwToggleRow } from "@/components/ui/AwToggle";
 import { Icon } from "@/components/ui/Icon";
 import { useAwTheme, type ThemePreference } from "@/components/ui/AwThemeProvider";
 import { SettingsPageHeader } from "../_components/shared";
 
-/* Idiomas suportados pela interface. PT-BR é o padrão do produto. */
-const INTERFACE_LANGUAGES = [
-  "Português (Brasil)",
-  "English (US)",
-  "Español",
-] as const;
-
 export default function AppearanceSettingsPage() {
   const { theme, setTheme } = useAwTheme();
   const [reduceMotion, setReduceMotion] = useState(false);
-  const [language, setLanguage] = useState<(typeof INTERFACE_LANGUAGES)[number]>(
-    "Português (Brasil)",
-  );
 
   return (
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
@@ -68,17 +56,19 @@ export default function AppearanceSettingsPage() {
         </section>
 
         <section className="py-6">
+          {/* PT-BR é o único idioma realmente disponível por ora. Em vez de um
+              seletor que só troca o rótulo sem traduzir nada (lê como bug),
+              mostramos a linha como leitura, com um aviso de "em breve". */}
           <AwField label="Idioma da interface">
-            <AwDropdownMenu
-              aria-label="Idioma da interface"
-              trigger={<AwSelect>{language}</AwSelect>}
-              items={INTERFACE_LANGUAGES.map((lang) => ({
-                id: lang,
-                label: lang,
-                checked: lang === language,
-                onSelect: () => setLanguage(lang),
-              }))}
-            />
+            <div className="flex items-center justify-between gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-3 py-2.5">
+              <span className="inline-flex items-center gap-2 body-sm text-(--fg-primary)">
+                <Icon name="language" size={16} className="text-(--fg-tertiary)" />
+                Português (Brasil)
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-(--bg-raised) px-2 py-0.5 body-xs text-(--fg-tertiary)">
+                Mais idiomas em breve
+              </span>
+            </div>
           </AwField>
         </section>
 
