@@ -13,13 +13,14 @@ export default function Page() {
   const [valorSimples, setValorSimples] = React.useState("");
 
   return (
-    <div className="flex flex-col gap-14">
+    <>
       <PageHero title="Input message">
         Composer de mensagem para chats e copilotos: cresce com o texto, aceita anexos por
         arrastar ou pelo seletor, enfileira envios e anima cada interação. Motor Fluid
         adaptado aos tokens AwSales; importe somente AwInputMessage.
       </PageHero>
 
+      <div className="max-w-[1200px] mx-auto px-10 pb-14 flex flex-col gap-16">
       <Section
         id="completo"
         title="Composer completo"
@@ -91,6 +92,7 @@ export default function Page() {
           </div>
         </Stage>
       </Section>
-    </div>
+      </div>
+    </>
   );
 }
