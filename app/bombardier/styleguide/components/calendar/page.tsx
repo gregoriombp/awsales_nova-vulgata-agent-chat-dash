@@ -275,23 +275,43 @@ function RangeDayButton({
     if (modifiers.focused) ref.current?.focus()
   }, [modifiers.focused])
 
-  const inRange =
-    modifiers.selected ||
-    modifiers.range_start ||
-    modifiers.range_middle ||
-    modifiers.range_end
+  // Os três modifiers falam vozes diferentes (auditoria do Germano): as PONTAS
+  // são sólidas no accent (--bg-inverse) e arredondadas só pra fora; o MIOLO é
+  // um tint de baixa saturação do mesmo accent, texto legível e cantos retos pra
+  // a faixa correr contínua. Ponta dupla (start === end) volta a ser um chip.
+  const isStart = modifiers.range_start
+  const isEnd = modifiers.range_end
+  const isMiddle = modifiers.range_middle
+  const isSingle =
+    modifiers.selected && !isStart && !isEnd && !isMiddle
+  const isEndpoint = isStart || isEnd || isSingle
 
   return (
     <button
       ref={ref}
       data-day={day.date.toLocaleDateString()}
+      style={
+        isMiddle
+          ? { backgroundColor: "color-mix(in srgb, var(--bg-inverse) 12%, var(--bg-raised))" }
+          : undefined
+      }
       className={cn(
-        "flex aspect-square h-auto w-full min-w-(--cell-size) items-center justify-center rounded-md text-sm font-normal outline-hidden focus-visible:ring-2 focus-visible:ring-(--fg-primary) focus-visible:ring-offset-1 focus-visible:ring-offset-(--bg-raised)",
-        inRange
-          ? "font-medium text-(--bg-raised)"
-          : "bg-(--bg-muted) text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)",
-        modifiers.today && !inRange && "ring-1 ring-inset ring-(--border-strong)",
-        modifiers.outside && !inRange && "opacity-40",
+        "flex aspect-square h-auto w-full min-w-(--cell-size) items-center justify-center text-sm font-normal outline-hidden focus-visible:ring-2 focus-visible:ring-(--fg-primary) focus-visible:ring-offset-1 focus-visible:ring-offset-(--bg-raised)",
+        // pontas: fill sólido + texto on-inverse, arredondado só na borda externa
+        isEndpoint && "bg-(--bg-inverse) font-medium text-(--fg-on-inverse)",
+        isStart && !isEnd && "rounded-l-md",
+        isEnd && !isStart && "rounded-r-md",
+        (isSingle || (isStart && isEnd)) && "rounded-md",
+        // miolo: tint do accent (via style), texto primário, quadrado pra faixa contínua
+        isMiddle && "rounded-none text-(--fg-primary)",
+        // ocioso: sem tile pesado — só hover, pra o range respirar
+        !isEndpoint && !isMiddle &&
+          "rounded-md text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)",
+        // hoje sobrevive ao range: ring que muda de cor conforme o fundo
+        modifiers.today && isEndpoint && "ring-2 ring-inset ring-(--fg-on-inverse)/50",
+        modifiers.today && isMiddle && "ring-1 ring-inset ring-(--bg-inverse)",
+        modifiers.today && !isEndpoint && !isMiddle && "ring-1 ring-inset ring-(--border-strong)",
+        modifiers.outside && !isEndpoint && !isMiddle && "opacity-40",
         modifiers.disabled && "opacity-30",
         className,
       )}
