@@ -99,7 +99,7 @@ export function AwListGroup({
           </button>
         </CollapsibleTrigger>
       </div>
-      <CollapsibleContent>
+      <CollapsibleContent className="aw-collapsible-content">
         <div className="border-t border-(--border-subtle)">
           <div
             className={cn(
