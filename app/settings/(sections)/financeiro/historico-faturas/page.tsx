@@ -52,7 +52,7 @@ function statusVariant(status: InvoiceStatus): AwPillVariant {
     case "Em atraso":
       return "warning";
     case "Falha no Pagamento":
-      return "warning";
+      return "error";
     case "Disputada":
       return "beta";
   }

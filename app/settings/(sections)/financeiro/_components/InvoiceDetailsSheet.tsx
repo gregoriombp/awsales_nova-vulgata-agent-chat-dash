@@ -26,7 +26,7 @@ function statusVariant(status: InvoiceHistoryRow["status"]): AwPillVariant {
     case "Em atraso":
       return "warning";
     case "Falha no Pagamento":
-      return "warning";
+      return "error";
     case "Disputada":
       return "beta";
   }
@@ -62,7 +62,7 @@ export function InvoiceDetailsSheet({
         </div>
       }
       footer={
-        <div className="flex flex-wrap items-center justify-end gap-2">
+        <div className="flex flex-nowrap items-center justify-end gap-2">
           <AwButton variant="ghost" iconLeft="content_copy">
             Copiar ID
           </AwButton>
