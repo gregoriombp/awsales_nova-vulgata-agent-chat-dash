@@ -199,6 +199,11 @@ export function DraggableBoard({
     .filter((w): w is BoardWidget => Boolean(w) && !(hidden?.has((w as BoardWidget).id)));
   const visibleOrder = ordered.map((w) => w.id);
 
+  // Trava do drag: o board é um grid de 2 colunas, mas o Reorder do Framer é
+  // 1D (axis="y") — sem limite, o item arrastado (ex.: "Valor atribuído ao
+  // provedor") escapava pra fora da tela. Constrange o arrasto à área do board.
+  const boardRef = React.useRef<HTMLDivElement>(null);
+
   // Gráficos disponíveis pra (re)adicionar = os widgets escondidos desta
   // visualização, na ordem do board. Alimentam o card "Adicionar gráfico", que
   // fica sempre como último item do board.
@@ -212,6 +217,7 @@ export function DraggableBoard({
   return (
     <Reorder.Group
       as="div"
+      ref={boardRef}
       axis="y"
       values={visibleOrder}
       onReorder={(next) => {
@@ -229,6 +235,7 @@ export function DraggableBoard({
           onToggleSpan={() => toggleSpan(w.id)}
           editing={editing}
           onRemove={onRemove ? () => onRemove(w.id) : undefined}
+          constraintsRef={boardRef}
         />
       ))}
       {/* Último item do board: placeholder tracejado pra adicionar um gráfico
@@ -246,12 +253,15 @@ function BoardItem({
   onToggleSpan,
   editing,
   onRemove,
+  constraintsRef,
 }: {
   widget: BoardWidget;
   span: Span;
   onToggleSpan: () => void;
   editing: boolean;
   onRemove?: () => void;
+  /** Área do board: limita o arrasto pra o card não escapar pra fora da tela. */
+  constraintsRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const controls = useDragControls();
   const [dragging, setDragging] = React.useState(false);
@@ -308,6 +318,8 @@ function BoardItem({
       value={widget.id}
       dragListener={false}
       dragControls={controls}
+      dragConstraints={constraintsRef}
+      dragElastic={0.12}
       onDragStart={() => setDragging(true)}
       onDragEnd={() => setDragging(false)}
       whileDrag={editing ? { scale: 1.01, zIndex: 30 } : undefined}
