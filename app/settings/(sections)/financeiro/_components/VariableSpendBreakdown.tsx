@@ -17,13 +17,13 @@ import {
   brl,
   fmtUsdLabel,
   overviewSpendSeries,
-  overviewSpendTotals,
   OVERVIEW_KPIS,
   OVERVIEW_SPEND_CATEGORIES,
   OVERVIEW_SPEND_DAYS,
   OVERVIEW_SPEND_EVENT,
   type SpendingGrouping,
 } from "./data";
+import { OverviewBreakdownTable } from "./OverviewBreakdownTable";
 
 /* ----------------------------------------------------------------------------
  * Detalhamento — gasto variável por dia (recorte simbólico da Visão geral).
@@ -43,7 +43,65 @@ const SEG_GAP = 4; // respiro entre fatias da mesma barra (px)
 /** Hairline sutil pra definir a borda das fatias claras sobre o branco. */
 const SEG_RING = "inset 0 0 0 1px rgba(17,24,39,0.06)";
 
+/** Gradient iridescente (azul → lavanda → pêssego → menta), VERTICAL — extraído
+ *  do Figma. É EXCLUSIVO da fatia "Outros" (agregada). As demais pilhas são
+ *  cor chapada, sem gradiente nenhum. */
+const OUTROS_GRADIENT =
+  "linear-gradient(180deg, #b7e5ff 0%, #d4e4ff 14%, #f2e4ff 38%, #fff6de 56%, #d6feea 76%, #bdf6f5 100%)";
+
+/** Preenchimento de uma fatia: cor CHAPADA (como no Figma) ou o gradient
+ *  iridescente — só pra "Outros". Nada de brilho/sheen nas pilhas comuns. */
+function segFill(c: { color: string; gradient?: boolean }): string {
+  return c.gradient ? OUTROS_GRADIENT : c.color;
+}
+
 const DESTINO_RELATORIO = "/settings/consumo-e-custos/explorar";
+
+/** Marcador de uma categoria — avatar do agente, triângulo gradiente ("Outros")
+ *  ou bolinha na cor. `showAvatar` liga a foto no modo agente (legenda); fora
+ *  dele cai pra bolinha/triângulo (tooltip, contextos compactos). */
+function Swatch({
+  cat,
+  size = 8,
+  showAvatar = false,
+}: {
+  cat: { color: string; avatar?: string; gradient?: boolean };
+  size?: number;
+  showAvatar?: boolean;
+}) {
+  if (showAvatar && cat.avatar) {
+    return (
+      <img
+        src={cat.avatar}
+        alt=""
+        className="shrink-0 rounded-full object-cover"
+        style={{ width: size, height: size, boxShadow: SEG_RING }}
+      />
+    );
+  }
+  if (cat.gradient) {
+    // Triângulo iridescente (igual ao Figma) pra "Outros".
+    return (
+      <span
+        aria-hidden="true"
+        className="shrink-0"
+        style={{
+          width: size,
+          height: size,
+          background: OUTROS_GRADIENT,
+          clipPath: "polygon(50% 0%, 100% 100%, 0% 100%)",
+        }}
+      />
+    );
+  }
+  return (
+    <span
+      aria-hidden="true"
+      className="shrink-0 rounded-full"
+      style={{ width: size, height: size, backgroundColor: cat.color, boxShadow: SEG_RING }}
+    />
+  );
+}
 
 /* ---------- modal: confirmação antes de ir pro relatório completo ---------- */
 
@@ -100,13 +158,6 @@ export function VariableSpendBreakdown({
   const [activeCat, setActiveCat] = React.useState<string | null>(null);
 
   const series = React.useMemo(() => overviewSpendSeries(grouping), [grouping]);
-  const totals = React.useMemo(
-    () =>
-      overviewSpendTotals(grouping)
-        .slice()
-        .sort((a, b) => b.total - a.total),
-    [grouping],
-  );
   const cats = OVERVIEW_SPEND_CATEGORIES[grouping];
   const cycleTotal = OVERVIEW_KPIS.accumulated;
 
@@ -137,20 +188,14 @@ export function VariableSpendBreakdown({
         />
 
         <Chart
+          key={grouping}
           series={series}
           cats={cats}
           scale={scale}
           activeCat={activeCat}
-          onHoverCat={setActiveCat}
         />
 
-        <BreakdownTable
-          grouping={grouping}
-          rows={totals}
-          total={cycleTotal}
-          activeCat={activeCat}
-          onHover={setActiveCat}
-        />
+        <OverviewBreakdownTable grouping={grouping} />
       </section>
     </TooltipProvider>
   );
@@ -232,11 +277,7 @@ function Controls({
                     dim && "opacity-40",
                   )}
                 >
-                  <span
-                    aria-hidden="true"
-                    className="h-2 w-2 shrink-0 rounded-full"
-                    style={{ backgroundColor: c.color, boxShadow: SEG_RING }}
-                  />
+                  <Swatch cat={c} size={c.avatar ? 18 : 10} showAvatar />
                   {c.label}
                 </button>
               </li>
@@ -264,14 +305,21 @@ function Chart({
   cats,
   scale,
   activeCat,
-  onHoverCat,
 }: {
   series: ReturnType<typeof overviewSpendSeries>;
   cats: typeof OVERVIEW_SPEND_CATEGORIES[SpendingGrouping];
   scale: number;
   activeCat: string | null;
-  onHoverCat: (id: string | null) => void;
 }) {
+  // Foco por DIA (hover na barra → escurece os outros dias) e a fatia sob o
+  // mouse (pra o tooltip reagir à pilha selecionada). O foco por CATEGORIA vem
+  // de fora (activeCat: legenda/tabela) e tem prioridade.
+  const [activeDay, setActiveDay] = React.useState<number | null>(null);
+  const [hoverSeg, setHoverSeg] = React.useState<{
+    day: number;
+    cat: string;
+  } | null>(null);
+
   const eventLeftPct =
     ((OVERVIEW_SPEND_EVENT.dayIndex + 0.5) / OVERVIEW_SPEND_DAYS) * 100;
 
@@ -297,46 +345,77 @@ function Chart({
           ))}
         </div>
 
-        {/* marcador de evento: "Limite restaurado" */}
+        {/* marcador de evento: limite atingido → cobrança → restaurado. Só o
+            badge é hoverável (o resto deixa passar o hover das barras); abre um
+            card contando o que rolou no fechamento parcial. */}
         <div
-          aria-hidden="true"
           className="pointer-events-none absolute inset-y-0 z-10 flex flex-col items-center"
           style={{ left: `${eventLeftPct}%`, transform: "translateX(-50%)" }}
         >
-          <span className="mb-1 inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-(--aw-emerald-100) px-2 py-0.5 body-xs font-medium text-(--aw-emerald-700)">
-            <span className="h-1.5 w-1.5 rounded-full bg-(--aw-emerald-500)" />
-            {OVERVIEW_SPEND_EVENT.label}
-          </span>
-          <span className="w-px flex-1 border-l border-dashed border-(--aw-emerald-300)" />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                aria-label={`${OVERVIEW_SPEND_EVENT.title}. ${OVERVIEW_SPEND_EVENT.description}`}
+                className="pointer-events-auto mb-1 inline-flex cursor-default items-center gap-1 whitespace-nowrap rounded-full bg-(--aw-emerald-100) px-2 py-0.5 body-xs font-medium text-(--aw-emerald-700) focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--ring-focus)"
+              >
+                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-(--aw-emerald-500)" />
+                {OVERVIEW_SPEND_EVENT.label}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent
+              side="top"
+              className="max-w-[280px] border-(--border-subtle) bg-(--bg-raised) p-0 text-(--fg-secondary)"
+            >
+              <EventCard />
+            </TooltipContent>
+          </Tooltip>
+          <span
+            aria-hidden="true"
+            className="w-px flex-1 border-l border-dashed border-(--aw-emerald-300)"
+          />
         </div>
 
         {/* barras */}
         <div className="absolute inset-0 flex items-end gap-2">
           {series.map((day, di) => {
             const dayTotal = day.values.reduce((s, v) => s + v, 0);
+            const dayFocused = activeDay === di && !activeCat;
             return (
               <Tooltip key={di}>
                 <TooltipTrigger asChild>
                   <div
-                    className="group flex h-full flex-1 cursor-default items-end"
-                    onMouseLeave={() => onHoverCat(null)}
+                    className="flex h-full flex-1 cursor-default items-end"
+                    onMouseEnter={() => setActiveDay(di)}
+                    onMouseLeave={() => {
+                      setActiveDay(null);
+                      setHoverSeg(null);
+                    }}
                   >
-                    <div className="flex w-full flex-col-reverse justify-start gap-1">
+                    <div
+                      className={cn(
+                        "flex w-full flex-col-reverse justify-start gap-0.5 transition-transform duration-200 ease-out",
+                        dayFocused && "scale-[1.02]",
+                      )}
+                    >
                       {cats.map((c, ci) => {
                         const v = day.values[ci] ?? 0;
                         if (v <= 0) return null;
                         const h = Math.max(Math.round(v * scale), 3);
-                        const dim = activeCat !== null && activeCat !== c.id;
+                        // categoria em foco tem prioridade; senão, foco por dia.
+                        const dim = activeCat
+                          ? activeCat !== c.id
+                          : activeDay !== null && activeDay !== di;
                         return (
                           <div
                             key={c.id}
-                            onMouseEnter={() => onHoverCat(c.id)}
-                            className="w-full rounded-md transition-[opacity,transform] duration-200 ease-out group-hover:scale-[1.02]"
+                            onMouseEnter={() => setHoverSeg({ day: di, cat: c.id })}
+                            className="w-full transition-[opacity] duration-200 ease-out"
                             style={{
                               height: h,
-                              backgroundColor: c.color,
-                              boxShadow: SEG_RING,
-                              opacity: dim ? 0.22 : 1,
+                              borderRadius: 4,
+                              background: segFill(c),
+                              opacity: dim ? 0.18 : 1,
                             }}
                           />
                         );
@@ -346,13 +425,14 @@ function Chart({
                 </TooltipTrigger>
                 <TooltipContent
                   side="top"
-                  className="min-w-[200px] border-(--border-subtle) bg-(--bg-raised) p-0 text-(--fg-secondary)"
+                  className="min-w-[210px] border-(--border-subtle) bg-(--bg-raised) p-0 text-(--fg-secondary)"
                 >
                   <DayTooltip
                     label={day.label}
                     cats={cats}
                     values={day.values}
                     total={dayTotal}
+                    activeCatId={hoverSeg?.day === di ? hoverSeg.cat : null}
                   />
                 </TooltipContent>
               </Tooltip>
@@ -366,7 +446,12 @@ function Chart({
         {series.map((day, di) => (
           <span
             key={di}
-            className="flex-1 text-center body-xs tabular-nums text-(--fg-tertiary)"
+            className={cn(
+              "flex-1 text-center body-xs tabular-nums transition-colors",
+              activeDay === di && !activeCat
+                ? "font-medium text-(--fg-secondary)"
+                : "text-(--fg-tertiary)",
+            )}
           >
             {day.label}
           </span>
@@ -376,16 +461,40 @@ function Chart({
   );
 }
 
+/* ---------- card do evento de fechamento (hover no marcador) ---------- */
+
+function EventCard() {
+  return (
+    <div className="flex flex-col gap-1.5 px-3.5 py-3">
+      <span className="inline-flex items-center gap-2">
+        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-(--aw-emerald-100) text-(--aw-emerald-700)">
+          <Icon name="check" size={13} weight={600} />
+        </span>
+        <span className="body-sm font-semibold text-(--fg-primary)">
+          {OVERVIEW_SPEND_EVENT.title}
+        </span>
+      </span>
+      <p className="m-0 body-xs text-(--fg-secondary) text-pretty">
+        {OVERVIEW_SPEND_EVENT.description}
+      </p>
+    </div>
+  );
+}
+
 function DayTooltip({
   label,
   cats,
   values,
   total,
+  activeCatId,
 }: {
   label: string;
   cats: typeof OVERVIEW_SPEND_CATEGORIES[SpendingGrouping];
   values: number[];
   total: number;
+  /** Fatia sob o mouse — destaca a linha correspondente (o tooltip "muda"
+   *  conforme você passa por cada pilha da barra). */
+  activeCatId?: string | null;
 }) {
   // Da maior pra menor fatia do dia — leitura rápida do que pesou.
   const rows = cats
@@ -400,149 +509,43 @@ function DayTooltip({
           {brl(total)}
         </span>
       </div>
-      <ul className="m-0 flex flex-col gap-1 p-0">
-        {rows.map(({ c, v }) => (
-          <li
-            key={c.id}
-            className="flex list-none items-center justify-between gap-4"
-          >
-            <span className="inline-flex min-w-0 items-center gap-1.5">
-              <span
-                aria-hidden="true"
-                className="h-2 w-2 shrink-0 rounded-full"
-                style={{ backgroundColor: c.color, boxShadow: SEG_RING }}
-              />
-              <span className="truncate body-xs text-(--fg-secondary)">
-                {c.label}
+      <ul className="m-0 flex flex-col gap-0.5 p-0">
+        {rows.map(({ c, v }) => {
+          const on = activeCatId === c.id;
+          return (
+            <li
+              key={c.id}
+              className={cn(
+                "-mx-1.5 flex list-none items-center justify-between gap-4 rounded-md px-1.5 py-0.5 transition-colors",
+                on && "bg-(--bg-hover)",
+              )}
+            >
+              <span className="inline-flex min-w-0 items-center gap-1.5">
+                <Swatch cat={c} size={8} />
+                <span
+                  className={cn(
+                    "truncate body-xs",
+                    on
+                      ? "font-medium text-(--fg-primary)"
+                      : "text-(--fg-secondary)",
+                  )}
+                >
+                  {c.label}
+                </span>
               </span>
-            </span>
-            <span className="body-xs tabular-nums text-(--fg-primary)">
-              {brl(v)}
-            </span>
-          </li>
-        ))}
+              <span
+                className={cn(
+                  "body-xs tabular-nums text-(--fg-primary)",
+                  on && "font-semibold",
+                )}
+              >
+                {brl(v)}
+              </span>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
 }
 
-/* ---------- tabela vinculada ---------- */
-
-function BreakdownTable({
-  grouping,
-  rows,
-  total,
-  activeCat,
-  onHover,
-}: {
-  grouping: SpendingGrouping;
-  rows: ReturnType<typeof overviewSpendTotals>;
-  total: number;
-  activeCat: string | null;
-  onHover: (id: string | null) => void;
-}) {
-  const headLabel = grouping === "service" ? "Serviço" : "Agente";
-  return (
-    <table className="w-full border-collapse text-left">
-      <thead>
-        <tr className="border-b border-(--border-subtle)">
-          <th className="py-2 pr-3 aw-eyebrow font-medium text-(--fg-tertiary)">
-            {headLabel}
-          </th>
-          <th className="w-[42%] px-3 py-2 aw-eyebrow font-medium text-(--fg-tertiary)">
-            Participação
-          </th>
-          <th className="py-2 pl-3 text-right aw-eyebrow font-medium text-(--fg-tertiary)">
-            Valor no ciclo
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map(({ category, total: value }) => {
-          const pct = total > 0 ? (value / total) * 100 : 0;
-          const dim = activeCat !== null && activeCat !== category.id;
-          const on = activeCat === category.id;
-          return (
-            <tr
-              key={category.id}
-              onMouseEnter={() => onHover(category.id)}
-              onMouseLeave={() => onHover(null)}
-              className={cn(
-                "border-b border-(--border-subtle) transition-colors last:border-b-0",
-                on && "bg-(--bg-hover)",
-                dim && "opacity-45",
-              )}
-            >
-              {/* nome — avatar (agente) ou ponto + ícone (serviço) */}
-              <td className="py-2.5 pr-3">
-                <span className="inline-flex min-w-0 items-center gap-2">
-                  {category.avatar ? (
-                    <img
-                      src={category.avatar}
-                      alt=""
-                      className="h-6 w-6 shrink-0 rounded-full object-cover"
-                      style={{ boxShadow: SEG_RING }}
-                    />
-                  ) : (
-                    <span
-                      aria-hidden="true"
-                      className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
-                      style={{
-                        backgroundColor: `${category.color}26`,
-                        color: category.color,
-                      }}
-                    >
-                      <Icon name={category.icon ?? "category"} size={15} />
-                    </span>
-                  )}
-                  <span className="min-w-0 truncate body-sm font-medium text-(--fg-primary)">
-                    {category.label}
-                  </span>
-                </span>
-              </td>
-
-              {/* participação — barra na cor da categoria + % */}
-              <td className="px-3 py-2.5">
-                <span className="flex items-center gap-2.5">
-                  <span className="relative h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-(--bg-muted)">
-                    <span
-                      className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-500 ease-out"
-                      style={{
-                        width: `${Math.max(pct, 2)}%`,
-                        backgroundColor: category.color,
-                        boxShadow: SEG_RING,
-                      }}
-                    />
-                  </span>
-                  <span className="w-10 shrink-0 text-right body-xs tabular-nums text-(--fg-secondary)">
-                    {pct.toFixed(0)}%
-                  </span>
-                </span>
-              </td>
-
-              {/* valor */}
-              <td className="py-2.5 pl-3 text-right">
-                <span className="body-sm font-medium tabular-nums text-(--fg-primary)">
-                  {brl(value)}
-                </span>
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-      <tfoot>
-        <tr>
-          <td className="py-2.5 pr-3 body-sm font-medium text-(--fg-secondary)">
-            Total do ciclo
-          </td>
-          <td aria-hidden="true" />
-          <td className="py-2.5 pl-3 text-right">
-            <span className="body-sm font-semibold tabular-nums text-(--fg-primary)">
-              {brl(total)}
-            </span>
-          </td>
-        </tr>
-      </tfoot>
-    </table>
-  );
-}
