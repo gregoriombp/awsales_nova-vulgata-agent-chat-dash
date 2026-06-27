@@ -68,6 +68,11 @@ export const OVERVIEW_KPIS = {
 // Quando atingido, o montante acumulado é cobrado automaticamente.
 export const VARIABLE_SPENDING_LIMIT = 1500;
 
+// Linha telefônica — custo fixo mensal que acompanha o plano (quando a
+// organização tem um número provisionado). Entra no detalhamento como um
+// item que abre dentro do plano fixo e soma ao total. 0 = "não tem".
+export const PLAN_PHONE_LINE = 39.0;
+
 // Composição do desconto estimado da próxima fatura (cupom + voucher). A soma
 // DEVE bater com OVERVIEW_KPIS.monthSavings — é a quebra do mesmo valor, só
 // detalhada por origem do crédito.
@@ -669,6 +674,42 @@ export function getAgentFeeBreakdown(total: number, seed: number): AgentFeeGroup
   return groups;
 }
 
+// Disputa de fatura — o cliente contestou o valor e o time interno analisa.
+// Estágios em ordem; o `stage` aponta o atual. Copy em voz de produto (sem
+// "tecniquez"): o cliente entende em que pé está a análise.
+export type DisputeStage = "received" | "review" | "resolved";
+
+export type InvoiceDispute = {
+  stage: DisputeStage;
+  /** Quando o cliente abriu a contestação (pt-BR). */
+  openedAt: string;
+  /** Por que foi contestada — resumo curto exibido ao cliente. */
+  reason: string;
+};
+
+export const INVOICE_DISPUTE_STAGES: {
+  id: DisputeStage;
+  label: string;
+  description: string;
+}[] = [
+  {
+    id: "received",
+    label: "Contestação recebida",
+    description: "Você sinalizou que o valor desta fatura não está certo.",
+  },
+  {
+    id: "review",
+    label: "Em análise pelo nosso time",
+    description:
+      "Estamos conferindo os lançamentos. Você não precisa pagar enquanto a análise não termina.",
+  },
+  {
+    id: "resolved",
+    label: "Análise concluída",
+    description: "Avisamos por e-mail assim que houver uma definição.",
+  },
+];
+
 export type InvoiceHistoryRow = {
   id: string;
   refMonth: string;
@@ -681,7 +722,17 @@ export type InvoiceHistoryRow = {
   net: number;
   paymentMethod: string;
   status: "Paga" | "Em aberto" | "Em atraso" | "Falha no Pagamento" | "Disputada";
+  /** Presente quando status === "Disputada": estágio da análise interna. */
+  dispute?: InvoiceDispute;
 };
+
+/** Rótulo da fatura em voz de produto. "Disputada" lê como "Em disputa" — o
+ *  valor do enum fica intocado (o DS/styleguide usam o original). */
+export function invoiceStatusLabel(
+  status: InvoiceHistoryRow["status"],
+): string {
+  return status === "Disputada" ? "Em disputa" : status;
+}
 
 export const INVOICE_HISTORY: InvoiceHistoryRow[] = [
   {
@@ -709,6 +760,24 @@ export const INVOICE_HISTORY: InvoiceHistoryRow[] = [
     net: 2497.98,
     paymentMethod: "Visa •••• 3012",
     status: "Falha no Pagamento",
+  },
+  {
+    id: "INV-2026-04-DSP",
+    refMonth: "Abr/26",
+    description: "Uso variável",
+    dueAt: "28/04/2026",
+    paidAt: null,
+    gross: 980.0,
+    discount: null,
+    discountCode: null,
+    net: 980.0,
+    paymentMethod: "Visa •••• 3012",
+    status: "Disputada",
+    dispute: {
+      stage: "review",
+      openedAt: "12/05/2026",
+      reason: "Cobrança de disparos acima do esperado neste período.",
+    },
   },
   {
     id: "INV-2026-03-PLN",
