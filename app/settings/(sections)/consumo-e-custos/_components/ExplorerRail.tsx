@@ -165,7 +165,7 @@ function DimensionList() {
                 className={cn(
                   "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left body-sm transition-colors duration-aw-fast",
                   active
-                    ? "bg-(--bg-selected) font-medium text-(--fg-primary)"
+                    ? "bg-(--fg-primary) font-medium text-(--bg-raised)"
                     : "text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)",
                 )}
               >
@@ -173,7 +173,7 @@ function DimensionList() {
                   name={d.icon}
                   size={18}
                   fill={active ? 1 : 0}
-                  className={active ? "text-(--accent-brand)" : "text-(--fg-tertiary)"}
+                  className={active ? "text-(--bg-raised)" : "text-(--fg-tertiary)"}
                 />
                 {d.label}
               </button>
