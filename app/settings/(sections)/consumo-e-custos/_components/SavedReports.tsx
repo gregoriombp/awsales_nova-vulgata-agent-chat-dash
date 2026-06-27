@@ -61,7 +61,17 @@ export function ReportsUIProvider({ children }: { children: React.ReactNode }) {
   const [renameTarget, setRenameTarget] = React.useState<{ id: string; current: string } | null>(null);
   const [deleteTarget, setDeleteTarget] = React.useState<{ id: string; name: string } | null>(null);
 
-  const goExplorer = React.useCallback(() => router.push(EXPLORER_PATH), [router]);
+  // Cada intenção ganha URL própria (`?tipo=`): sobrevive a refresh/nova aba e dá
+  // ao review-bridge uma âncora estável por relatório (variáveis × cobranças ×
+  // faturas deixam de colidir na mesma rota). Faturas leva também `?fatura=`.
+  const goExplorerForType = React.useCallback(
+    (type: ReportType, invoiceId?: string | null) => {
+      const params = new URLSearchParams({ tipo: type });
+      if (type === "faturas" && invoiceId) params.set("fatura", invoiceId);
+      router.push(`${EXPLORER_PATH}?${params.toString()}`);
+    },
+    [router],
+  );
 
   const value = React.useMemo<ReportsUIValue>(
     () => ({
@@ -71,7 +81,7 @@ export function ReportsUIProvider({ children }: { children: React.ReactNode }) {
           setCreateFlow({ mode: "invoice" });
         } else {
           startReport(type);
-          goExplorer();
+          goExplorerForType(type);
         }
       },
       openTypeChooser: () => setCreateFlow({ mode: "chooser" }),
@@ -83,7 +93,7 @@ export function ReportsUIProvider({ children }: { children: React.ReactNode }) {
       openRename: (id, current) => setRenameTarget({ id, current }),
       openDelete: (id, name) => setDeleteTarget({ id, name }),
     }),
-    [startReport, applyReport, goExplorer, router],
+    [startReport, applyReport, goExplorerForType, router],
   );
 
   return (
@@ -95,7 +105,7 @@ export function ReportsUIProvider({ children }: { children: React.ReactNode }) {
         onStart={(type, invoiceId) => {
           startReport(type, { invoiceId });
           setCreateFlow(null);
-          goExplorer();
+          goExplorerForType(type, invoiceId);
         }}
       />
       <SaveReportDialog open={saveOpen} onClose={() => setSaveOpen(false)} />
@@ -283,6 +293,7 @@ function CreateFlowDialog({
 
 function SaveReportDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { saveNewReport, reportType } = useConsumo();
+  const router = useRouter();
   const toast = useToast();
   const [name, setName] = React.useState("");
   const def = reportType ? reportTypeDef(reportType) : null;
@@ -294,7 +305,11 @@ function SaveReportDialog({ open, onClose }: { open: boolean; onClose: () => voi
   const trimmed = name.trim();
   const submit = () => {
     if (!trimmed) return;
-    saveNewReport(trimmed);
+    const id = saveNewReport(trimmed);
+    // Deixou de ser uma intenção solta e virou um salvo: a URL migra de `?tipo=`
+    // pra `?relatorio=<id>` (sem empilhar histórico) — reflete o que o painel é
+    // agora e ancora o review-bridge no relatório, não mais no tipo.
+    router.replace(`${EXPLORER_PATH}?relatorio=${encodeURIComponent(id)}`);
     toast.push({
       variant: "success",
       title: "Relatório salvo",

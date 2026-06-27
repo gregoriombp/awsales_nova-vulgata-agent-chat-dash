@@ -149,6 +149,11 @@ export function reportTypeDef(type: ReportType): ReportTypeDef {
   return REPORT_TYPES.find((t) => t.type === type) ?? REPORT_TYPES[0];
 }
 
+/** Valida um valor de URL (`?tipo=`) contra a taxonomia conhecida. */
+export function isReportType(v: string | null | undefined): v is ReportType {
+  return v != null && REPORT_TYPES.some((t) => t.type === v);
+}
+
 /* ---------- identidade atual (mock, alinhado ao Perfil/Organização) ---------- */
 
 export const CURRENT_USER: ReportOwner = {

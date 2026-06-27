@@ -34,6 +34,7 @@ import {
   CURRENT_ORG,
   CURRENT_USER,
   DEFAULT_REPORTS,
+  isReportType,
   reportTypeDef,
   snapshotForType,
   type ExplorerSnapshot,
@@ -422,29 +423,48 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
       }
       setReports(list);
 
-      // Deep link `?relatorio=<id>` (nova guia / refresh) tem prioridade sobre o
-      // relatório que estava ativo; cai pro ativo salvo quando não há param.
+      // Deep links da URL. Precedência: `?relatorio=<id>` (salvo) > `?tipo=<tipo>`
+      // (preset fresco da intenção) > ativo salvo > rascunho pendente > padrão.
       let deepLinkId: string | null = null;
+      let typeParam: string | null = null;
+      let invoiceParam: string | null = null;
       try {
-        deepLinkId = new URLSearchParams(window.location.search).get("relatorio");
+        const sp = new URLSearchParams(window.location.search);
+        deepLinkId = sp.get("relatorio");
+        typeParam = sp.get("tipo");
+        invoiceParam = sp.get("fatura");
       } catch {
         /* sem window.location */
       }
       const deepLinkHit = deepLinkId ? list.find((r) => r.id === deepLinkId) : undefined;
       if (deepLinkId && !deepLinkHit) {
         // Deep link apontando pra um relatório que não existe (excluído/renomeado
-        // a chave) — avisa e segue pro ativo salvo (ou estado padrão).
+        // a chave) — avisa e cai pra próxima fonte (tipo / ativo / padrão).
         console.warn(`[consumo] relatório "${deepLinkId}" não encontrado — abrindo o estado padrão.`);
       }
-      const target =
-        deepLinkHit ??
-        (storedActiveId ? list.find((r) => r.id === storedActiveId) : undefined);
-      if (target) {
-        setActiveReportId(target.id);
+      const storedActive = storedActiveId ? list.find((r) => r.id === storedActiveId) : undefined;
+      if (deepLinkHit) {
+        // Relatório salvo: vence tudo (já carrega o próprio tipo no snapshot).
+        setActiveReportId(deepLinkHit.id);
         setDraftBaseline(null);
-        setBaselineHidden(new Set(target.snapshot.hidden ?? []));
-        applySnapshot(target.snapshot);
+        setBaselineHidden(new Set(deepLinkHit.snapshot.hidden ?? []));
+        applySnapshot(deepLinkHit.snapshot);
         persistDraft(null); // abriu um salvo: o rascunho pendente não vale mais
+      } else if (isReportType(typeParam)) {
+        // `?tipo=`: abre um preset fresco da intenção — dá URL própria a cada
+        // relatório (estável a refresh/nova aba e como âncora do review-bridge).
+        const snap = snapshotForType(typeParam, { invoiceId: invoiceParam ?? undefined });
+        setActiveReportId(null);
+        setDraftBaseline(snap);
+        setBaselineHidden(new Set(snap.hidden ?? []));
+        applySnapshot(snap);
+        persistDraft(snap);
+      } else if (storedActive) {
+        setActiveReportId(storedActive.id);
+        setDraftBaseline(null);
+        setBaselineHidden(new Set(storedActive.snapshot.hidden ?? []));
+        applySnapshot(storedActive.snapshot);
+        persistDraft(null);
       } else {
         // Sem relatório salvo a abrir: restaura o rascunho pendente, se houver
         // (sobrevive ao remount do provider na navegação e a um refresh).
