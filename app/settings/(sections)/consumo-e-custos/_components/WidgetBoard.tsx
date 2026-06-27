@@ -232,9 +232,10 @@ export function DraggableBoard({
         />
       ))}
       {/* Último item do board: placeholder tracejado pra adicionar um gráfico
-          escondido de volta. Fica fora do Reorder (não é arrastável) e sempre
-          presente quando o board sabe re-exibir widgets (onAdd). */}
-      {onAdd && <AddWidgetCard available={available} onAdd={onAdd} />}
+          escondido de volta. Fica fora do Reorder (não é arrastável). Some
+          quando todos os gráficos já estão no painel (pedido do Greg) — sem o
+          estado desabilitado "Todos já estão no painel". */}
+      {onAdd && available.length > 0 && <AddWidgetCard available={available} onAdd={onAdd} />}
     </Reorder.Group>
   );
 }
