@@ -22,7 +22,6 @@ import {
   selectionShowsLimitEvent,
   DEFAULT_PERIOD,
   OVERVIEW_SPEND_CATEGORIES,
-  OVERVIEW_SPEND_DAYS,
   OVERVIEW_SPEND_EVENT,
   type PeriodSelection,
   type SpendingGrouping,
@@ -203,7 +202,7 @@ export function VariableSpendBreakdown({
   return (
     <TooltipProvider delayDuration={80}>
       <section className="flex flex-col gap-(--space-6)">
-        <Header onOpenReport={onOpenReport} />
+        <Header />
 
         <Controls
           grouping={grouping}
@@ -214,6 +213,7 @@ export function VariableSpendBreakdown({
           total={total}
           selection={selection}
           onSelectPeriod={setSelection}
+          onOpenReport={onOpenReport}
         />
 
         <Chart
@@ -233,18 +233,32 @@ export function VariableSpendBreakdown({
 
 /* ---------- cabeçalho ---------- */
 
-function Header({ onOpenReport }: { onOpenReport: () => void }) {
+function Header() {
   return (
-    <div className="flex items-start justify-between gap-4">
-      <div className="min-w-0">
-        <h3 className="m-0 text-(length:--h5-size) font-semibold tracking-heading-tight text-(--fg-primary)">
-          Detalhamento
-        </h3>
-        <p className="m-0 mt-1 max-w-xl body-sm text-(--fg-secondary) text-pretty">
-          Gasto variável por dia no ciclo, agrupado por serviço ou por agente. A
-          tabela acompanha o gráfico.
-        </p>
-      </div>
+    <div className="min-w-0">
+      <h3 className="m-0 text-(length:--h5-size) font-semibold tracking-heading-tight text-(--fg-primary)">
+        Detalhamento
+      </h3>
+      <p className="m-0 mt-1 max-w-xl body-sm text-(--fg-secondary) text-pretty">
+        Gasto variável por dia no ciclo, agrupado por serviço ou por agente. A
+        tabela acompanha o gráfico.
+      </p>
+    </div>
+  );
+}
+
+function ReportControls({
+  selection,
+  onSelectPeriod,
+  onOpenReport,
+}: {
+  selection: PeriodSelection;
+  onSelectPeriod: (sel: PeriodSelection) => void;
+  onOpenReport: () => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-end gap-2">
+      <PeriodPicker value={selection} onChange={onSelectPeriod} />
       <AwButton
         variant="secondary"
         size="sm"
@@ -269,6 +283,7 @@ function Controls({
   total,
   selection,
   onSelectPeriod,
+  onOpenReport,
 }: {
   grouping: SpendingGrouping;
   onGrouping: (g: SpendingGrouping) => void;
@@ -278,6 +293,7 @@ function Controls({
   total: number;
   selection: PeriodSelection;
   onSelectPeriod: (sel: PeriodSelection) => void;
+  onOpenReport: () => void;
 }) {
   return (
     <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
@@ -321,7 +337,11 @@ function Controls({
       </div>
 
       <div className="flex flex-col items-end gap-2.5">
-        <PeriodPicker value={selection} onChange={onSelectPeriod} />
+        <ReportControls
+          selection={selection}
+          onSelectPeriod={onSelectPeriod}
+          onOpenReport={onOpenReport}
+        />
         <div className="text-right">
           <p className="m-0 text-(length:--h5-size) font-semibold leading-none tracking-heading-tight tabular-nums text-(--fg-primary)">
             {brl(total)}
@@ -360,9 +380,6 @@ function Chart({
     cat: string;
   } | null>(null);
 
-  const eventLeftPct =
-    ((OVERVIEW_SPEND_EVENT.dayIndex + 0.5) / OVERVIEW_SPEND_DAYS) * 100;
-
   const chartLabel = `Gasto variável por dia. ${cats
     .map((c) => c.label)
     .join(", ")}.`;
@@ -397,8 +414,7 @@ function Chart({
             vigente — some nos outros períodos. */}
         {showEvent && (
         <div
-          className="pointer-events-none absolute inset-y-0 z-10 flex flex-col items-center"
-          style={{ left: `${eventLeftPct}%`, transform: "translateX(-50%)" }}
+          className="pointer-events-none absolute inset-y-0 left-0 z-10 flex flex-col items-start"
         >
           <Tooltip>
             <TooltipTrigger asChild>
