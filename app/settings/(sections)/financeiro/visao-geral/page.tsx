@@ -110,7 +110,7 @@ function ForecastBlock() {
             footnote={
               <>
                 <span className="inline-flex flex-wrap items-center gap-1.5">
-                  Próxima cobrança em {CURRENT_PLAN.nextChargeAt} no cartão
+                  Vence em {CURRENT_PLAN.nextChargeAt} em
                   <CardBrandLogo brand={card.brand} size={22} />
                   •••• {card.last4}
                 </span>
