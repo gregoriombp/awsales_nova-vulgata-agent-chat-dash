@@ -18,6 +18,11 @@ import {
   isLeakedPassword,
   PASSWORD_MIN_LENGTH,
 } from "@/lib/password-policy";
+import {
+  submitNewPassword,
+  verifyCurrentPassword,
+  verifyTotpCode,
+} from "@/lib/account-security";
 import { SectionHeading, SettingsPageHeader } from "../../_components/shared";
 
 /* Fixtures — substituir por dados reais */
@@ -189,21 +194,19 @@ export default function SenhaPage() {
     setPwError(""); setPwVerifying(false);
   }
 
-  /* Etapa 1 → 2: "autentica" a senha atual antes de liberar a troca. */
-  function verifyCurrentPw() {
+  /* Etapa 1 → 2: autentica a senha atual antes de liberar a troca. */
+  async function verifyCurrentPw() {
     setPwError("");
     if (!currentPw) { setPwError("Informe a senha atual."); return; }
     setPwVerifying(true);
-    // TODO: validar a senha atual via API. Mock: "000000" falha, resto passa.
-    setTimeout(() => {
-      setPwVerifying(false);
-      if (currentPw === "000000") {
-        setPwError("Senha atual incorreta. Tente de novo.");
-        return;
-      }
-      setPwError("");
-      setPwStep(2);
-    }, 700);
+    const ok = await verifyCurrentPassword(currentPw);
+    setPwVerifying(false);
+    if (!ok) {
+      setPwError("Senha atual incorreta. Tente de novo.");
+      return;
+    }
+    setPwError("");
+    setPwStep(2);
   }
 
   /* MFA */
@@ -237,12 +240,12 @@ export default function SenhaPage() {
   const pwEval = evaluatePassword(newPw);
   const pwLeaked = newPw.length > 0 && isLeakedPassword(newPw);
 
-  function handleChangePw() {
+  async function handleChangePw() {
     setPwError("");
     if (!pwEval.longEnough) { setPwError(`A nova senha precisa ter ao menos ${PASSWORD_MIN_LENGTH} caracteres.`); return; }
     if (pwLeaked) { setPwError("Essa senha apareceu em vazamentos conhecidos. Escolha outra."); return; }
     if (newPw !== confirmPw) { setPwError("As senhas não coincidem."); return; }
-    // TODO: submit via API
+    await submitNewPassword(newPw);
     setPwSaved(true);
     setTimeout(() => {
       setPwOpen(false);
@@ -263,25 +266,23 @@ export default function SenhaPage() {
     setTimeout(() => setSecretCopied(false), 1800);
   }
 
-  function verifyReconfigure() {
+  async function verifyReconfigure() {
     setOtpError("");
     if (otp.length < 6) return;
     setOtpVerifying(true);
-    // TODO: validar o código via API. Mock: qualquer código exceto "000000".
-    setTimeout(() => {
-      setOtpVerifying(false);
-      if (otp === "000000") {
-        setOtpError("Código inválido ou expirado. Espere o app gerar um novo (a cada 30s) e confira se o relógio do celular está certo.");
-        return;
-      }
-      setReconfigureOpen(false);
-      // Encadeia direto nos novos códigos de backup, como no fluxo de setup —
-      // pula a confirmação porque o usuário já estava conscientemente
-      // reconfigurando o MFA.
-      setBackupConfirmed(false);
-      setBackupStep("view");
-      setBackupOpen(true);
-    }, 1100);
+    const ok = await verifyTotpCode(otp);
+    setOtpVerifying(false);
+    if (!ok) {
+      setOtpError("Código inválido ou expirado. Espere o app gerar um novo (a cada 30s) e confira se o relógio do celular está certo.");
+      return;
+    }
+    setReconfigureOpen(false);
+    // Encadeia direto nos novos códigos de backup, como no fluxo de setup —
+    // pula a confirmação porque o usuário já estava conscientemente
+    // reconfigurando o MFA.
+    setBackupConfirmed(false);
+    setBackupStep("view");
+    setBackupOpen(true);
   }
 
   function handleToggleMfa(next: boolean) {
