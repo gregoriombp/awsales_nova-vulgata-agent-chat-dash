@@ -51,6 +51,39 @@ function identityToActor(identity: ReviewIdentity | null): ReviewActor | null {
   return { kind: "user", id: identity.id, name: identity.name }
 }
 
+// Contas de revisão salvas (multi-conta). A identidade ATUAL continua no backend
+// de storage; a LISTA de contas conhecidas mora só no localStorage do navegador
+// — é conveniência local pra trocar/adicionar revisor pela bolota, sem API nova.
+const ACCOUNTS_STORAGE_KEY = "bombardier-review:accounts"
+
+function loadAccounts(): ReviewIdentity[] {
+  if (typeof window === "undefined") return []
+  try {
+    const raw = window.localStorage.getItem(ACCOUNTS_STORAGE_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter(
+      (a) =>
+        a &&
+        typeof a.id === "string" &&
+        typeof a.name === "string" &&
+        typeof a.colorToken === "string"
+    ) as ReviewIdentity[]
+  } catch {
+    return []
+  }
+}
+
+function persistAccounts(list: ReviewIdentity[]): void {
+  if (typeof window === "undefined") return
+  try {
+    window.localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(list))
+  } catch {
+    /* storage cheio/indisponível — silencioso, é só conveniência */
+  }
+}
+
 type ReviewState = {
   storage: ReviewStorage
   backend: StorageBackend
@@ -62,6 +95,10 @@ type ReviewState = {
   identity: ReviewIdentity | null
   identityModalOpen: boolean
   identityHydrated: boolean
+  /** Contas de revisão salvas neste navegador (a atual é `identity`). */
+  accounts: ReviewIdentity[]
+  /** "edit" reaproveita a identidade atual; "new" força criar outra conta. */
+  identityDraftMode: "edit" | "new"
 
   drawingPath: ReviewPoint[] | null
   pendingAnchor: ReviewAnchor | null
@@ -88,6 +125,12 @@ type ReviewState = {
   hydrateIdentity: () => Promise<void>
   setIdentity: (name: string, colorToken: string) => Promise<void>
   closeIdentityModal: () => void
+  /** Abre o modal de identidade em modo edição (padrão) ou criação. */
+  openIdentityModal: (mode?: "edit" | "new") => void
+  /** Atalho: abre o modal já em modo "nova conta". */
+  addAccount: () => void
+  /** Troca a identidade atual por uma das contas salvas (por id). */
+  switchIdentity: (id: string) => Promise<void>
 
   startDraw: (point: ReviewPoint, colorToken: string) => void
   appendDrawPoint: (point: ReviewPoint) => void
@@ -150,6 +193,8 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
   identity: null,
   identityModalOpen: false,
   identityHydrated: false,
+  accounts: [],
+  identityDraftMode: "edit",
 
   drawingPath: null,
   pendingAnchor: null,
@@ -214,7 +259,14 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
   hydrateIdentity: async () => {
     try {
       const identity = await get().storage.getIdentity()
-      set({ identity, identityHydrated: true })
+      let accounts = loadAccounts()
+      // Instalações anteriores ao multi-conta só tinham a identidade atual:
+      // garante que ela apareça na lista de contas salvas.
+      if (identity && !accounts.some((a) => a.id === identity.id)) {
+        accounts = [...accounts, identity]
+        persistAccounts(accounts)
+      }
+      set({ identity, accounts, identityHydrated: true })
     } catch (e) {
       console.warn("[review] failed to hydrate identity:", e)
       set({ identityHydrated: true })
@@ -224,25 +276,50 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
   setIdentity: async (name, colorToken) => {
     const trimmed = name.trim()
     if (!trimmed) return
-    const existing = get().identity
-    const identity: ReviewIdentity = existing
-      ? { ...existing, name: trimmed, colorToken }
-      : {
+    const { identity: existing, identityDraftMode, accounts } = get()
+    // Modo "new" cria outra conta mesmo já havendo uma atual; senão edita a
+    // atual mantendo o id (preserva a autoria dos comentários já feitos).
+    const isNew = identityDraftMode === "new" || !existing
+    const identity: ReviewIdentity = isNew
+      ? {
           id: makeId("rev"),
           name: trimmed,
           colorToken,
           createdAt: Date.now(),
         }
+      : { ...existing, name: trimmed, colorToken }
     await get().storage.setIdentity(identity)
-    set({ identity, identityModalOpen: false })
+    const nextAccounts = isNew
+      ? [...accounts, identity]
+      : accounts.map((a) => (a.id === identity.id ? identity : a))
+    if (!nextAccounts.some((a) => a.id === identity.id)) nextAccounts.push(identity)
+    persistAccounts(nextAccounts)
+    set({
+      identity,
+      accounts: nextAccounts,
+      identityModalOpen: false,
+      identityDraftMode: "edit",
+    })
   },
 
   closeIdentityModal: () => {
     if (!get().identity) {
-      set({ identityModalOpen: false, active: false })
+      set({ identityModalOpen: false, active: false, identityDraftMode: "edit" })
       return
     }
-    set({ identityModalOpen: false })
+    set({ identityModalOpen: false, identityDraftMode: "edit" })
+  },
+
+  openIdentityModal: (mode = "edit") =>
+    set({ identityModalOpen: true, identityDraftMode: mode }),
+
+  addAccount: () => set({ identityModalOpen: true, identityDraftMode: "new" }),
+
+  switchIdentity: async (id) => {
+    const account = get().accounts.find((a) => a.id === id)
+    if (!account || account.id === get().identity?.id) return
+    await get().storage.setIdentity(account)
+    set({ identity: account })
   },
 
   startDraw: (point, colorToken) => {
