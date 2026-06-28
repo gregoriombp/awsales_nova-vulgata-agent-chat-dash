@@ -108,6 +108,21 @@ function Swatch({
   );
 }
 
+function TooltipSwatch({
+  cat,
+}: {
+  cat: { color: string; avatar?: string; gradient?: boolean };
+}) {
+  if (!cat.avatar) return <Swatch cat={cat} size={8} />;
+
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1">
+      <Swatch cat={cat} size={16} showAvatar />
+      <Swatch cat={cat} size={6} />
+    </span>
+  );
+}
+
 /* ---------- modal: confirmação antes de ir pro relatório completo ---------- */
 
 export function ReportExitModal({
@@ -359,7 +374,7 @@ function Chart({
   const BAR_MAX = 96;
 
   return (
-    <div className="rounded-xl border border-(--border-subtle) bg-(--bg-surface) px-5 pt-6 pb-4">
+    <div className="rounded-xl border border-(--border-subtle) px-5 pb-4 pt-6">
       <div
         className="relative"
         role="img"
@@ -414,7 +429,6 @@ function Chart({
         <div className="absolute inset-0 flex items-end justify-center gap-2">
           {series.map((day, di) => {
             const dayTotal = day.values.reduce((s, v) => s + v, 0);
-            const dayFocused = activeDay === di && !activeCat;
             return (
               <Tooltip key={di}>
                 <TooltipTrigger asChild>
@@ -428,22 +442,24 @@ function Chart({
                     }}
                   >
                     <div
-                      className={cn(
-                        "flex w-full flex-col-reverse justify-start gap-0.5 transition-transform duration-200 ease-out",
-                        dayFocused && "scale-[1.02]",
-                      )}
+                      className="flex w-full flex-col-reverse justify-start gap-0.5"
                     >
                       {cats.map((c, ci) => {
                         const v = day.values[ci] ?? 0;
                         if (v <= 0) return null;
                         const h = Math.max(Math.round(v * scale), 3);
                         // categoria em foco tem prioridade; senão, foco por dia.
-                        const dim = activeCat
-                          ? activeCat !== c.id
+                        const focusedCat = hoverSeg?.cat ?? activeCat;
+                        const dim = focusedCat
+                          ? focusedCat !== c.id
                           : activeDay !== null && activeDay !== di;
+                        const outrosIdle = c.id === "outros" && focusedCat !== "outros";
                         return (
                           <div
                             key={c.id}
+                            data-overview-chart-segment=""
+                            data-category={c.id}
+                            data-day={di}
                             onMouseEnter={() => setHoverSeg({ day: di, cat: c.id })}
                             className="w-full transition-[opacity] duration-200 ease-out"
                             style={{
@@ -451,6 +467,7 @@ function Chart({
                               borderRadius: 4,
                               background: segFill(c),
                               opacity: dim ? 0.18 : 1,
+                              filter: outrosIdle ? "saturate(0)" : undefined,
                             }}
                           />
                         );
@@ -559,7 +576,7 @@ function DayTooltip({
               )}
             >
               <span className="inline-flex min-w-0 items-center gap-1.5">
-                <Swatch cat={c} size={8} />
+                <TooltipSwatch cat={c} />
                 <span
                   className={cn(
                     "truncate body-xs",
@@ -586,4 +603,3 @@ function DayTooltip({
     </div>
   );
 }
-
