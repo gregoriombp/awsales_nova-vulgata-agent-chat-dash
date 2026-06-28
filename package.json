@@ -17,6 +17,7 @@
     "review:restore": "node scripts/review-bridge-backup.mjs restore",
     "review:backups": "node scripts/review-bridge-backup.mjs list",
     "review:externalize-images": "node scripts/review-bridge-externalize.mjs",
+    "review:quantize-anchors": "node scripts/review-bridge-quantize-anchors.mjs",
     "review-bridge": "npm --prefix review-bridge start",
     "review-bridge:dev": "npm --prefix review-bridge run dev",
     "review-bridge:install": "npm --prefix review-bridge install"

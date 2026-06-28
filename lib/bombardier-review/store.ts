@@ -128,6 +128,17 @@ function centroidOf(points: ReviewPoint[]): ReviewPoint {
   return { x: sum.x / points.length, y: sum.y / points.length }
 }
 
+// Arredonda pra px inteiro: precisão de float crua num traço à mão é sub-pixel
+// (invisível) mas infla o anchor no JSON.
+function quantizePoint(p: ReviewPoint): ReviewPoint {
+  return { x: Math.round(p.x), y: Math.round(p.y) }
+}
+// Frações de reflow (0..1): 4 casas = sub-pixel em qualquer viewport.
+const round4 = (n: number) => Math.round(n * 1e4) / 1e4
+function quantizeDrawAnchor(el: ReviewDrawAnchor): ReviewDrawAnchor {
+  return { ...el, points: el.points.map((p) => ({ fx: round4(p.fx), fy: round4(p.fy) })) }
+}
+
 export const useReviewStore = create<ReviewState>()((set, get) => ({
   storage: initial.storage,
   backend: initial.backend,
@@ -259,16 +270,19 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
       set({ drawingPath: null })
       return
     }
+    // Quantiza os pontos antes de persistir: um traço à mão tem ~350 pontos e a
+    // precisão de float crua não muda nada visualmente (sub-pixel), mas dobra/
+    // triplica o peso do anchor no JSON. px -> inteiro, frações -> 4 casas.
     const drawPath: ReviewDrawPath = {
-      points: path,
+      points: path.map(quantizePoint),
       strokeColorToken: identity.colorToken,
       strokeWidth: DEFAULT_STROKE_WIDTH,
     }
     const anchor: ReviewAnchor = {
       kind: "draw",
       path: drawPath,
-      centroid: centroidOf(path),
-      ...(el ? { el } : {}),
+      centroid: quantizePoint(centroidOf(path)),
+      ...(el ? { el: quantizeDrawAnchor(el) } : {}),
     }
     set({ drawingPath: null, pendingAnchor: anchor })
   },
