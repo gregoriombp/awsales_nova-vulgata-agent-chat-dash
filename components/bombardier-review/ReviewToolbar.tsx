@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { Icon } from "@/components/ui/Icon"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { useCommentsForUrl, useCurrentUrl } from "@/lib/bombardier-review/hooks"
@@ -9,6 +10,11 @@ import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
 import { ReviewAvatar } from "./ReviewAvatar"
 import { ModeFamilySwitch } from "@/components/bombardier/ModeFamilySwitch"
 import type { ReviewMode } from "./types"
+
+// Easing/durations espelham os tokens de motion do globals.css
+// (--ease-out + --dur-slow) pra a expansão da barra ficar no mesmo idioma do DS.
+const EXPAND_EASE = [0.22, 0.61, 0.36, 1] as const
+const EXPAND_TRANSITION = { duration: 0.26, ease: EXPAND_EASE }
 
 type ModeButtonProps = {
   mode: ReviewMode
@@ -88,128 +94,139 @@ export function ReviewToolbar() {
   const inReviewCount = allComments.filter((c) => c.status === "in_review").length
   const stopDismiss = useStopDismiss<HTMLDivElement>()
 
-  if (!active) {
-    return (
-      <div
-        {...{ [OVERLAY_DATA_ATTR]: "" }}
-        ref={stopDismiss}
-        className="fixed bottom-16 right-4 pointer-events-none"
-        style={{ zIndex: REVIEW_Z.toolbar }}
-      >
-        <button
-          type="button"
-          onClick={toggleActive}
-          aria-label="Abrir Review Mode (⌘⇧Y)"
-          title="Review Mode · ⌘⇧Y"
-          className="pointer-events-auto inline-flex items-center gap-2 px-3 py-2 rounded-full bg-(--bg-inverse) text-(--fg-on-inverse) shadow-lg hover:opacity-90 body-xs font-medium"
-        >
-          <Icon name="rate_review" size={14} />
-          Review
-        </button>
-      </div>
-    )
-  }
-
   return (
     <div
       {...{ [OVERLAY_DATA_ATTR]: "" }}
       ref={stopDismiss}
-      className="fixed bottom-16 right-4 pointer-events-none"
+      className="fixed bottom-4 left-1/2 -translate-x-1/2 pointer-events-none"
       style={{ zIndex: REVIEW_Z.toolbar }}
     >
-      <div className="pointer-events-auto rounded-full bg-(--bg-raised) border border-(--border-subtle) shadow-lg px-1.5 py-1.5 flex items-center gap-1">
-        <ModeFamilySwitch current="review" />
-
-        <span className="h-5 w-px bg-(--border-subtle)" />
-
-        {identity && (
-          <ReviewAvatar
-            authorId={identity.id}
-            authorName={identity.name}
-            colorToken={identity.colorToken}
-            size={28}
-            title={`Revisor: ${identity.name}`}
-            className="mr-0.5"
-          />
-        )}
-
-        <span className="h-5 w-px bg-(--border-subtle)" />
-
-        <ModeButton
-          mode="cursor"
-          icon="arrow_selector_tool"
-          label="Cursor"
-        />
-        <ModeButton
-          mode="draw"
-          icon="draw"
-          label="Marcação livre"
-          shortcut="⌘⇧K"
-        />
-        <ModeButton mode="pin" icon="location_on" label="Pino" />
-        <MagicModeButton />
-
-        <span className="h-5 w-px bg-(--border-subtle)" />
-
-        <button
-          type="button"
-          onClick={toggleSheet}
-          aria-label={
-            inReviewCount > 0
-              ? `Comentários · ${inReviewCount} em revisão`
-              : "Comentários desta tela"
-          }
-          aria-pressed={sheetOpen}
-          title={
-            inReviewCount > 0
-              ? `Comentários · ${inReviewCount} em revisão`
-              : "Comentários desta tela"
-          }
-          className={[
-            "relative h-8 inline-flex items-center gap-1 px-2 rounded-full transition-colors",
-            sheetOpen
-              ? "bg-(--bg-inverse) text-(--fg-on-inverse)"
-              : "text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)",
-          ].join(" ")}
-        >
-          <Icon name="forum" size={16} />
-          {openCount > 0 && (
-            <span className="body-xs font-semibold tabular-nums">
-              {openCount}
-            </span>
-          )}
-          {inReviewCount > 0 && (
-            <span
-              className="absolute -top-1 -right-1 min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full body-xs font-semibold tabular-nums bg-(--aw-amber-500) text-(--fg-on-inverse) ring-2 ring-(--bg-raised)"
-              aria-hidden="true"
+      <AnimatePresence mode="popLayout" initial={false}>
+        {!active ? (
+          <motion.div
+            key="pill"
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.85 }}
+            transition={EXPAND_TRANSITION}
+            style={{ transformOrigin: "bottom center" }}
+          >
+            <button
+              type="button"
+              onClick={toggleActive}
+              aria-label="Abrir Review Mode (⌘⇧Y)"
+              title="Review Mode · ⌘⇧Y"
+              className="pointer-events-auto inline-flex items-center gap-2 px-3 py-2 rounded-full bg-(--bg-inverse) text-(--fg-on-inverse) shadow-lg hover:opacity-90 body-xs font-medium"
             >
-              {inReviewCount}
-            </span>
-          )}
-        </button>
+              <Icon name="rate_review" size={14} />
+              Review
+            </button>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="toolbar"
+            initial={{ opacity: 0, scale: 0.85, y: 6 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 4 }}
+            transition={EXPAND_TRANSITION}
+            style={{ transformOrigin: "bottom center" }}
+          >
+            <div className="pointer-events-auto rounded-full bg-(--bg-raised) border border-(--border-subtle) shadow-lg px-1.5 py-1.5 flex items-center gap-1">
+              <ModeFamilySwitch current="review" />
 
-        <button
-          type="button"
-          onClick={() => setExportOpen(true)}
-          aria-label="Exportar comentários"
-          title="Exportar JSON"
-          className="h-8 w-8 inline-flex items-center justify-center rounded-full text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
-        >
-          <Icon name="ios_share" size={16} />
-        </button>
+              <span className="h-5 w-px bg-(--border-subtle)" />
 
-        <span className="h-5 w-px bg-(--border-subtle)" />
+              {identity && (
+                <ReviewAvatar
+                  authorId={identity.id}
+                  authorName={identity.name}
+                  colorToken={identity.colorToken}
+                  size={28}
+                  title={`Revisor: ${identity.name}`}
+                  className="mr-0.5"
+                />
+              )}
 
-        <button
-          type="button"
-          onClick={toggleActive}
-          aria-label="Fechar Review Mode"
-          title="Fechar (⌘⇧Y)"
-          className="h-8 w-8 inline-flex items-center justify-center rounded-full text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
-        >
-          <Icon name="close" size={16} />
-        </button>
-      </div>
+              <span className="h-5 w-px bg-(--border-subtle)" />
+
+              <ModeButton
+                mode="cursor"
+                icon="arrow_selector_tool"
+                label="Cursor"
+              />
+              <ModeButton
+                mode="draw"
+                icon="draw"
+                label="Marcação livre"
+                shortcut="⌘⇧K"
+              />
+              <ModeButton mode="pin" icon="location_on" label="Pino" />
+              <MagicModeButton />
+
+              <span className="h-5 w-px bg-(--border-subtle)" />
+
+              <button
+                type="button"
+                onClick={toggleSheet}
+                aria-label={
+                  inReviewCount > 0
+                    ? `Comentários · ${inReviewCount} em revisão`
+                    : "Comentários desta tela"
+                }
+                aria-pressed={sheetOpen}
+                title={
+                  inReviewCount > 0
+                    ? `Comentários · ${inReviewCount} em revisão`
+                    : "Comentários desta tela"
+                }
+                className={[
+                  "relative h-8 inline-flex items-center gap-1 px-2 rounded-full transition-colors",
+                  sheetOpen
+                    ? "bg-(--bg-inverse) text-(--fg-on-inverse)"
+                    : "text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)",
+                ].join(" ")}
+              >
+                <Icon name="forum" size={16} />
+                {openCount > 0 && (
+                  <span className="body-xs font-semibold tabular-nums">
+                    {openCount}
+                  </span>
+                )}
+                {inReviewCount > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full body-xs font-semibold tabular-nums bg-(--aw-amber-500) text-(--fg-on-inverse) ring-2 ring-(--bg-raised)"
+                    aria-hidden="true"
+                  >
+                    {inReviewCount}
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setExportOpen(true)}
+                aria-label="Exportar comentários"
+                title="Exportar JSON"
+                className="h-8 w-8 inline-flex items-center justify-center rounded-full text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+              >
+                <Icon name="ios_share" size={16} />
+              </button>
+
+              <span className="h-5 w-px bg-(--border-subtle)" />
+
+              <button
+                type="button"
+                onClick={toggleActive}
+                aria-label="Fechar Review Mode"
+                title="Fechar (⌘⇧Y)"
+                className="h-8 w-8 inline-flex items-center justify-center rounded-full text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+              >
+                <Icon name="close" size={16} />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
