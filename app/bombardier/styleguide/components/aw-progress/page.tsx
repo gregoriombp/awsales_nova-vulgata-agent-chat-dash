@@ -102,8 +102,8 @@ export default function AwProgressPage() {
             <Spec k="fill success" v="--aw-emerald-600" d="Verde brand." />
             <Spec k="fill warning" v="--aw-amber-500" d="Âmbar brand." />
             <Spec k="fill danger" v="--aw-red-600" d="Vermelho brand." />
-            <Spec k="label tipo" v="13 / 400" d="Geist Regular, --fg-secondary." />
-            <Spec k="value tipo" v="13 / 500" d="Geist Medium, --fg-primary." />
+            <Spec k="label tipo" v="13 / 400" d="Neue Haas Grotesk Display Regular, --fg-secondary." />
+            <Spec k="value tipo" v="13 / 500" d="Neue Haas Grotesk Display Medium, --fg-primary." />
           </div>
         </Section>
 

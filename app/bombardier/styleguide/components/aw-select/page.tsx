@@ -90,7 +90,7 @@ export default function AwSelectPage() {
             <Spec k="hover" v="--fg-primary" d="Borda escurece pro tom de texto." />
             <Spec k="focus" v="ring 3 px · blue 30%" d="Mesmo token de AwInput / AwButton." />
             <Spec k="disabled" v="opacity 0.5" d="pointer-events none." />
-            <Spec k="label" v="14 / 400" d="Geist Regular. --fg-primary." />
+            <Spec k="label" v="14 / 400" d="Neue Haas Grotesk Display Regular. --fg-primary." />
           </div>
         </Section>
 

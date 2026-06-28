@@ -90,7 +90,7 @@ const TRACKING: TrackingSpec[] = [
   { name: "tracking-label-lg",        token: "--tracking-label-lg",        value: "0.08em",   use: "Labels uppercase mais espaçados", upper: true },
 ]
 
-const GEIST_WEIGHTS: Array<{ value: number; name: string }> = [
+const TYPE_WEIGHTS: Array<{ value: number; name: string }> = [
   { value: 100, name: "Thin" },
   { value: 200, name: "ExtraLight" },
   { value: 300, name: "Light" },
@@ -106,9 +106,9 @@ export default function TypographyPage() {
   return (
     <>
       <PageHero title="Tipografia">
-        <strong>Geist</strong> é a família principal da interface — usamos pra{" "}
+        <strong>Neue Haas Grotesk Display</strong> é a família principal da interface — usamos pra{" "}
         <em>tudo</em>: títulos, body, navegação, labels, números.{" "}
-        <strong>Geist Mono</strong> entra <em>só</em> em conteúdo literalmente
+        <strong>fonte mono do sistema</strong> entra <em>só</em> em conteúdo literalmente
         monoespaçado: código, tokens, IDs, paths e timestamps. Uma voz, uma
         escala, hierarquia via tamanho.
       </PageHero>
@@ -117,11 +117,11 @@ export default function TypographyPage() {
         <Tldr
           use={[
             <>
-              <strong>Geist</strong> em <em>tudo</em> que é texto humano:
+              <strong>Neue Haas Grotesk Display</strong> em <em>tudo</em> que é texto humano:
               títulos, body, botões, labels, números, navegação.
             </>,
             <>
-              <strong>Geist Mono</strong> só em código, tokens, IDs, paths e
+              <strong>fonte mono do sistema</strong> só em código, tokens, IDs, paths e
               timestamps.
             </>,
             <>
@@ -140,7 +140,7 @@ export default function TypographyPage() {
           ]}
           dontUse={[
             <>Carregar outra fonte (Inter, Roboto, Manrope, etc.).</>,
-            <>Misturar Geist Mono em texto humano (vira código falso).</>,
+            <>Misturar fonte mono em texto humano (vira código falso).</>,
             <>
               Pular degraus —{" "}
               <code className="mono">font-size: 17px</code> não existe.
@@ -161,7 +161,7 @@ export default function TypographyPage() {
             <Principle
               n="01"
               title="Uma só voz"
-              body="Geist em tudo. Geist Mono só em código. Sem fontes decorativas, sem fallback humanista."
+              body="Neue Haas Grotesk Display em tudo. Fonte mono do sistema só em código. Sem fontes decorativas, sem fallback humanista."
             />
             <Principle
               n="02"
@@ -185,13 +185,13 @@ export default function TypographyPage() {
         <Section
           id="fonts"
           title="Famílias"
-          lead="Duas. Carregadas via Google Fonts no layout raiz — sem CDN externo, sem FOUT. Geist é onipresente; Geist Mono é dosada."
+          lead="Duas. Carregadas no layout raiz via Adobe Fonts + stack mono do sistema. Neue Haas Grotesk Display é onipresente; mono é dosada."
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 flex flex-col gap-4">
               <div className="aw-eyebrow">--font-sans · principal</div>
               <div className="text-[64px] leading-none tracking-tight font-light text-(--fg-primary)">
-                Geist
+                Neue Haas
               </div>
               <p className="body-sm m-0 text-(--fg-secondary)">
                 Sans-serif geométrica com personalidade neutra. É a família
@@ -200,7 +200,7 @@ export default function TypographyPage() {
                 pesos (100 → 900).
               </p>
               <code className="mono text-xs text-(--fg-tertiary)">
-                font-family: Geist, ui-sans-serif, system-ui, …
+                font-family: neue-haas-grotesk-display, ui-sans-serif, system-ui, …
               </code>
             </div>
             <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 flex flex-col gap-4">
@@ -209,7 +209,7 @@ export default function TypographyPage() {
                 className="text-[64px] leading-none font-medium text-(--fg-primary)"
                 style={{ fontFamily: "var(--font-mono)" }}
               >
-                Geist Mono
+                Mono
               </div>
               <p className="body-sm m-0 text-(--fg-secondary)">
                 Monospace pareada. Largura constante facilita leitura técnica.
@@ -218,7 +218,7 @@ export default function TypographyPage() {
                 timestamps e paths. <strong>Nunca</strong> em texto humano.
               </p>
               <code className="mono text-xs text-(--fg-tertiary)">
-                font-family: &apos;Geist Mono&apos;, ui-monospace, SF Mono, Menlo, …
+                font-family: ui-monospace, SF Mono, Menlo, …
               </code>
             </div>
           </div>
@@ -232,7 +232,7 @@ export default function TypographyPage() {
         >
           <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-5">
-              {GEIST_WEIGHTS.map((w) => (
+              {TYPE_WEIGHTS.map((w) => (
                 <div
                   key={w.value}
                   className="flex items-baseline justify-between gap-4 border-b border-(--border-subtle) pb-3 last:border-b-0"
@@ -265,7 +265,7 @@ export default function TypographyPage() {
         <Section
           id="display"
           title="Display"
-          lead="Tamanhos cinemáticos. Cinco escalas, todas em Geist Light (300) com tracking apertado e line-height 1. Use em landing, splash e hero externo."
+          lead="Tamanhos cinemáticos. Cinco escalas, todas em Neue Haas Grotesk Display Light (300) com tracking apertado e line-height 1. Use em landing, splash e hero externo."
         >
           <SpecCard>
             {DISPLAY.map((d) => (
@@ -295,7 +295,7 @@ export default function TypographyPage() {
         <Section
           id="headings"
           title="Headings"
-          lead="Geist Medium (500). Tracking aperta de h1 (-2%) até h3 (-1%), depois line-height aumenta de 1.15 a 1.35 conforme o tamanho cai. Em código, use a tag HTML — os estilos já vêm de globals.css."
+          lead="Neue Haas Grotesk Display Medium (500). Tracking aperta de h1 (-2%) até h3 (-1%), depois line-height aumenta de 1.15 a 1.35 conforme o tamanho cai. Em código, use a tag HTML — os estilos já vêm de globals.css."
         >
           <SpecCard>
             {HEADINGS.map(({ tag: Tag, size, leading, tracking, weight, use, token }) => (
@@ -330,7 +330,7 @@ export default function TypographyPage() {
         <Section
           id="body"
           title="Body"
-          lead="Geist Regular (400). Cinco degraus de 12 a 20 px. O padrão é body-md (16); leia o caso antes de subir/descer."
+          lead="Neue Haas Grotesk Display Regular (400). Cinco degraus de 12 a 20 px. O padrão é body-md (16); leia o caso antes de subir/descer."
         >
           <SpecCard>
             {BODY.map((b) => (
@@ -576,7 +576,7 @@ export default function TypographyPage() {
           <DoDont
             dos={[
               <>
-                Use Geist em <em>tudo</em> que é texto humano — não tem motivo
+                Use Neue Haas Grotesk Display em <em>tudo</em> que é texto humano — não tem motivo
                 pra carregar outra fonte.
               </>,
               <>

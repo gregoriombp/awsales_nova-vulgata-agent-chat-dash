@@ -156,7 +156,7 @@ export default function SheetPage() {
               prop="mono"
               type="boolean"
               def="false"
-              doc="Aplica Geist Mono no valor (pra IDs, custos, latências)."
+              doc="Aplica fonte mono do sistema no valor (pra IDs, custos, latências)."
             />
             <PropRow
               prop="children"

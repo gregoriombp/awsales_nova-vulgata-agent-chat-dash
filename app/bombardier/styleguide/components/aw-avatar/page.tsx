@@ -271,7 +271,7 @@ import { AwStatusDot } from "@/components/ui/AwStatusDot"
         <Section
           id="anatomy"
           title="Anatomia"
-          lead="Container circular, conteúdo centralizado. Iniciais em Geist medium; imagens cobrem com object-fit cover. Status entra externamente, sempre via AwStatusDot."
+          lead="Container circular, conteúdo centralizado. Iniciais em Neue Haas Grotesk Display medium; imagens cobrem com object-fit cover. Status entra externamente, sempre via AwStatusDot."
         >
           <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec k="forma" v="círculo · radius full" d="Constante em todos os tamanhos e variantes." />

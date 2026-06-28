@@ -130,7 +130,7 @@ export default function StyleguideLayout({
         <div className="mt-auto text-xs text-(--fg-tertiary) leading-relaxed">
           Aswork Design System
           <br />
-          Geist · Geist Mono
+          Neue Haas Grotesk Display · Mono do sistema
         </div>
       </aside>
 
