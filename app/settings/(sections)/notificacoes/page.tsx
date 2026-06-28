@@ -242,6 +242,8 @@ export default function NotificationsSettingsPage() {
   const [weeklyDigest, setWeeklyDigest] = React.useState(false);
 
   const [resetOpen, setResetOpen] = React.useState(false);
+  const enabledDeliveryCount =
+    1 + Number(emailDelivery) + Number(whatsappDelivery) + Number(weeklyDigest);
 
   // Toast de "salvo" com coalescing — marcar vários canais em sequência não
   // empilha toasts; um único aviso aparece quando a rajada termina.
@@ -364,6 +366,12 @@ export default function NotificationsSettingsPage() {
             setGlobalChannel(ch, val);
           }}
         />
+        <DeliverySummary
+          enabledCount={enabledDeliveryCount}
+          email={emailDelivery}
+          whatsapp={whatsappDelivery}
+          weekly={weeklyDigest}
+        />
       </div>
 
       {/* Cabeçalho de colunas da matriz — nomeia os canais UMA vez (em vez de
@@ -434,6 +442,45 @@ export default function NotificationsSettingsPage() {
 /* ===================================================================== *
  * Peças
  * ===================================================================== */
+
+function DeliverySummary({
+  enabledCount,
+  email,
+  whatsapp,
+  weekly,
+}: {
+  enabledCount: number;
+  email: boolean;
+  whatsapp: boolean;
+  weekly: boolean;
+}) {
+  const disabled = [
+    !email ? "e-mail" : null,
+    !whatsapp ? "WhatsApp" : null,
+    !weekly ? "resumo semanal" : null,
+  ].filter(Boolean);
+
+  return (
+    <div className="mt-3 flex items-start gap-2 rounded-lg border border-(--border-subtle) bg-(--bg-muted) px-3 py-2.5">
+      <Icon
+        name="rule_settings"
+        size={16}
+        className="mt-0.5 shrink-0 text-(--fg-tertiary)"
+      />
+      <div className="min-w-0">
+        <p className="m-0 body-xs font-medium text-(--fg-primary)">
+          {enabledCount} {enabledCount === 1 ? "canal ativo" : "canais ativos"}
+        </p>
+        <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+          No app fica sempre ligado.{" "}
+          {disabled.length > 0
+            ? `Desligados agora: ${disabled.join(", ")}.`
+            : "Todos os canais liberados estão ativos."}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 /** Row de 4 canais no topo da página, em cards iguais. Coerente com o
  *  estilo de "Canais permitidos" em /organizacao/notificacoes. */
@@ -506,7 +553,7 @@ function ChannelCard({
       className={cn(
         "flex flex-col gap-3 rounded-xl border px-4 py-4 transition-colors duration-aw-fast",
         active
-          ? "border-(--fg-primary) bg-(--fg-primary)"
+          ? "border-(--fg-primary) bg-(--bg-selected)"
           : "border-(--border-subtle) bg-(--bg-raised)",
       )}
     >
@@ -515,7 +562,7 @@ function ChannelCard({
           className={cn(
             "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
             active
-              ? "bg-(--bg-canvas)/15 text-(--bg-canvas)"
+              ? "bg-(--fg-primary) text-(--bg-canvas)"
               : "bg-(--bg-muted) text-(--fg-secondary)",
           )}
         >
@@ -529,7 +576,7 @@ function ChannelCard({
           <span
             className={cn(
               "inline-flex items-center gap-1 body-xs font-medium",
-              active ? "text-(--bg-canvas)/80" : "text-(--fg-tertiary)",
+              active ? "text-(--fg-secondary)" : "text-(--fg-tertiary)",
             )}
           >
             <Icon name="lock" size={12} />
@@ -548,7 +595,7 @@ function ChannelCard({
         <p
           className={cn(
             "m-0 body-sm font-medium",
-            active ? "text-(--bg-canvas)" : "text-(--fg-primary)",
+            "text-(--fg-primary)",
           )}
         >
           {name}
@@ -557,7 +604,7 @@ function ChannelCard({
           <p
             className={cn(
               "m-0 mt-0.5 truncate body-xs",
-              active ? "text-(--bg-canvas)/75" : "text-(--fg-tertiary)",
+              active ? "text-(--fg-secondary)" : "text-(--fg-tertiary)",
             )}
           >
             {note}

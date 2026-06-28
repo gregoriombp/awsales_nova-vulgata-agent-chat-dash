@@ -427,38 +427,38 @@ export type OverviewSpendCategory = {
   /** Fatia agregada ("Outros"): renderiza com o gradient iridescente da marca
    *  em vez de uma cor sólida — no gráfico, na legenda e na tabela. */
   gradient?: boolean;
+  /** Total canônico (R$) no baseline mensal — a série diária distribui ESTE
+   *  valor pelas barras, então a soma da categoria no gráfico bate com a linha
+   *  da tabela. Em modo agente, "Outros" é a soma da cauda (agentes fora do
+   *  top 5), pra a fatia agregada aparecer no seu tamanho real. */
+  total: number;
 };
 
 export const OVERVIEW_SPEND_CATEGORIES: Record<
   SpendingGrouping,
   OverviewSpendCategory[]
 > = {
+  // service: totais batem com OVERVIEW_SERVICE_GROUPS (somam 891,63).
   service: [
-    { id: "leads", label: "Leads ativos", color: SPEND_RAMP[0], icon: "person_check" },
-    { id: "tokens", label: "Tokens", color: SPEND_RAMP[1], icon: "toll" },
-    { id: "mensagens", label: "Mensagens transacionadas", color: SPEND_RAMP[2], icon: "forum" },
-    { id: "disparos", label: "Disparos", color: SPEND_RAMP[3], icon: "send" },
-    { id: "telefone", label: "Telefone", color: SPEND_RAMP[4], icon: "call" },
+    { id: "leads", label: "Leads ativos", color: SPEND_RAMP[0], icon: "person_check", total: 96.0 },
+    { id: "tokens", label: "Tokens", color: SPEND_RAMP[1], icon: "toll", total: 181.9 },
+    { id: "mensagens", label: "Mensagens transacionadas", color: SPEND_RAMP[2], icon: "forum", total: 186.16 },
+    { id: "disparos", label: "Disparos", color: SPEND_RAMP[3], icon: "send", total: 388.57 },
+    { id: "telefone", label: "Telefone", color: SPEND_RAMP[4], icon: "call", total: 39.0 },
   ],
+  // agent: top 5 do AGENT_BREAKDOWN + "Outros" = soma da cauda (348,76). Somam 891,63.
   agent: [
-    { id: "aria", label: "Aria", color: SPEND_RAMP[0], avatar: "/assets/agent_imgs/orbs/orb_model-a_01-1.png" },
-    { id: "atlas", label: "Atlas", color: SPEND_RAMP[1], avatar: "/assets/agent_imgs/orbs/orb_model-a_05-1.png" },
-    { id: "nova", label: "Nova", color: SPEND_RAMP[2], avatar: "/assets/agent_imgs/orbs/orb_model-a_08-1.png" },
-    { id: "stella", label: "Stella", color: SPEND_RAMP[3], avatar: "/assets/agent_imgs/orbs/orb_model-a_11-1.png" },
-    { id: "iris", label: "Íris", color: SPEND_RAMP[4], avatar: "/assets/agent_imgs/orbs/orb_model-a_02-1.png" },
-    { id: "outros", label: "Outros", color: SPEND_REST_COLOR, icon: "groups", gradient: true },
+    { id: "aria", label: "Aria", color: SPEND_RAMP[0], avatar: "/assets/agent_imgs/orbs/orb_model-a_01-1.png", total: 156.32 },
+    { id: "atlas", label: "Atlas", color: SPEND_RAMP[1], avatar: "/assets/agent_imgs/orbs/orb_model-a_05-1.png", total: 124.9 },
+    { id: "nova", label: "Nova", color: SPEND_RAMP[2], avatar: "/assets/agent_imgs/orbs/orb_model-a_08-1.png", total: 98.18 },
+    { id: "stella", label: "Stella", color: SPEND_RAMP[3], avatar: "/assets/agent_imgs/orbs/orb_model-a_11-1.png", total: 87.45 },
+    { id: "iris", label: "Íris", color: SPEND_RAMP[4], avatar: "/assets/agent_imgs/orbs/orb_model-a_02-1.png", total: 76.02 },
+    { id: "outros", label: "Outros", color: SPEND_REST_COLOR, icon: "groups", gradient: true, total: 348.76 },
   ],
 };
 
 /** Dias do recorte (ciclo vigente, 01–15/05). */
 export const OVERVIEW_SPEND_DAYS = 15;
-
-/** Pesos por categoria — dão à rampa um decaimento natural (base maior, topo
- *  menor), pra a leitura empilhada bater com a ordem das cores. */
-const OVERVIEW_SPEND_WEIGHTS: Record<SpendingGrouping, number[]> = {
-  service: [1.5, 1.2, 1.0, 0.78, 0.5],
-  agent: [1.5, 1.2, 0.95, 0.72, 0.5, 0.32],
-};
 
 export type OverviewSpendBar = {
   /** Rótulo do dia, ex. "03/05". */
@@ -467,42 +467,129 @@ export type OverviewSpendBar = {
   values: number[];
 };
 
-function overviewDayLabel(index: number): string {
-  // Âncora fixa (maio/2026) — rótulos estáveis, sem depender do relógio.
-  const d = new Date(2026, 4, index + 1);
+/* ---------------------------------------------------------------------------
+ * Controle de tempo da Visão geral (presets + range custom). Espelha o modelo
+ * do explorador (ConsumoContext.PeriodSelection); vive aqui pra a overview não
+ * importar o contexto do explorador. Consolidar os dois é dívida futura.
+ */
+export type PeriodSelection =
+  | { kind: "preset"; id: SpendingPeriod }
+  | { kind: "custom"; from: Date; to: Date };
+
+export const DEFAULT_PERIOD: PeriodSelection = { kind: "preset", id: "this-month" };
+
+export function diffInDaysInclusive(from: Date, to: Date): number {
+  const ms = Math.abs(to.getTime() - from.getTime());
+  return Math.floor(ms / 86_400_000) + 1;
+}
+
+export function formatRangeShort(from: Date, to: Date): string {
+  const f = (d: Date) =>
+    d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
+  return `${f(from)} – ${f(to)}`;
+}
+
+/** Nº de barras do gráfico pro período. */
+export function selectionBars(sel: PeriodSelection): number {
+  return sel.kind === "preset"
+    ? periodBars(sel.id)
+    : Math.max(1, Math.min(diffInDaysInclusive(sel.from, sel.to), 90));
+}
+
+/** Total alvo (R$) do período. */
+export function selectionTarget(sel: PeriodSelection): number {
+  return sel.kind === "preset"
+    ? periodTotal(sel.id)
+    : customPeriodTotal(diffInDaysInclusive(sel.from, sel.to));
+}
+
+/** Fator de escala em relação ao baseline mensal (891,63). */
+export function selectionRatio(sel: PeriodSelection): number {
+  return selectionTarget(sel) / periodTotal("this-month");
+}
+
+/** Rótulo curto do período (gatilho do picker + subtítulo). */
+export function selectionLabel(sel: PeriodSelection): string {
+  return sel.kind === "preset"
+    ? SPENDING_PERIODS.find((p) => p.id === sel.id)?.label ?? "Período"
+    : `Personalizado · ${formatRangeShort(sel.from, sel.to)}`;
+}
+
+/** Só mostra o marcador "Limite restaurado" (11/05) quando ele está no recorte
+ *  — é um evento do ciclo vigente. */
+export function selectionShowsLimitEvent(sel: PeriodSelection): boolean {
+  return sel.kind === "preset" && sel.id === "this-month";
+}
+
+// "Hoje" do protótipo — âncora fixa pros rótulos não dependerem do relógio.
+const OVERVIEW_ANCHOR = new Date(2026, 4, 15); // 15/05/2026
+
+function ddmm(d: Date): string {
   return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
 }
 
-/** Série diária empilhada do recorte, escalada pra fechar com o uso variável
- *  do ciclo. Determinística — mesmo desenho a cada render. */
-export function overviewSpendSeries(
-  grouping: SpendingGrouping,
-): OverviewSpendBar[] {
-  const cats = OVERVIEW_SPEND_CATEGORIES[grouping];
-  const weights = OVERVIEW_SPEND_WEIGHTS[grouping];
-  const seed = grouping === "service" ? 23 : 41;
-  const raw = genDaily(seed, OVERVIEW_SPEND_DAYS, cats.length).map((day) =>
-    day.map((v, c) => v * (weights[c] ?? 1)),
-  );
-  const rawTotal = raw.reduce((s, day) => s + day.reduce((a, v) => a + v, 0), 0);
-  const factor = rawTotal > 0 ? OVERVIEW_KPIS.accumulated / rawTotal : 0;
-  return raw.map((day, i) => ({
-    label: overviewDayLabel(i),
-    values: day.map((v) => Math.round(v * factor * 100) / 100),
-  }));
+/** Rótulos dos N dias do período (terminando "hoje" do protótipo). */
+function selectionDayLabels(sel: PeriodSelection, bars: number): string[] {
+  if (sel.kind === "custom") {
+    const step =
+      bars > 1 ? (sel.to.getTime() - sel.from.getTime()) / (bars - 1) : 0;
+    return Array.from({ length: bars }, (_, i) =>
+      ddmm(new Date(sel.from.getTime() + step * i)),
+    );
+  }
+  if (sel.id === "this-month") {
+    return Array.from({ length: bars }, (_, i) =>
+      ddmm(
+        new Date(OVERVIEW_ANCHOR.getFullYear(), OVERVIEW_ANCHOR.getMonth(), i + 1),
+      ),
+    );
+  }
+  if (sel.id === "yesterday") {
+    const d = new Date(OVERVIEW_ANCHOR);
+    d.setDate(d.getDate() - 1);
+    return [ddmm(d)];
+  }
+  // today / last-7 / last-30 / last-90 — termina em "hoje", recuando.
+  const stepDays = sel.id === "last-90" ? 3 : 1;
+  return Array.from({ length: bars }, (_, i) => {
+    const d = new Date(OVERVIEW_ANCHOR);
+    d.setDate(d.getDate() - (bars - 1 - i) * stepDays);
+    return ddmm(d);
+  });
 }
 
-/** Total por categoria no recorte — fonte única da tabela vinculada. */
-export function overviewSpendTotals(
+/** Pesos por dia (somam 1) — espalha um total por N barras com variação
+ *  determinística. Piso pra nenhuma barra zerar de vez. */
+function dayWeights(seed: number, n: number): number[] {
+  let s = ((seed % 233280) + 233280) % 233280;
+  const raw = Array.from({ length: n }, () => {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280 + 0.4;
+  });
+  const sum = raw.reduce((a, b) => a + b, 0);
+  return sum > 0 ? raw.map((v) => v / sum) : raw.map(() => 1 / n);
+}
+
+/** Série diária empilhada do período: N barras, cada categoria distribuída a
+ *  partir do SEU total canônico (escalado pelo período). Assim a soma de cada
+ *  categoria no gráfico bate com a linha da tabela, e o total fecha com o card.
+ *  Determinística — mesmo desenho a cada render. */
+export function overviewSpendSeries(
   grouping: SpendingGrouping,
-): { category: OverviewSpendCategory; total: number }[] {
+  selection: PeriodSelection = DEFAULT_PERIOD,
+): OverviewSpendBar[] {
   const cats = OVERVIEW_SPEND_CATEGORIES[grouping];
-  const series = overviewSpendSeries(grouping);
-  return cats.map((category, c) => ({
-    category,
-    total:
-      Math.round(series.reduce((s, day) => s + (day.values[c] ?? 0), 0) * 100) /
-      100,
+  const bars = selectionBars(selection);
+  const ratio = selectionRatio(selection);
+  const labels = selectionDayLabels(selection, bars);
+  const baseSeed = grouping === "service" ? 23 : 41;
+  const perCatWeights = cats.map((_, c) => dayWeights(baseSeed + c * 97, bars));
+  return Array.from({ length: bars }, (_, day) => ({
+    label: labels[day] ?? "",
+    values: cats.map(
+      (cat, c) =>
+        Math.round(cat.total * ratio * perCatWeights[c][day] * 100) / 100,
+    ),
   }));
 }
 

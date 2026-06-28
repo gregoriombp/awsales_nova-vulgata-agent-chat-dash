@@ -1,0 +1,337 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - navigation [ref=e4]:
+        - generic [ref=e5]:
+          - generic [ref=e6]:
+            - img "Aswork" [ref=e7]:
+              - generic [ref=e14]: ™
+            - button "Recolher navegação" [expanded] [ref=e15] [cursor=pointer]:
+              - generic [ref=e16]: menu
+          - 'button "Organização: Nome da organização" [ref=e18] [cursor=pointer]':
+            - generic [ref=e20]:
+              - generic [ref=e21]: Nome da organização
+              - generic [ref=e22]: Organização
+            - img [ref=e23]
+        - generic [ref=e25]:
+          - generic [ref=e27]:
+            - link "Início" [ref=e28] [cursor=pointer]:
+              - /url: /inicio
+              - generic [ref=e29]: home
+              - generic [ref=e30]: Início
+            - link "Dashboard" [ref=e31] [cursor=pointer]:
+              - /url: /dashboard
+              - generic [ref=e32]: dashboard
+              - generic [ref=e33]: Dashboard
+            - link "Insights" [ref=e34] [cursor=pointer]:
+              - /url: /insights
+              - generic [ref=e35]: bolt
+              - generic [ref=e36]: Insights
+          - generic [ref=e37]:
+            - generic [ref=e38]: Agentes
+            - generic [ref=e39]:
+              - link "Agent studio" [ref=e40] [cursor=pointer]:
+                - /url: /agent-studio
+                - generic [ref=e42]: Agent studio
+              - link "Aprovações" [ref=e43] [cursor=pointer]:
+                - /url: /approvals
+                - generic [ref=e44]: done_all
+                - generic [ref=e45]: Aprovações
+              - link "Disparos" [ref=e46] [cursor=pointer]:
+                - /url: /triggers
+                - generic [ref=e47]: send
+                - generic [ref=e48]: Disparos
+          - generic [ref=e49]:
+            - generic [ref=e50]: Fontes
+            - generic [ref=e51]:
+              - link "Memory base" [ref=e52] [cursor=pointer]:
+                - /url: /memory-base
+                - img [ref=e54]
+                - generic [ref=e82]: Memory base
+              - link "AOPs" [ref=e83] [cursor=pointer]:
+                - /url: /aops
+                - generic [ref=e84]: description
+                - generic [ref=e85]: AOPs
+              - link "Biblioteca" [ref=e86] [cursor=pointer]:
+                - /url: /library
+                - generic [ref=e87]: bookmark
+                - generic [ref=e88]: Biblioteca
+              - link "Habilidades" [ref=e89] [cursor=pointer]:
+                - /url: /tools
+                - generic [ref=e90]: build
+                - generic [ref=e91]: Habilidades
+              - link "Canais" [ref=e92] [cursor=pointer]:
+                - /url: /canais
+                - generic [ref=e93]: forum
+                - generic [ref=e94]: Canais
+              - link "Integrações" [ref=e95] [cursor=pointer]:
+                - /url: /integrations
+                - generic [ref=e96]: extension
+                - generic [ref=e97]: Integrações
+          - generic [ref=e98]:
+            - generic [ref=e99]: Acompanhamento
+            - generic [ref=e100]:
+              - link "Conversas" [ref=e101] [cursor=pointer]:
+                - /url: /conversations
+                - generic [ref=e102]: chat
+                - generic [ref=e103]: Conversas
+                - generic [ref=e104]: "99"
+              - link "Playground" [ref=e105] [cursor=pointer]:
+                - /url: /playground
+                - generic [ref=e106]: forum
+                - generic [ref=e107]: Playground
+              - link "Histórico de alterações" [ref=e108] [cursor=pointer]:
+                - /url: /history
+                - generic [ref=e109]: history
+                - generic [ref=e110]: Histórico de alterações
+          - link "Configurações" [ref=e113] [cursor=pointer]:
+            - /url: /settings
+            - generic [ref=e114]: tune
+            - generic [ref=e115]: Configurações
+        - 'button "Usuário: Gregório Pinheiro" [ref=e118] [cursor=pointer]':
+          - generic [ref=e120]:
+            - generic [ref=e121]: Gregório Pinheiro
+            - generic [ref=e122]: Super Administrador
+          - img [ref=e123]
+    - generic [ref=e126]:
+      - generic [ref=e127]:
+        - generic [ref=e129]:
+          - generic [ref=e130]:
+            - generic [ref=e131]:
+              - generic [ref=e132]: search
+              - textbox "Busca" [ref=e133]:
+                - /placeholder: Buscar...
+            - button "Abrir busca" [ref=e134] [cursor=pointer]
+          - button "Notificações" [ref=e135] [cursor=pointer]:
+            - generic [ref=e136]: notifications
+          - button "Abrir Aswork Copilot" [ref=e137] [cursor=pointer]
+        - main [ref=e142]:
+          - generic [ref=e143]:
+            - complementary "Seções de configurações" [ref=e144]:
+              - generic [ref=e145]:
+                - generic [ref=e146]:
+                  - heading "Configurações" [level=6] [ref=e147]
+                  - button "Recolher navegação" [expanded] [ref=e148]:
+                    - generic [ref=e149]: menu
+                - navigation [ref=e150]:
+                  - generic [ref=e151]:
+                    - generic [ref=e152]:
+                      - img "Gregório Pinheiro" [ref=e154]
+                      - generic [ref=e156]:
+                        - generic [ref=e157]: Gregório Pinheiro
+                        - generic [ref=e158]: greg@awsales.io
+                    - generic [ref=e159]:
+                      - link "Perfil" [ref=e162] [cursor=pointer]:
+                        - /url: /settings/perfil
+                        - generic [ref=e163]: account_circle
+                        - generic [ref=e164]: Perfil
+                      - link "Dados pessoais" [ref=e167] [cursor=pointer]:
+                        - /url: /settings/perfil/dados-pessoais
+                        - generic [ref=e168]: badge
+                        - generic [ref=e169]: Dados pessoais
+                      - link "Senha e acesso" [ref=e172] [cursor=pointer]:
+                        - /url: /settings/perfil/senha
+                        - generic [ref=e173]: lock
+                        - generic [ref=e174]: Senha e acesso
+                      - link "Sessões ativas" [ref=e177] [cursor=pointer]:
+                        - /url: /settings/perfil/sessoes-ativas
+                        - generic [ref=e178]: devices
+                        - generic [ref=e179]: Sessões ativas
+                      - link "Meus dados" [ref=e182] [cursor=pointer]:
+                        - /url: /settings/perfil/meus-dados
+                        - generic [ref=e183]: database
+                        - generic [ref=e184]: Meus dados
+                      - link "Notificações" [ref=e187] [cursor=pointer]:
+                        - /url: /settings/notificacoes
+                        - generic [ref=e188]: notifications
+                        - generic [ref=e189]: Notificações
+                      - link "Aparência" [ref=e192] [cursor=pointer]:
+                        - /url: /settings/aparencia
+                        - generic [ref=e193]: palette
+                        - generic [ref=e194]: Aparência
+                  - generic [ref=e195]:
+                    - generic [ref=e199]:
+                      - generic [ref=e200]: Fyntra Tecnologia
+                      - generic [ref=e201]: Fyntra Tecnologia LTDA
+                    - generic [ref=e202]:
+                      - link "Organização" [ref=e205] [cursor=pointer]:
+                        - /url: /settings/organizacao
+                        - generic [ref=e206]: domain
+                        - generic [ref=e207]: Organização
+                      - link "Notificações" [ref=e210] [cursor=pointer]:
+                        - /url: /settings/organizacao/notificacoes
+                        - generic [ref=e211]: notifications
+                        - generic [ref=e212]: Notificações
+                      - link "Segurança & acesso" [ref=e215] [cursor=pointer]:
+                        - /url: /settings/organizacao/seguranca
+                        - generic [ref=e216]: shield
+                        - generic [ref=e217]: Segurança & acesso
+                      - link "Privacidade & auditoria" [ref=e220] [cursor=pointer]:
+                        - /url: /settings/organizacao/auditoria
+                        - generic [ref=e221]: policy
+                        - generic [ref=e222]: Privacidade & auditoria
+                      - link "Membros & funções" [ref=e225] [cursor=pointer]:
+                        - /url: /settings/equipe-permissoes
+                        - generic [ref=e226]: groups
+                        - generic [ref=e227]: Membros & funções
+                      - link "Financeiro" [ref=e230] [cursor=pointer]:
+                        - /url: /settings/financeiro
+                        - generic [ref=e231]: account_balance_wallet
+                        - generic [ref=e232]: Financeiro
+                      - link "Consumo e custos" [ref=e235] [cursor=pointer]:
+                        - /url: /settings/consumo-e-custos
+                        - generic [ref=e236]: monitoring
+                        - generic [ref=e237]: Consumo e custos
+                      - link "Zona de perigo" [ref=e240] [cursor=pointer]:
+                        - /url: /settings/zona-de-perigo
+                        - generic [ref=e241]: warning
+                        - generic [ref=e242]: Zona de perigo
+            - generic [ref=e243]:
+              - navigation "Breadcrumb" [ref=e246]:
+                - link "Configurações" [ref=e247] [cursor=pointer]:
+                  - /url: /settings
+                  - generic [ref=e248]:
+                    - generic [ref=e250]: tune
+                    - text: Configurações
+                - generic [ref=e252]: chevron_right
+                - link "Financeiro" [ref=e253] [cursor=pointer]:
+                  - /url: /settings/financeiro
+                - generic [ref=e255]: chevron_right
+                - generic [ref=e256]: Visão geral
+              - generic [ref=e258]:
+                - generic [ref=e259]:
+                  - generic [ref=e260]:
+                    - heading "Financeiro" [level=3] [ref=e261]
+                    - paragraph [ref=e262]: Plano, faturas, créditos e atividade desta organização.
+                  - link "Pagamento pendente 3 faturas precisam ser regularizadas" [ref=e263] [cursor=pointer]:
+                    - /url: /settings/financeiro/historico-faturas
+                    - generic [ref=e265]: warning
+                    - generic [ref=e266]:
+                      - generic [ref=e267]: Pagamento pendente
+                      - generic [ref=e268]: 3 faturas precisam ser regularizadas
+                    - generic [ref=e269]: chevron_right
+                - tablist "Seções financeiras" [ref=e271]:
+                  - tab "Visão geral" [selected] [ref=e272] [cursor=pointer]:
+                    - generic [ref=e273]: Visão geral
+                  - tab "Créditos" [ref=e274] [cursor=pointer]:
+                    - generic [ref=e275]: Créditos
+                  - tab "Métodos de pagamento" [ref=e276] [cursor=pointer]:
+                    - generic [ref=e277]: Métodos de pagamento
+                  - tab "Faturas 1" [ref=e278] [cursor=pointer]:
+                    - generic [ref=e279]: Faturas
+                    - generic [ref=e280]: "1"
+                  - tab "Atividade" [ref=e281] [cursor=pointer]:
+                    - generic [ref=e282]: Atividade
+                - generic [ref=e283]:
+                  - generic [ref=e284]:
+                    - generic [ref=e287]:
+                      - generic [ref=e288]:
+                        - heading "Fatura atual" [level=6] [ref=e289]
+                        - generic [ref=e290]: Em aberto
+                      - paragraph [ref=e292]: R$3.257,21
+                      - paragraph [ref=e293]:
+                        - generic [ref=e294]:
+                          - text: Próxima cobrança em 28/05/2026 no cartão
+                          - img "Bandeira Visa" [ref=e295]
+                          - text: •••• 3012
+                        - generic [ref=e297]:
+                          - text: Você pode receber cobranças adicionais ao atingir o limite do uso variável.
+                          - button "Como funcionam as cobranças adicionais" [ref=e298]:
+                            - generic [ref=e299]: help
+                      - button "Detalhes da fatura" [ref=e300] [cursor=pointer]:
+                        - generic [ref=e301]: Detalhes da fatura
+                    - generic [ref=e302]:
+                      - heading "Detalhamento" [level=6] [ref=e303]
+                      - list [ref=e304]:
+                        - listitem [ref=e305]:
+                          - button "Plano Enterprise R$ 2.497,98/mês" [ref=e307]:
+                            - generic [ref=e308]:
+                              - generic [ref=e309]: expand_more
+                              - generic [ref=e310]: Plano Enterprise
+                            - generic [ref=e312]: R$ 2.497,98/mês
+                        - listitem [ref=e313]:
+                          - generic [ref=e314]: Uso variável
+                          - generic [ref=e315]: R$ 891,63
+                        - listitem [ref=e316]:
+                          - button "Descontos −R$ 132,40" [ref=e318]:
+                            - generic [ref=e319]:
+                              - generic [ref=e320]: expand_more
+                              - generic [ref=e321]: Descontos
+                            - generic [ref=e323]:
+                              - generic [ref=e324]: local_offer
+                              - generic [ref=e325]: −R$ 132,40
+                      - generic [ref=e326]:
+                        - generic [ref=e327]: Total em aberto
+                        - generic [ref=e328]: R$ 3.257,21
+                  - generic [ref=e329]:
+                    - generic [ref=e330]:
+                      - generic [ref=e331]:
+                        - heading "Uso variável O que é uso variável" [level=6] [ref=e332]:
+                          - text: Uso variável
+                          - button "O que é uso variável" [ref=e333]:
+                            - generic [ref=e334]: info
+                        - generic [ref=e335]:
+                          - strong [ref=e336]: R$ 891,63
+                          - text: de R$ 1.500,00
+                      - img "Aswork cobrou R$ 712,10 e Meta cobra R$ 179,53, de um limite de R$ 1.500,00." [ref=e337]
+                      - paragraph [ref=e341]: Restam R$ 608,37 antes da próxima cobrança.
+                      - generic [ref=e342]:
+                        - generic [ref=e343]:
+                          - text: Aswork cobrou
+                          - generic [ref=e345]: R$ 712,10
+                        - generic [ref=e346]:
+                          - text: Meta cobra
+                          - generic [ref=e348]: R$ 179,53
+                    - generic [ref=e349]:
+                      - img [ref=e351]
+                      - generic [ref=e354]:
+                        - paragraph [ref=e355]:
+                          - text: Plano Enterprise
+                          - generic [ref=e356]: Ativa
+                        - paragraph [ref=e358]:
+                          - strong [ref=e359]: R$ 2.497,98
+                          - text: /mês · renova em 28/05/2026
+                      - button "Ver detalhes" [ref=e360]:
+                        - text: Ver detalhes
+                        - generic [ref=e361]: chevron_right
+                  - generic [ref=e362]:
+                    - generic [ref=e364]:
+                      - heading "Consumo e custos" [level=4] [ref=e365]
+                      - paragraph [ref=e366]: Concilie o que foi usado com o que foi cobrado, item a item, e acompanhe a evolução do uso variável ao longo do período.
+                    - link "Acessar relatório" [ref=e367] [cursor=pointer]:
+                      - /url: /settings/consumo-e-custos
+                      - generic [ref=e368]: Acessar relatório
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic: Cortex
+              - generic:
+                - generic: Online
+          - button:
+            - generic: close
+        - generic:
+          - generic:
+            - generic: Olá! Como posso te ajudar?
+        - generic:
+          - generic:
+            - textbox:
+              - /placeholder: Pergunte qualquer coisa...
+            - generic:
+              - button:
+                - generic: attach_file
+              - button:
+                - generic: mood
+              - button [disabled]:
+                - generic: arrow_upward
+          - generic: Cortex pode cometer erros. Verifique informações importantes.
+  - button "Abrir Review Mode (⌘⇧Y)" [ref=e369]:
+    - generic [ref=e370]: rate_review
+    - text: Review
+  - button "Atalhos do Bombardier" [ref=e371]:
+    - img "Bombardier" [ref=e372]
+  - region "Notifications (F8)":
+    - list "Notificações"
+  - button "Open Next.js Dev Tools" [ref=e381] [cursor=pointer]:
+    - img [ref=e382]
+  - alert [ref=e385]

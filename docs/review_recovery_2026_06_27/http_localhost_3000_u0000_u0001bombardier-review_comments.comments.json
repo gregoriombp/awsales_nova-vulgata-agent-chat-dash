@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 3,
+  "recoveredFrom": "Chrome Default Local Storage LevelDB",
+  "sourceKey": "_http://localhost:3000\u0000\u0001bombardier-review:comments",
+  "recoveredAt": "2026-06-27T15:51:41.160Z",
+  "comments": [
+    {
+      "id": "cmt-53d0c35d-3d5d-46d5-9782-8b4ffef78af4",
+      "schemaVersion": 2,
+      "authorId": "rev-ff006d5b-63dd-4b7e-af01-33f326393f80",
+      "authorName": "greg",
+      "authorColorToken": "var(--aw-blue-600)",
+      "createdAt": 1778518353063,
+      "updatedAt": 1778518353063,
+      "url": "/settings/equipe-permissoes",
+      "viewportWidth": 2323,
+      "viewportHeight": 1358,
+      "scrollY": 0,
+      "documentHeight": 1358,
+      "anchor": {
+        "kind": "pin",
+        "position": {
+          "x": 936.51953125,
+          "y": 230.53125
+        }
+      },
+      "text": "Nao precisa disso. colocar na lista de pessoas e insierir o estado de \"convite enviado\"",
+      "status": "open"
+    }
+  ]
+}

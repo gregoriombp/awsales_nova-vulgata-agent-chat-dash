@@ -5,7 +5,6 @@ import Link from "next/link";
 import { AwAlert } from "@/components/ui/AwAlert";
 import { AwAvatar, AwAvatarGroup } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
-import { AwCard } from "@/components/ui/AwCard";
 import { AwChannelIcon } from "@/components/ui/AwChannelIcon";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
@@ -592,15 +591,27 @@ function OptionalRow({
   onEditPolicy: () => void;
 }) {
   return (
-    <li className="m-0 flex items-center gap-4 py-4">
+    <li className="m-0 flex items-start gap-4 py-4">
       <EventIcon icon={event.icon} />
       <div className="min-w-0 flex-1">
-        <p className="m-0 body-sm font-medium text-(--fg-primary)">
-          {event.name}
-        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="m-0 body-sm font-medium text-(--fg-primary)">
+            {event.name}
+          </p>
+          <AwPill variant={on ? "live" : "neutral"} dot={false}>
+            {on ? "Ligada por padrão" : "Desligada por padrão"}
+          </AwPill>
+        </div>
         <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{event.desc}</p>
+        <p className="m-0 mt-1 body-xs text-(--fg-tertiary)">
+          Cada pessoa pode ajustar nas próprias preferências, dentro dos canais
+          permitidos abaixo.
+        </p>
       </div>
-      <div className="flex shrink-0 items-center gap-3">
+      <div className="flex shrink-0 items-center gap-3 pt-1">
+        <span className="body-xs text-(--fg-tertiary)">
+          Padrão da organização
+        </span>
         <AwToggle
           checked={on}
           onChange={onToggle}
@@ -640,9 +651,8 @@ function ChannelTile({
     <div
       className={cn(
         "flex flex-col gap-3 rounded-xl border px-4 py-4 transition-colors duration-aw-fast",
-        // Ativo: tile escuro com texto claro.
         active
-          ? "border-(--fg-primary) bg-(--fg-primary)"
+          ? "border-(--fg-primary) bg-(--bg-selected)"
           : "border-(--border-subtle) bg-(--bg-raised)",
         disabled && "opacity-60",
       )}
@@ -652,7 +662,7 @@ function ChannelTile({
           className={cn(
             "flex h-10 w-10 items-center justify-center rounded-lg",
             active
-              ? "bg-(--bg-canvas) text-(--fg-primary)"
+              ? "bg-(--fg-primary) text-(--bg-canvas)"
               : "bg-(--bg-muted) text-(--fg-secondary)",
           )}
         >
@@ -665,17 +675,12 @@ function ChannelTile({
         {locked ? (
           <Icon name="lock" size={16} className="mt-1 text-(--fg-tertiary)" />
         ) : (
-          <AwCheckbox
+          <AwToggle
             checked={active}
             disabled={disabled}
             onChange={(v) => onToggle?.(v)}
             label={`Canal ${name}`}
-            // No tile escuro o checkbox marcado vira claro pra continuar visível.
-            className={
-              active
-                ? "border-(--bg-canvas)! data-[state=checked]:border-(--bg-canvas)! data-[state=checked]:bg-(--bg-canvas)! data-[state=checked]:text-(--fg-primary)!"
-                : undefined
-            }
+            className="shrink-0"
           />
         )}
       </div>
@@ -683,7 +688,7 @@ function ChannelTile({
         <p
           className={cn(
             "m-0 body-sm font-medium",
-            active ? "text-(--bg-canvas)" : "text-(--fg-primary)",
+            "text-(--fg-primary)",
           )}
         >
           {name}
@@ -692,7 +697,7 @@ function ChannelTile({
           className={cn(
             "m-0 mt-0.5 body-xs",
             active
-              ? "text-(--bg-canvas) opacity-70"
+              ? "text-(--fg-secondary)"
               : locked
                 ? "text-(--fg-tertiary)"
                 : "text-(--fg-secondary)",

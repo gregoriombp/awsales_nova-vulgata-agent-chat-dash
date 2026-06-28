@@ -1,0 +1,46 @@
+[
+  {
+    "file": "http_0.0.0.0_3000_u0000_u0001bombardier-review_comments.comments.json",
+    "sourceKey": "_http://0.0.0.0:3000\u0000\u0001bombardier-review:comments",
+    "total": 3,
+    "minCreatedAt": "2026-05-10T15:09:34.301Z",
+    "maxCreatedAt": "2026-05-10T15:10:34.800Z",
+    "byStatus": {
+      "open": 3
+    },
+    "byUrl": {
+      "/settings": 3
+    }
+  },
+  {
+    "file": "http_localhost_3000_u0000_u0001bombardier-review_comments.comments.json",
+    "sourceKey": "_http://localhost:3000\u0000\u0001bombardier-review:comments",
+    "total": 1,
+    "minCreatedAt": "2026-05-11T16:52:33.063Z",
+    "maxCreatedAt": "2026-05-11T16:52:33.063Z",
+    "byStatus": {
+      "open": 1
+    },
+    "byUrl": {
+      "/settings/equipe-permissoes": 1
+    }
+  },
+  {
+    "file": "https_awsales-nova-vulgata-agent-chat-das-seven.vercel.app_u0000_u0001bombardier-review_comments.comments.json",
+    "sourceKey": "_https://awsales-nova-vulgata-agent-chat-das-seven.vercel.app\u0000\u0001bombardier-review:comments",
+    "total": 14,
+    "minCreatedAt": "2026-06-10T23:14:21.241Z",
+    "maxCreatedAt": "2026-06-17T18:21:22.475Z",
+    "byStatus": {
+      "open": 14
+    },
+    "byUrl": {
+      "/organizacao-adicional/pagamento": 3,
+      "/organizacao-adicional/concluido?im=pix&ip=1&mm=cartao&mp=4": 2,
+      "/agent-studio": 4,
+      "/memory-base/fjb1qq9": 2,
+      "/memory-base/fjb1qq9/settings": 2,
+      "/settings/financeiro/consumo": 1
+    }
+  }
+]

@@ -23,7 +23,7 @@ import { AwStatusDot } from "@/components/ui/AwStatusDot";
 import { AwTabs } from "@/components/ui/AwTabs";
 import { useToast } from "@/components/ui/AwToast";
 import { Icon } from "@/components/ui/Icon";
-import { SectionHeading, SettingsPageHeader } from "../../_components/shared";
+import { SectionHeading } from "../../_components/shared";
 
 /* ===================================================================== *
  * Mock data — tudo local a esta página. Trocar por dados reais quando o
@@ -709,18 +709,22 @@ export default function OrgAuditoriaPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
-      <SettingsPageHeader
-        title="Privacidade & auditoria"
-        description="Atividade da organização, solicitações de dados e exportações."
-      />
+      <header className="mb-10 grid grid-cols-2 items-start gap-6">
+        <div className="min-w-0">
+          <h3 className="m-0 text-(--fg-primary)">Privacidade & auditoria</h3>
+          <p className="m-0 mt-2 max-w-prose body-xs text-(--fg-secondary)">
+            Atividade da organização, solicitações de dados e exportações.
+          </p>
+        </div>
 
-      {pendingCount > 0 && (
-        <DsarPendingBanner
-          openCount={openRequests.length}
-          overdueCount={overdueRequests.length}
-          onAttend={() => setTab("solicitacoes")}
-        />
-      )}
+        {pendingCount > 0 && (
+          <DsarPendingBanner
+            openCount={openRequests.length}
+            overdueCount={overdueRequests.length}
+            onAttend={() => setTab("solicitacoes")}
+          />
+        )}
+      </header>
 
       <AwTabs
         variant="underline"
@@ -768,7 +772,7 @@ function DsarPendingBanner({
     <AwAlert
       variant={variant}
       icon="gavel"
-      className="mb-6 items-center"
+      className="items-center"
     >
       <div className="flex w-full flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
@@ -2791,8 +2795,6 @@ function OrgExportSheet({
       variant: "success",
     });
   };
-
-  const stepMeta = ORG_EXPORT_STEPS[step - 1];
 
   return (
     <AwSheet

@@ -267,7 +267,7 @@ export default function SessoesAtivasPage() {
                     src={mapsSrc}
                     title={`Local estimado de acesso — ${s.city}`}
                     width="100%"
-                    height={210}
+                    height={300}
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     className="block w-full rounded-lg border border-(--border-subtle)"

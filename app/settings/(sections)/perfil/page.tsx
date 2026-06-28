@@ -16,6 +16,8 @@ import { Icon } from "@/components/ui/Icon";
 import { SectionHeading } from "../_components/shared";
 import {
   COVER_BACKGROUNDS,
+  GROUPS,
+  MEMBERS,
   pickCoverBackground,
 } from "../equipe-permissoes/_components/data";
 
@@ -109,7 +111,13 @@ export default function ProfileSettingsPage() {
   const [photoOpen, setPhotoOpen] = useState(false);
 
   // Reset position when a new cover is picked
-  useEffect(() => { setCoverPosY(50); setSavedPosY(50); }, [cover]);
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setCoverPosY(50);
+      setSavedPosY(50);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [cover]);
 
   const handleRepoDragStart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -133,6 +141,11 @@ export default function ProfileSettingsPage() {
     { icon: "schedule", text: "Brasília · GMT−03" },
     { icon: "translate", text: "Português (Brasil)" },
   ];
+  const currentMember = MEMBERS.find((member) => member.isYou);
+  const profileGroups = currentMember
+    ? GROUPS.filter((group) => group.members.includes(currentMember.id))
+    : [];
+
   return (
     <div className="w-full pb-32">
       <section aria-label="Resumo do perfil" className="w-full">
@@ -298,6 +311,7 @@ export default function ProfileSettingsPage() {
           {/* Coluna esquerda — resumo do perfil */}
           <aside className="flex flex-col gap-6 self-start">
             <InfoCard title="Perfil público" rows={publicRows} />
+            <TeamMembershipCard groups={profileGroups} />
           </aside>
 
           {/* Coluna direita — atalhos + notificações */}
@@ -473,7 +487,11 @@ function PhotoEditModal({
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (open) setPreview(currentSrc);
+    if (!open) return;
+    const frame = window.requestAnimationFrame(() => {
+      setPreview(currentSrc);
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [open, currentSrc]);
 
   const handleFile = (file: File | undefined) => {
@@ -607,6 +625,74 @@ function InfoCard({
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+function TeamMembershipCard({ groups }: { groups: typeof GROUPS }) {
+  return (
+    <div
+      className="overflow-hidden rounded-lg"
+      style={{ background: "var(--aw-gray-100)" }}
+    >
+      <div className="flex items-start justify-between gap-3 px-4 pb-2 pt-3.5">
+        <div className="min-w-0">
+          <h6 className="m-0 text-(--fg-primary)">Equipes</h6>
+          <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
+            Times em que você aparece em Membros & funções.
+          </p>
+        </div>
+        <Link
+          href="/settings/equipe-permissoes/grupos"
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+          aria-label="Abrir equipes"
+        >
+          <Icon name="arrow_forward" size={16} />
+        </Link>
+      </div>
+
+      <div className="flex flex-col gap-1 px-2 pb-3">
+        {groups.length > 0 ? (
+          groups.map((group) => (
+            <Link
+              key={group.id}
+              href="/settings/equipe-permissoes/grupos"
+              className="group flex items-start gap-3 rounded-lg px-2 py-2.5 hover:bg-(--bg-hover)"
+            >
+              <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-(--bg-raised) text-(--fg-secondary) group-hover:text-(--fg-primary)">
+                <Icon name={group.icon} size={17} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center justify-between gap-2">
+                  <span className="truncate body-sm font-medium text-(--fg-primary)">
+                    {group.name}
+                  </span>
+                  <AwPill variant="neutral" dot={false} className="shrink-0">
+                    {group.memberCount} membros
+                  </AwPill>
+                </span>
+                <span className="mt-0.5 line-clamp-2 block body-xs text-(--fg-secondary)">
+                  {group.description}
+                </span>
+                <span className="mt-1 flex flex-wrap gap-1">
+                  {group.roles.map((groupRole) => (
+                    <span
+                      key={groupRole}
+                      className="rounded-sm bg-(--bg-subtle) px-1.5 py-0.5 text-2xs font-medium text-(--fg-tertiary)"
+                    >
+                      {groupRole}
+                    </span>
+                  ))}
+                </span>
+              </span>
+            </Link>
+          ))
+        ) : (
+          <div className="rounded-lg px-2 py-3 body-sm text-(--fg-secondary)">
+            Nenhuma equipe vinculada ao seu perfil.
+          </div>
+        )}
+      </div>
     </div>
   );
 }

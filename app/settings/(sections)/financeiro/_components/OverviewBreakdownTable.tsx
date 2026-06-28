@@ -12,11 +12,13 @@ import {
   usd,
   formatQuantity,
   agentType,
+  selectionRatio,
   AGENT_BREAKDOWN,
   OVERVIEW_SERVICE_GROUPS,
   type AgentBreakdownRow,
   type OverviewServiceGroup,
   type OverviewServiceLeaf,
+  type PeriodSelection,
   type SpendingGrouping,
 } from "./data";
 
@@ -70,15 +72,41 @@ function isOutlier(value: number, all: number[]): boolean {
 
 export function OverviewBreakdownTable({
   grouping,
+  selection,
 }: {
   grouping: SpendingGrouping;
+  selection: PeriodSelection;
 }) {
-  return grouping === "service" ? <ServiceTable /> : <AgentTable />;
+  const ratio = selectionRatio(selection);
+  return grouping === "service" ? (
+    <ServiceTable ratio={ratio} />
+  ) : (
+    <AgentTable ratio={ratio} />
+  );
+}
+
+const r2 = (n: number) => Math.round(n * 100) / 100;
+
+/** Escala um item pelo fator do período (total + quantidade; -1 = agregado). */
+function scaleLeaf(leaf: OverviewServiceLeaf, ratio: number): OverviewServiceLeaf {
+  return {
+    ...leaf,
+    total: r2(leaf.total * ratio),
+    quantity: leaf.quantity < 0 ? leaf.quantity : leaf.quantity * ratio,
+  };
+}
+function scaleGroup(g: OverviewServiceGroup, ratio: number): OverviewServiceGroup {
+  return {
+    ...g,
+    total: r2(g.total * ratio),
+    quantity: g.quantity < 0 ? g.quantity : g.quantity * ratio,
+    children: g.children?.map((c) => scaleLeaf(c, ratio)),
+  };
 }
 
 /* ---------- serviço ---------- */
 
-function ServiceTable() {
+function ServiceTable({ ratio }: { ratio: number }) {
   const [expanded, setExpanded] = React.useState<Set<string>>(() => new Set());
   const toggle = (id: string) =>
     setExpanded((prev) => {
@@ -89,8 +117,11 @@ function ServiceTable() {
     });
 
   const groups = React.useMemo(
-    () => [...OVERVIEW_SERVICE_GROUPS].sort((a, b) => b.total - a.total),
-    [],
+    () =>
+      OVERVIEW_SERVICE_GROUPS.map((g) => scaleGroup(g, ratio)).sort(
+        (a, b) => b.total - a.total,
+      ),
+    [ratio],
   );
   const totalBrl = groups.reduce((s, g) => s + g.total, 0);
   const totalUsd = groups.reduce((s, g) => s + usd(g.total), 0);
@@ -246,9 +277,12 @@ function ChildRow({
 
 /* ---------- agente ---------- */
 
-function AgentTable() {
+function AgentTable({ ratio }: { ratio: number }) {
   const [detail, setDetail] = React.useState<AgentBreakdownRow | null>(null);
-  const agents = AGENT_BREAKDOWN;
+  const agents = React.useMemo(
+    () => AGENT_BREAKDOWN.map((a) => ({ ...a, total: r2(a.total * ratio) })),
+    [ratio],
+  );
   const allTotals = agents.map((a) => a.total);
   const totalBrl = agents.reduce((s, a) => s + a.total, 0);
   const totalUsd = agents.reduce((s, a) => s + usd(a.total), 0);

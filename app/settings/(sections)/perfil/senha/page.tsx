@@ -302,8 +302,10 @@ export default function SenhaPage() {
         description="Senha e verificação em duas etapas para entrar na conta."
       />
 
+      <SecurityOverview mfaOn={mfaOn} backupRemaining={BACKUP_CODES_REMAINING} />
+
       {/* ── Bloco 1: Senha ── */}
-      <div className="mb-8">
+      <section className="border-t border-(--border-subtle) py-6">
         {ACCOUNT_TYPE === "sso-only" ? (
           <AwAlert variant="info" icon="shield">
             <strong className="font-medium">Sua conta entra por SSO.</strong> A
@@ -331,10 +333,10 @@ export default function SenhaPage() {
             </AwButton>
           </div>
         )}
-      </div>
+      </section>
 
       {/* ── Bloco 2: MFA ── */}
-      <div className="mb-8">
+      <section className="border-t border-(--border-subtle) py-6">
         <SectionHeading title="Autenticação em dois fatores" />
         {ORG_REQUIRES_MFA ? (
           // Org exige MFA: o toggle viraria um controle morto (ligado +
@@ -438,7 +440,7 @@ export default function SenhaPage() {
             </div>
           </div>
         )}
-      </div>
+      </section>
 
       {/* ── Modal: Alterar senha (2 etapas) ── */}
       <AwModal
@@ -777,6 +779,70 @@ export default function SenhaPage() {
           </>
         )}
       </AwModal>
+    </div>
+  );
+}
+
+function SecurityOverview({
+  mfaOn,
+  backupRemaining,
+}: {
+  mfaOn: boolean;
+  backupRemaining: number;
+}) {
+  return (
+    <div className="mb-8 grid grid-cols-3 divide-x divide-(--border-subtle) rounded-lg border border-(--border-subtle) bg-(--bg-muted)">
+      <SecurityOverviewItem
+        icon="password"
+        label="Senha"
+        value="Login local ativo"
+        description="Alteração protegida por confirmação."
+      />
+      <SecurityOverviewItem
+        icon="admin_panel_settings"
+        label="MFA"
+        value={mfaOn ? "Ativa" : "Inativa"}
+        description={
+          ORG_REQUIRES_MFA
+            ? "Obrigatória pela organização."
+            : "Pode ser ajustada por você."
+        }
+      />
+      <SecurityOverviewItem
+        icon="vpn_key"
+        label="Backup"
+        value={`${backupRemaining} códigos válidos`}
+        description="Use só se perder o app autenticador."
+      />
+    </div>
+  );
+}
+
+function SecurityOverviewItem({
+  icon,
+  label,
+  value,
+  description,
+}: {
+  icon: string;
+  label: string;
+  value: string;
+  description: string;
+}) {
+  return (
+    <div className="flex items-start gap-3 px-4 py-4">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-raised) text-(--fg-secondary)">
+        <Icon name={icon} size={18} />
+      </span>
+      <div className="min-w-0">
+        <p className="m-0 aw-eyebrow text-(--fg-tertiary)">{label}</p>
+        <p className="m-0 mt-1 body-sm font-medium text-(--fg-primary)">
+          {value}
+        </p>
+        <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+          {description}
+        </p>
+      </div>
     </div>
   );
 }

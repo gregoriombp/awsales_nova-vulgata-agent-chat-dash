@@ -87,7 +87,7 @@ export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
         icon: "database",
       },
       { href: "/settings/notificacoes", label: "Notificações", icon: "notifications" },
-      { href: "/settings/aparencia", label: "Aparência", icon: "palette" },
+      { href: "/settings/aparencia", label: "Preferências", icon: "tune" },
     ],
   },
   {
@@ -199,13 +199,16 @@ export function SettingsNav() {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(COLLAPSED_STORAGE_KEY);
-      if (raw === "1") setCollapsed(true);
-    } catch {
-      /* noop */
-    }
-    setHydrated(true);
+    const frame = window.requestAnimationFrame(() => {
+      try {
+        const raw = localStorage.getItem(COLLAPSED_STORAGE_KEY);
+        if (raw === "1") setCollapsed(true);
+      } catch {
+        /* noop */
+      }
+      setHydrated(true);
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   const toggle = () => {

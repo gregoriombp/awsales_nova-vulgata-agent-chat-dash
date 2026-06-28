@@ -17,13 +17,18 @@ import {
   brl,
   fmtUsdLabel,
   overviewSpendSeries,
-  OVERVIEW_KPIS,
+  selectionTarget,
+  selectionLabel,
+  selectionShowsLimitEvent,
+  DEFAULT_PERIOD,
   OVERVIEW_SPEND_CATEGORIES,
   OVERVIEW_SPEND_DAYS,
   OVERVIEW_SPEND_EVENT,
+  type PeriodSelection,
   type SpendingGrouping,
 } from "./data";
 import { OverviewBreakdownTable } from "./OverviewBreakdownTable";
+import { PeriodPicker } from "./PeriodPicker";
 
 /* ----------------------------------------------------------------------------
  * Detalhamento — gasto variável por dia (recorte simbólico da Visão geral).
@@ -153,13 +158,20 @@ export function VariableSpendBreakdown({
   onOpenReport: () => void;
 }) {
   const [grouping, setGrouping] = React.useState<SpendingGrouping>("service");
-  // Categoria em foco (hover na legenda ou na tabela) — isola a série no
-  // gráfico e realça a linha. É o que torna gráfico e tabela "vinculados".
+  // Período selecionado (preset ou range custom) — re-escopa gráfico, tabela e
+  // total ao mesmo tempo.
+  const [selection, setSelection] =
+    React.useState<PeriodSelection>(DEFAULT_PERIOD);
+  // Categoria em foco (hover na legenda) — isola a série no gráfico.
   const [activeCat, setActiveCat] = React.useState<string | null>(null);
 
-  const series = React.useMemo(() => overviewSpendSeries(grouping), [grouping]);
+  const series = React.useMemo(
+    () => overviewSpendSeries(grouping, selection),
+    [grouping, selection],
+  );
   const cats = OVERVIEW_SPEND_CATEGORIES[grouping];
-  const cycleTotal = OVERVIEW_KPIS.accumulated;
+  const total = selectionTarget(selection);
+  const showEvent = selectionShowsLimitEvent(selection);
 
   // Escala vertical: a barra mais alta (somando as fatias + respiros) encosta
   // no topo do plot.
@@ -184,18 +196,21 @@ export function VariableSpendBreakdown({
           cats={cats}
           activeCat={activeCat}
           onHover={setActiveCat}
-          total={cycleTotal}
+          total={total}
+          selection={selection}
+          onSelectPeriod={setSelection}
         />
 
         <Chart
-          key={grouping}
+          key={`${grouping}-${series.length}`}
           series={series}
           cats={cats}
           scale={scale}
           activeCat={activeCat}
+          showEvent={showEvent}
         />
 
-        <OverviewBreakdownTable grouping={grouping} />
+        <OverviewBreakdownTable grouping={grouping} selection={selection} />
       </section>
     </TooltipProvider>
   );
@@ -237,6 +252,8 @@ function Controls({
   activeCat,
   onHover,
   total,
+  selection,
+  onSelectPeriod,
 }: {
   grouping: SpendingGrouping;
   onGrouping: (g: SpendingGrouping) => void;
@@ -244,6 +261,8 @@ function Controls({
   activeCat: string | null;
   onHover: (id: string | null) => void;
   total: number;
+  selection: PeriodSelection;
+  onSelectPeriod: (sel: PeriodSelection) => void;
 }) {
   return (
     <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
@@ -286,13 +305,16 @@ function Controls({
         </ul>
       </div>
 
-      <div className="text-right">
-        <p className="m-0 text-(length:--h5-size) font-semibold leading-none tracking-heading-tight tabular-nums text-(--fg-primary)">
-          {brl(total)}
-        </p>
-        <p className="m-0 mt-1 body-xs tabular-nums text-(--fg-tertiary)">
-          ≈ {fmtUsdLabel(total)} · Ciclo vigente · 01–31 de maio
-        </p>
+      <div className="flex flex-col items-end gap-2.5">
+        <PeriodPicker value={selection} onChange={onSelectPeriod} />
+        <div className="text-right">
+          <p className="m-0 text-(length:--h5-size) font-semibold leading-none tracking-heading-tight tabular-nums text-(--fg-primary)">
+            {brl(total)}
+          </p>
+          <p className="m-0 mt-1 body-xs tabular-nums text-(--fg-tertiary)">
+            ≈ {fmtUsdLabel(total)} · {selectionLabel(selection)}
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -305,11 +327,14 @@ function Chart({
   cats,
   scale,
   activeCat,
+  showEvent,
 }: {
   series: ReturnType<typeof overviewSpendSeries>;
   cats: typeof OVERVIEW_SPEND_CATEGORIES[SpendingGrouping];
   scale: number;
   activeCat: string | null;
+  /** Marcador "Limite restaurado" só aparece no recorte do ciclo (this-month). */
+  showEvent: boolean;
 }) {
   // Foco por DIA (hover na barra → escurece os outros dias) e a fatia sob o
   // mouse (pra o tooltip reagir à pilha selecionada). O foco por CATEGORIA vem
@@ -326,6 +351,12 @@ function Chart({
   const chartLabel = `Gasto variável por dia. ${cats
     .map((c) => c.label)
     .join(", ")}.`;
+
+  // Muitos dias (30/90) → mostra ~1 rótulo a cada N pra não embolar o eixo.
+  const labelStep = series.length > 16 ? Math.ceil(series.length / 12) : 1;
+  // Teto de largura por barra: 1 barra (hoje) não vira um bloco gigante; com
+  // muitas, o flex-1 encolhe abaixo disso e elas preenchem.
+  const BAR_MAX = 96;
 
   return (
     <div className="rounded-xl border border-(--border-subtle) bg-(--bg-surface) px-5 pt-6 pb-4">
@@ -347,7 +378,9 @@ function Chart({
 
         {/* marcador de evento: limite atingido → cobrança → restaurado. Só o
             badge é hoverável (o resto deixa passar o hover das barras); abre um
-            card contando o que rolou no fechamento parcial. */}
+            card contando o que rolou no fechamento parcial. Específico do ciclo
+            vigente — some nos outros períodos. */}
+        {showEvent && (
         <div
           className="pointer-events-none absolute inset-y-0 z-10 flex flex-col items-center"
           style={{ left: `${eventLeftPct}%`, transform: "translateX(-50%)" }}
@@ -375,9 +408,10 @@ function Chart({
             className="w-px flex-1 border-l border-dashed border-(--aw-emerald-300)"
           />
         </div>
+        )}
 
         {/* barras */}
-        <div className="absolute inset-0 flex items-end gap-2">
+        <div className="absolute inset-0 flex items-end justify-center gap-2">
           {series.map((day, di) => {
             const dayTotal = day.values.reduce((s, v) => s + v, 0);
             const dayFocused = activeDay === di && !activeCat;
@@ -386,6 +420,7 @@ function Chart({
                 <TooltipTrigger asChild>
                   <div
                     className="flex h-full flex-1 cursor-default items-end"
+                    style={{ maxWidth: BAR_MAX }}
                     onMouseEnter={() => setActiveDay(di)}
                     onMouseLeave={() => {
                       setActiveDay(null);
@@ -442,20 +477,23 @@ function Chart({
       </div>
 
       {/* eixo X */}
-      <div className="mt-3 flex gap-2">
-        {series.map((day, di) => (
-          <span
-            key={di}
-            className={cn(
-              "flex-1 text-center body-xs tabular-nums transition-colors",
-              activeDay === di && !activeCat
-                ? "font-medium text-(--fg-secondary)"
-                : "text-(--fg-tertiary)",
-            )}
-          >
-            {day.label}
-          </span>
-        ))}
+      <div className="mt-3 flex justify-center gap-2">
+        {series.map((day, di) => {
+          const focused = activeDay === di && !activeCat;
+          const show = di % labelStep === 0 || di === series.length - 1 || focused;
+          return (
+            <span
+              key={di}
+              className={cn(
+                "flex-1 text-center body-xs tabular-nums transition-colors",
+                focused ? "font-medium text-(--fg-secondary)" : "text-(--fg-tertiary)",
+              )}
+              style={{ maxWidth: BAR_MAX }}
+            >
+              {show ? day.label : ""}
+            </span>
+          );
+        })}
       </div>
     </div>
   );
