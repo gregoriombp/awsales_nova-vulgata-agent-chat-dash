@@ -1,6 +1,8 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 
+import { externalizeComment, externalizeImageList } from "./_images";
+import { ensureRestored, snapshot } from "./_backup";
 import type {
   ReviewActor,
   ReviewAgentSettings,
@@ -40,6 +42,7 @@ interface ArchiveDb {
 }
 
 async function readMain(): Promise<MainDb> {
+  await ensureRestored(); // auto-cura se o arquivo sumiu (clean/reinstall)
   try {
     const raw = await fs.readFile(MAIN_FILE, "utf8");
     const p = JSON.parse(raw) as Partial<MainDb>;
@@ -58,6 +61,7 @@ function isSettingsMap(v: unknown): v is ReviewAgentSettingsMap {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
 async function readArchive(): Promise<ArchiveDb> {
+  await ensureRestored();
   try {
     const raw = await fs.readFile(ARCHIVE_FILE, "utf8");
     const p = JSON.parse(raw) as Partial<ArchiveDb>;
@@ -78,8 +82,17 @@ async function writeFileAtomic(file: string, data: unknown): Promise<void> {
   await fs.writeFile(tmp, JSON.stringify(data, null, 2), "utf8");
   await fs.rename(tmp, file);
 }
-const writeMain = (db: MainDb) => writeFileAtomic(MAIN_FILE, db);
-const writeArchive = (db: ArchiveDb) => writeFileAtomic(ARCHIVE_FILE, db);
+// Antes de cada escrita, snapshota o estado ATUAL (pré-mudança) pra fora do repo
+// — assim até uma escrita ruim é recuperável. Throttled (1/min), mas forçado
+// quando a escrita zera os comentários (defesa contra truncamento/wipe).
+const writeMain = async (db: MainDb) => {
+  await snapshot({ force: db.comments.length === 0 });
+  await writeFileAtomic(MAIN_FILE, db);
+};
+const writeArchive = async (db: ArchiveDb) => {
+  await snapshot({ force: db.comments.length === 0 });
+  await writeFileAtomic(ARCHIVE_FILE, db);
+};
 
 // É um processo só (o dev server), mas a UI dispara writes em rajada e várias
 // ops tocam os 2 arquivos (main+archive) — sem serializar, dois RMW concorrentes
@@ -164,11 +177,12 @@ export async function getCommentAny(
 
 // ── writes (sob lock) ────────────────────────────────────────────────────────
 export async function upsertComment(comment: ReviewComment): Promise<void> {
+  const externalized = await externalizeComment(comment);
   return withLock(async () => {
     const db = await readMain();
-    const idx = db.comments.findIndex((c) => c.id === comment.id);
-    if (idx === -1) db.comments.push(comment);
-    else db.comments[idx] = comment;
+    const idx = db.comments.findIndex((c) => c.id === externalized.id);
+    if (idx === -1) db.comments.push(externalized);
+    else db.comments[idx] = externalized;
     await writeMain(db);
   });
 }
@@ -342,6 +356,7 @@ export async function addReply(
   commentId: string,
   input: AddReplyInput,
 ): Promise<AddReplyResult | null> {
+  const images = await externalizeImageList(input.images);
   return withLock(async () => {
     const reply: ReviewReply = {
       id: makeReplyId(),
@@ -350,7 +365,7 @@ export async function addReply(
       authorName: input.authorName,
       authorColorToken: input.authorColorToken ?? "var(--fg-tertiary)",
       text: input.text,
-      ...(input.images && input.images.length > 0 ? { images: input.images } : {}),
+      ...(images && images.length > 0 ? { images } : {}),
       createdAt: Date.now(),
     };
     const main = await readMain();
@@ -442,8 +457,9 @@ export async function importMerge(
         continue;
       }
       seen.add(c.id);
-      if (c.status === "resolved") archive.comments.push(c);
-      else main.comments.push(c);
+      const ext = await externalizeComment(c);
+      if (ext.status === "resolved") archive.comments.push(ext);
+      else main.comments.push(ext);
       added++;
     }
     if (Array.isArray(payload.archivedComments)) {
@@ -453,7 +469,7 @@ export async function importMerge(
           continue;
         }
         seen.add(c.id);
-        archive.comments.push(c);
+        archive.comments.push(await externalizeComment(c));
         added++;
       }
     }

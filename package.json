@@ -13,6 +13,10 @@
     "ds:check": "node scripts/ds-check.mjs",
     "review-bridge:prepare": "node scripts/ensure-review-bridge-env.mjs",
     "review-bridge:run": "node scripts/run-review-bridge.mjs",
+    "review:backup": "node scripts/review-bridge-backup.mjs backup",
+    "review:restore": "node scripts/review-bridge-backup.mjs restore",
+    "review:backups": "node scripts/review-bridge-backup.mjs list",
+    "review:externalize-images": "node scripts/review-bridge-externalize.mjs",
     "review-bridge": "npm --prefix review-bridge start",
     "review-bridge:dev": "npm --prefix review-bridge run dev",
     "review-bridge:install": "npm --prefix review-bridge install"
