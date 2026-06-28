@@ -711,7 +711,9 @@ export default function OrgAuditoriaPage() {
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <header className="mb-10 grid grid-cols-2 items-start gap-6">
         <div className="min-w-0">
-          <h3 className="m-0 text-(--fg-primary)">Privacidade & auditoria</h3>
+          <h3 className="m-0 display-sm font-medium text-(--fg-primary)">
+            Privacidade & auditoria
+          </h3>
           <p className="m-0 mt-2 max-w-prose body-xs text-(--fg-secondary)">
             Atividade da organização, solicitações de dados e exportações.
           </p>

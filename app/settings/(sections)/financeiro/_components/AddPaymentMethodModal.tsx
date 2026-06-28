@@ -346,7 +346,7 @@ export function AddPaymentMethodModal({
 }
 
 function detailsLabel(kind: MethodKind): string {
-  if (kind === "card") return "Cartão";
+  if (kind === "card") return "Forma de pagamento";
   if (kind === "boleto") return "Boleto";
   return "Pix";
 }

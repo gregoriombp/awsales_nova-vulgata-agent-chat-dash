@@ -114,9 +114,9 @@ function CreditsKpis() {
   return (
     <div className="grid grid-cols-2 gap-4">
       <AwStatCard
-        label="Total economizado"
+        label="Economia acumulada"
         value={brl(CREDITS_KPIS.totalSaved)}
-        hint="Desde o início da conta · cupons + créditos já abatidos"
+        hint="Lifetime da conta · cupons + créditos já abatidos"
       />
       <AwStatCard
         label="Desconto disponível"
@@ -130,8 +130,8 @@ function CreditsKpis() {
 function CreditInfoTooltip({ kind }: { kind: "voucher" | "coupon" }) {
   const text =
     kind === "voucher"
-      ? "Crédito concedido pela Aswork (POC, cortesia, bônus de contrato). Abate do seu uso variável até a validade — não muda o limite."
-      : "Cupom é um código promocional aplicado pela sua equipe de conta. Abate sobre a cobrança fixa do plano.";
+      ? "Crédito concedido pela Aswork para abater custos variáveis e taxas de uso da plataforma até a validade — não muda o limite."
+      : "Cupom é um código promocional aplicado pela sua equipe de conta. Pode abater uma ou mais cobranças fixas do plano, conforme a regra do cupom.";
   return (
     <TooltipProvider delayDuration={120}>
       <Tooltip>
@@ -419,7 +419,7 @@ function CouponsBlock({
           <CreditInfoTooltip kind="coupon" />
         </h6>
         <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
-          Abatem uma única vez do valor do plano fixo.
+          Abatem cobranças fixas do plano conforme a regra do cupom.
         </p>
       </header>
 
