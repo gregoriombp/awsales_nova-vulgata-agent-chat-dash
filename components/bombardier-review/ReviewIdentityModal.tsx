@@ -10,8 +10,13 @@ import { OVERLAY_DATA_ATTR, REVIEW_PALETTE, REVIEW_Z } from "./constants"
 export function ReviewIdentityModal() {
   const open = useReviewStore((s) => s.identityModalOpen)
   const identity = useReviewStore((s) => s.identity)
+  const draftMode = useReviewStore((s) => s.identityDraftMode)
   const setIdentity = useReviewStore((s) => s.setIdentity)
   const closeIdentityModal = useReviewStore((s) => s.closeIdentityModal)
+
+  // Em "new" (Adicionar conta) o formulário começa em branco, mesmo já
+  // existindo uma identidade atual.
+  const isNew = draftMode === "new"
 
   const [name, setName] = React.useState(identity?.name ?? "")
   const [colorToken, setColorToken] = React.useState(
@@ -20,10 +25,12 @@ export function ReviewIdentityModal() {
 
   React.useEffect(() => {
     if (open) {
-      setName(identity?.name ?? "")
-      setColorToken(identity?.colorToken ?? REVIEW_PALETTE[0].token)
+      setName(isNew ? "" : identity?.name ?? "")
+      setColorToken(
+        isNew ? REVIEW_PALETTE[0].token : identity?.colorToken ?? REVIEW_PALETTE[0].token
+      )
     }
-  }, [open, identity])
+  }, [open, identity, isNew])
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,7 +43,13 @@ export function ReviewIdentityModal() {
       open={open}
       onClose={closeIdentityModal}
       zIndex={REVIEW_Z.modal}
-      title={identity ? "Editar revisor" : "Quem está revisando?"}
+      title={
+        isNew
+          ? "Adicionar conta"
+          : identity
+            ? "Editar revisor"
+            : "Quem está revisando?"
+      }
       footer={
         <div
           {...{ [OVERLAY_DATA_ATTR]: "" }}
@@ -50,7 +63,7 @@ export function ReviewIdentityModal() {
             onClick={submit}
             disabled={!name.trim()}
           >
-            {identity ? "Salvar" : "Começar"}
+            {isNew ? "Adicionar" : identity ? "Salvar" : "Começar"}
           </AwButton>
         </div>
       }
