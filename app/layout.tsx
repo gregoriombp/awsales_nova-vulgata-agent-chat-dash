@@ -42,19 +42,23 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: foundationTweaksNoFlashScript }}
         />
         {/* Aswork Design System fonts — loaded via <link> because Turbopack
-         * strips CSS @import. One typographic voice: Geist.
-         * Geist Mono for code. Material Symbols Rounded for iconography. */}
+         * strips CSS @import. Haas for headings/display, Geist for body.
+         * Material Symbols Rounded for iconography. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        {/* Geist — single typographic voice for body, headings and display.
-         * Geist Mono — code only. */}
+        {/* Neue Haas Grotesk Display — headings/display (Adobe Fonts / Typekit). */}
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&family=Geist+Mono:wght@100;200;300;400;500;600;700;800;900&display=swap"
+          href="https://use.typekit.net/pfa7kyz.css"
+        />
+        {/* Geist — body typography. */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&display=swap"
         />
         <link
           rel="stylesheet"

@@ -1,5 +1,5 @@
-/* AwSales Design System — one typographic voice: Geist.
- * Geist Mono reserved strictly for code, tokens, IDs.
+/* AwSales Design System — typography split: Haas for display/heading, Geist for body.
+ * Monospace stack reserved strictly for code, tokens, IDs.
  * Material Symbols Rounded is the AwSales icon system (12/16/20/24/28/32 px).
  * Weight range: 200–700. Default weight: 200 (thin/light).
  * Font loading happens via <link> tags in app/layout.tsx — Next.js/Turbopack
@@ -186,11 +186,12 @@
   --color-input-bg: #f5f5f5;
   --color-input-border: #e5e5e5;
 
-  --font-sans:
-    Geist, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
-  --font-heading: Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: Geist Mono, ui-monospace, SF Mono, Menlo, monospace;
+  --font-sans: Geist, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+  --font-heading:
+    neue-haas-grotesk-display, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display:
+    neue-haas-grotesk-display, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, SF Mono, Menlo, monospace;
 
   /* TYPE — degraus finos que faltavam na rampa pequena. O produto usa muito
    * 10/11px em labels densos, mas a escala parava em text-xs (12px) do Tailwind,
@@ -341,13 +342,13 @@
 }
 
 @utility body-xl {
-  /* Body — Geist Regular (400). Cada degrau define a sua altura de linha:
+  /* Body — fonte base regular (400). Cada degrau define a sua altura de linha:
    * leituras compactas (xs/sm) ficam mais apertadas, leitura corrida
    * (md/lg) respira. */
   font-family: var(--font-body);
   font-size: var(--body-xl-size);
   line-height: 1.45;
-  letter-spacing: -0.005em;
+  letter-spacing: -0.000em;
   font-weight: 400;
 }
 
@@ -355,7 +356,7 @@
   font-family: var(--font-body);
   font-size: var(--body-lg-size);
   line-height: 1.5;
-  letter-spacing: -0.005em;
+  letter-spacing: -0.000em;
   font-weight: 400;
 }
 
@@ -364,7 +365,7 @@
   font-size: var(--body-md-size);
   line-height: 1.55;
   letter-spacing: 0;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 @utility body-sm {
@@ -372,15 +373,15 @@
   font-size: var(--body-sm-size);
   line-height: 1.5;
   letter-spacing: 0;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 @utility body-xs {
   font-family: var(--font-body);
   font-size: var(--body-xs-size);
   line-height: 1.4;
-  letter-spacing: 0.005em;
-  font-weight: 400;
+  letter-spacing: 0.000em;
+  font-weight: 500;
 }
 
 @utility aw-eyebrow {
@@ -670,16 +671,19 @@
     --dur-base: 180ms;
     --dur-slow: 280ms;
 
-    /* Type families — single voice.
-   *  · Geist → body, UI text, headings and display.
-   *  · Geist Mono → code only. Never used for timestamps, IDs, metadata
+    /* Type families — split voice.
+   *  · Geist → body and general UI text.
+   *  · Neue Haas Grotesk Display → headings and display.
+   *  · Monospace stack → code only. Never used for timestamps, IDs, metadata
    *    or any product data that's not literal source code. */
     --font-sans:
       'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
     --font-body: var(--font-sans);
-    --font-heading: var(--font-sans);
-    --font-display: var(--font-sans);
-    --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    --font-heading:
+      'neue-haas-grotesk-display', ui-sans-serif, system-ui, -apple-system,
+      'Segoe UI', sans-serif;
+    --font-display: var(--font-heading);
+    --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
 
     /* Type scale */
     --display-xxl-size: 128px;
@@ -693,11 +697,11 @@
     --h4-size: 24px;
     --h5-size: 20px;
     --h6-size: 18px;
-    --body-xl-size: 20px;
-    --body-lg-size: 18px;
-    --body-md-size: 16px;
-    --body-sm-size: 14px;
-    --body-xs-size: 12px;
+    --body-xl-size: 22px;
+    --body-lg-size: 20px;
+    --body-md-size: 18px;
+    --body-sm-size: 16px;
+    --body-xs-size: 14px;
     --mono-md-size: 14px;
     --mono-sm-size: 12px;
   }
