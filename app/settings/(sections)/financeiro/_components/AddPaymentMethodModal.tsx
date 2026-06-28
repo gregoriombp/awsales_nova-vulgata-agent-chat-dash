@@ -209,11 +209,11 @@ export function AddPaymentMethodModal({
     if (step === "type") {
       return (
         <>
-          <AwButton size="sm" variant="ghost" onClick={close}>
+          <AwButton size="md" variant="ghost" onClick={close}>
             Cancelar
           </AwButton>
           <AwButton
-            size="sm"
+            size="md"
             variant="primary"
             iconRight="arrow_forward"
             onClick={goToDetails}
@@ -228,7 +228,7 @@ export function AddPaymentMethodModal({
       return (
         <>
           <AwButton
-            size="sm"
+            size="md"
             variant="ghost"
             iconLeft="arrow_back"
             onClick={() => setStep("type")}
@@ -236,7 +236,7 @@ export function AddPaymentMethodModal({
             Voltar
           </AwButton>
           <AwButton
-            size="sm"
+            size="md"
             variant="primary"
             iconLeft={isLast ? "add" : undefined}
             iconRight={isLast ? undefined : "arrow_forward"}
@@ -251,7 +251,7 @@ export function AddPaymentMethodModal({
     return (
       <>
         <AwButton
-          size="sm"
+          size="md"
           variant="ghost"
           iconLeft="arrow_back"
           onClick={() => setStep("details")}
@@ -259,7 +259,7 @@ export function AddPaymentMethodModal({
           Voltar
         </AwButton>
         <AwButton
-          size="sm"
+          size="md"
           variant="primary"
           iconLeft="add"
           disabled={!addressValid}

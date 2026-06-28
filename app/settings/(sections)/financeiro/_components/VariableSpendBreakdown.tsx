@@ -448,12 +448,19 @@ function Chart({
                         const v = day.values[ci] ?? 0;
                         if (v <= 0) return null;
                         const h = Math.max(Math.round(v * scale), 3);
-                        // categoria em foco tem prioridade; senão, foco por dia.
-                        const focusedCat = hoverSeg?.cat ?? activeCat;
-                        const dim = focusedCat
-                          ? focusedCat !== c.id
+                        // Foco por CATEGORIA vem só da legenda (activeCat) e isola
+                        // a série em TODOS os dias. Hover na barra isola só AQUELE
+                        // dia — não acende a mesma fatia nos outros dias (pedido do
+                        // Greg: destacar uma única barra, não todas).
+                        const dim = activeCat
+                          ? activeCat !== c.id
                           : activeDay !== null && activeDay !== di;
-                        const outrosIdle = c.id === "outros" && focusedCat !== "outros";
+                        // "Outros" só ganha o gradiente iridescente quando focado:
+                        // pela legenda OU na fatia exata sob o mouse (este dia).
+                        const outrosIdle =
+                          c.id === "outros" &&
+                          activeCat !== "outros" &&
+                          !(hoverSeg?.day === di && hoverSeg?.cat === "outros");
                         return (
                           <div
                             key={c.id}

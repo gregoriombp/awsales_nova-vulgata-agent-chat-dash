@@ -111,9 +111,9 @@ export function PeriodPicker({
             numberOfMonths={2}
             captionLayout="dropdown"
             classNames={{
-              range_start: "bg-(--fg-primary) rounded-l-md",
-              range_middle: "bg-(--fg-primary) rounded-none",
-              range_end: "bg-(--fg-primary) rounded-r-md",
+              range_start: "bg-(--bg-inverse) rounded-l-md",
+              range_middle: "bg-(--bg-inverse) rounded-none",
+              range_end: "bg-(--bg-inverse) rounded-r-md",
             }}
             components={{ DayButton: RangeDayButton }}
           />
@@ -167,8 +167,8 @@ function RangeDayButton({
       className={cn(
         "flex aspect-square h-auto w-full min-w-(--cell-size) items-center justify-center rounded-md text-sm font-normal outline-hidden transition-colors duration-aw-fast focus-visible:ring-2 focus-visible:ring-(--fg-primary) focus-visible:ring-offset-1 focus-visible:ring-offset-(--bg-raised)",
         inRange
-          ? "font-medium text-(--bg-raised)"
-          : "bg-(--bg-muted) text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)",
+          ? "font-medium text-(--fg-on-inverse)"
+          : "text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)",
         modifiers.today && !inRange && "ring-1 ring-inset ring-(--border-strong)",
         modifiers.outside && !inRange && "opacity-40",
         modifiers.disabled && "opacity-30",

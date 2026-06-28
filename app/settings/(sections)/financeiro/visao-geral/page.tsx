@@ -67,6 +67,13 @@ export default function VisaoGeralPage() {
         title="Consumo e custos"
         description="Concilie o que foi usado com o que foi cobrado, item a item, e acompanhe a evolução do uso variável ao longo do período."
         onCtaClick={openReport}
+        // Gradiente iridescente horizontal (azul → lavanda → pêssego), sutil,
+        // sobreposto ao --bg-raised pra adaptar no dark. Pedido do Greg "bg
+        // gradient, como da imagem".
+        style={{
+          background:
+            "linear-gradient(100deg, rgba(71,138,255,0.13) 0%, rgba(158,91,223,0.08) 30%, rgba(255,255,255,0) 56%, rgba(248,183,138,0.13) 100%), var(--bg-raised)",
+        }}
       />
       <VariableSpendBreakdown onOpenReport={openReport} />
       <ReportExitModal

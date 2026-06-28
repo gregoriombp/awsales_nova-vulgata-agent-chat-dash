@@ -46,6 +46,10 @@ export type AwReportPromoProps = {
   /** Sobrescreve a arte por uma imagem custom (ignora `art`). */
   illustrationSrc?: string
   className?: string
+  /** Estilo inline no card (ex.: um gradiente de fundo sobreposto ao
+   *  `--bg-raised`). Como o `.aw-card` define o `background` fora de @layer,
+   *  um fundo custom precisa vir por aqui pra ganhar do default. */
+  style?: React.CSSProperties
 }
 
 export function AwReportPromo({
@@ -57,11 +61,12 @@ export function AwReportPromo({
   art = "arcs",
   illustrationSrc,
   className,
+  style,
 }: AwReportPromoProps) {
   const src = illustrationSrc ?? REPORT_PROMO_ART[art]
 
   return (
-    <AwCard className={cn("flex items-center gap-6", className)}>
+    <AwCard className={cn("flex items-center gap-6", className)} style={style}>
       <span
         aria-hidden="true"
         className="flex h-28 w-28 shrink-0 overflow-hidden rounded-xl"
