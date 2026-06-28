@@ -132,8 +132,7 @@ function PlanRow({
       >
         <ul className="m-0 flex list-none flex-col gap-0 p-0 pb-1 pl-5">
           <li className="flex items-center justify-between gap-4 py-1.5">
-            <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
-              <Icon name="workspace_premium" size={13} className="shrink-0" />
+            <span className="body-xs text-(--fg-tertiary)">
               Mensalidade base
             </span>
             <span className="body-xs tabular-nums text-(--fg-secondary)">
@@ -142,8 +141,7 @@ function PlanRow({
             </span>
           </li>
           <li className="flex items-center justify-between gap-4 py-1.5">
-            <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
-              <Icon name="call" size={13} className="shrink-0" />
+            <span className="body-xs text-(--fg-tertiary)">
               Linha telefônica
             </span>
             <span className="body-xs tabular-nums text-(--fg-secondary)">
