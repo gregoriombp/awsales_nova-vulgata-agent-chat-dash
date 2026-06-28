@@ -31,6 +31,14 @@ const sections: HubSection[] = [
     status: "ready",
   },
   {
+    title: "Roadmap",
+    description:
+      "Bloco de ideias e pendências — anote agora pra não esquecer depois. Ideias soltas, não planejamento oficial. Capture com /todo.",
+    icon: "lightbulb",
+    href: "/bombardier/roadmap",
+    status: "ready",
+  },
+  {
     title: "Styleguide",
     description:
       "Tokens, foundations e componentes Aw* — a fonte da verdade do design system.",
