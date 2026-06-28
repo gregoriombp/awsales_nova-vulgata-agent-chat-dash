@@ -22,6 +22,7 @@ import {
   selectionShowsLimitEvent,
   DEFAULT_PERIOD,
   OVERVIEW_SPEND_CATEGORIES,
+  OVERVIEW_SPEND_DAYS,
   OVERVIEW_SPEND_EVENT,
   type PeriodSelection,
   type SpendingGrouping,
@@ -380,6 +381,9 @@ function Chart({
     cat: string;
   } | null>(null);
 
+  const eventLeftPct =
+    ((OVERVIEW_SPEND_EVENT.dayIndex + 0.5) / OVERVIEW_SPEND_DAYS) * 100;
+
   const chartLabel = `Gasto variável por dia. ${cats
     .map((c) => c.label)
     .join(", ")}.`;
@@ -414,17 +418,17 @@ function Chart({
             vigente — some nos outros períodos. */}
         {showEvent && (
         <div
-          className="pointer-events-none absolute inset-y-0 left-0 z-10 flex flex-col items-start"
+          className="pointer-events-none absolute inset-y-0 z-10 flex flex-col items-center"
+          style={{ left: `${eventLeftPct}%`, transform: "translateX(-50%)" }}
         >
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 type="button"
                 aria-label={`${OVERVIEW_SPEND_EVENT.title}. ${OVERVIEW_SPEND_EVENT.description}`}
-                className="pointer-events-auto mb-1 inline-flex cursor-default items-center gap-1 whitespace-nowrap rounded-full bg-(--aw-emerald-100) px-2 py-0.5 body-xs font-medium text-(--aw-emerald-700) focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--ring-focus)"
+                className="pointer-events-auto mb-1 inline-flex h-12 w-12 cursor-default items-center justify-center rounded-full bg-(--aw-purple-600) body-sm font-semibold tabular-nums text-(--fg-on-inverse) shadow-sm ring-4 ring-(--bg-canvas) focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--ring-focus)"
               >
-                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-(--aw-emerald-500)" />
-                {OVERVIEW_SPEND_EVENT.label}
+                +10%
               </button>
             </TooltipTrigger>
             <TooltipContent
@@ -436,7 +440,7 @@ function Chart({
           </Tooltip>
           <span
             aria-hidden="true"
-            className="w-px flex-1 border-l border-dashed border-(--aw-emerald-300)"
+            className="w-px flex-1 border-l border-dashed border-(--aw-purple-300)"
           />
         </div>
         )}
@@ -468,9 +472,13 @@ function Chart({
                         // a série em TODOS os dias. Hover na barra isola só AQUELE
                         // dia — não acende a mesma fatia nos outros dias (pedido do
                         // Greg: destacar uma única barra, não todas).
+                        const exactHover =
+                          hoverSeg?.day === di && hoverSeg?.cat === c.id;
                         const dim = activeCat
                           ? activeCat !== c.id
-                          : activeDay !== null && activeDay !== di;
+                          : hoverSeg
+                            ? !exactHover
+                            : activeDay !== null && activeDay !== di;
                         // "Outros" só ganha o gradiente iridescente quando focado:
                         // pela legenda OU na fatia exata sob o mouse (este dia).
                         const outrosIdle =
@@ -484,7 +492,10 @@ function Chart({
                             data-category={c.id}
                             data-day={di}
                             onMouseEnter={() => setHoverSeg({ day: di, cat: c.id })}
-                            className="w-full transition-[opacity] duration-200 ease-out"
+                            className={cn(
+                              "aw-overview-segment w-full transition-[opacity,transform,filter] duration-200 ease-out",
+                              exactHover && "aw-overview-segment--focused",
+                            )}
                             style={{
                               height: h,
                               borderRadius: 4,
@@ -514,6 +525,29 @@ function Chart({
             );
           })}
         </div>
+        <style jsx global>{`
+          @keyframes aw-overview-segment-float {
+            0%,
+            100% {
+              transform: translateY(0);
+              opacity: 1;
+            }
+            50% {
+              transform: translateY(-4px);
+              opacity: 0.82;
+            }
+          }
+
+          .aw-overview-segment--focused {
+            animation: aw-overview-segment-float 1.8s ease-in-out infinite;
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .aw-overview-segment--focused {
+              animation: none;
+            }
+          }
+        `}</style>
       </div>
 
       {/* eixo X */}

@@ -14,6 +14,7 @@ import {
   agentType,
   selectionRatio,
   AGENT_BREAKDOWN,
+  OVERVIEW_SPEND_CATEGORIES,
   OVERVIEW_SERVICE_GROUPS,
   type AgentBreakdownRow,
   type OverviewServiceGroup,
@@ -53,6 +54,13 @@ const AGENT_STATUS_VARIANT: Record<AgentBreakdownRow["status"], AwPillVariant> =
   Pausado: "neutral",
   Treinando: "warning",
 };
+
+const AGENT_CHART_CATEGORIES = OVERVIEW_SPEND_CATEGORIES.agent.filter(
+  (c) => c.id !== "outros",
+);
+const AGENT_CHART_COLOR_BY_ID = new Map(
+  AGENT_CHART_CATEGORIES.map((c) => [c.id, c.color]),
+);
 
 function usdLabel(brlValue: number): string {
   return `US$ ${usd(brlValue).toLocaleString("en-US", {
@@ -124,7 +132,6 @@ function ServiceTable({ ratio }: { ratio: number }) {
     [ratio],
   );
   const totalBrl = groups.reduce((s, g) => s + g.total, 0);
-  const totalUsd = groups.reduce((s, g) => s + usd(g.total), 0);
 
   return (
     <AwTable className={ROW_HOVER}>
@@ -280,12 +287,15 @@ function ChildRow({
 function AgentTable({ ratio }: { ratio: number }) {
   const [detail, setDetail] = React.useState<AgentBreakdownRow | null>(null);
   const agents = React.useMemo(
-    () => AGENT_BREAKDOWN.map((a) => ({ ...a, total: r2(a.total * ratio) })),
+    () =>
+      AGENT_CHART_CATEGORIES
+        .map((c) => AGENT_BREAKDOWN.find((a) => a.id === c.id))
+        .filter((a): a is AgentBreakdownRow => Boolean(a))
+        .map((a) => ({ ...a, total: r2(a.total * ratio) })),
     [ratio],
   );
   const allTotals = agents.map((a) => a.total);
   const totalBrl = agents.reduce((s, a) => s + a.total, 0);
-  const totalUsd = agents.reduce((s, a) => s + usd(a.total), 0);
 
   return (
     <>
@@ -305,7 +315,10 @@ function AgentTable({ ratio }: { ratio: number }) {
             <tr key={a.id}>
               <td>
                 <span className="inline-flex items-center gap-3">
-                  <AwAvatar size="sm" src={a.avatar} alt={a.label} />
+                  <AgentAvatarWithChartDot
+                    agent={a}
+                    color={AGENT_CHART_COLOR_BY_ID.get(a.id) ?? "var(--fg-tertiary)"}
+                  />
                   <span className="inline-flex items-center gap-2">
                     <span className="truncate font-medium text-(--fg-primary)">
                       {a.label}
@@ -366,6 +379,28 @@ function AgentTable({ ratio }: { ratio: number }) {
 }
 
 /* ---------- apoios ---------- */
+
+function AgentAvatarWithChartDot({
+  agent,
+  color,
+}: {
+  agent: AgentBreakdownRow;
+  color: string;
+}) {
+  return (
+    <span className="relative inline-flex shrink-0">
+      <AwAvatar size="sm" src={agent.avatar} alt={agent.label} />
+      <span
+        aria-hidden="true"
+        className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full"
+        style={{
+          backgroundColor: color,
+          boxShadow: "0 0 0 2px var(--bg-raised)",
+        }}
+      />
+    </span>
+  );
+}
 
 function ShareBar({
   share,
