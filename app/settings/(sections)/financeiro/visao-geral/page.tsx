@@ -35,8 +35,6 @@ import {
   OVERVIEW_KPIS,
   PLAN_PHONE_LINE,
   SERVICE_BREAKDOWN,
-  USED_META_TOTAL,
-  USED_WC_TOTAL,
   VARIABLE_SPENDING_LIMIT,
 } from "../_components/data";
 
@@ -62,6 +60,8 @@ export default function VisaoGeralPage() {
     <div className="flex flex-col gap-(--space-12)">
       <ForecastBlock />
       <UsageAndPlan />
+      <VariableSpendBreakdown onOpenReport={openReport} />
+      {/* Card "Consumo e custos" como último elemento da página (pedido do Greg). */}
       <AwReportPromo
         art="blocks"
         title="Consumo e custos"
@@ -75,7 +75,6 @@ export default function VisaoGeralPage() {
             "linear-gradient(100deg, rgba(71,138,255,0.13) 0%, rgba(158,91,223,0.08) 30%, rgba(255,255,255,0) 56%, rgba(248,183,138,0.13) 100%), var(--bg-raised)",
         }}
       />
-      <VariableSpendBreakdown onOpenReport={openReport} />
       <ReportExitModal
         open={reportExitOpen}
         onClose={() => setReportExitOpen(false)}
@@ -334,12 +333,10 @@ function UsageAndPlan() {
 }
 
 function ConsumoVariavelCard() {
-  const used = OVERVIEW_KPIS.accumulated;
+  const used = OVERVIEW_KPIS.accumulated; // total de variáveis usado no ciclo
   const limit = VARIABLE_SPENDING_LIMIT;
+  const discount = OVERVIEW_KPIS.monthSavings; // créditos + cupons já aplicados
   const remaining = Math.max(limit - used, 0);
-  // Quebra do consumo por quem cobra: taxas da Aswork × valor aproximado do Meta.
-  const wc = USED_WC_TOTAL;
-  const meta = USED_META_TOTAL;
 
   return (
     <AwCard className="flex flex-col gap-4 border-(--aw-gray-25) px-6! py-4!">
@@ -361,9 +358,9 @@ function ConsumoVariavelCard() {
                 side="top"
                 className="max-w-[280px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
               >
-                Gastos que variam com o uso (disparos, mensagens, tokens de IA e
-                leads), além do plano fixo. Ao atingir o limite do ciclo, o
-                acumulado é cobrado automaticamente.
+                Total de variáveis usado no período (disparos, mensagens, tokens
+                de IA e leads), além do plano fixo. Ao atingir o limite do ciclo,
+                o acumulado é cobrado automaticamente.
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -375,85 +372,67 @@ function ConsumoVariavelCard() {
           de {brl(limit)}
         </span>
       </div>
-      {/* Duas barras SOBREPOSTAS partindo da mesma base: uma do que a Aswork
-          cobrou, outra do valor que o Meta cobra. Cores claras (por token) pra
-          ler as duas ao mesmo tempo; a maior fica atrás, a menor por cima. */}
-      <OverlaidUsageBars wc={wc} meta={meta} limit={limit} />
+
+      {/* Barra de uso única: o trilho é o limite do ciclo, a parte preenchida é
+          o total usado. O trecho final em verde é o desconto (créditos/cupons)
+          já abatido — o desconto fica visível no próprio gráfico, sem somar
+          outra barra (pedido do Greg). */}
+      <UsageBar used={used} discount={discount} limit={limit} />
 
       <p className="m-0 body-xs tabular-nums text-(--fg-tertiary)">
         Restam {brl(remaining)} antes da próxima cobrança.
       </p>
 
-      {/* Quem cobra o quê — duas infos bem pequenas, alinhadas às barras. */}
-      <div className="flex items-center justify-between gap-3 body-xs text-(--fg-tertiary)">
-        <span className="inline-flex items-center gap-1.5">
-          <span
-            aria-hidden="true"
-            className="h-2 w-2 rounded-full bg-(--aw-blue-500)"
-          />
-          Aswork cobrou
-          <span className="tabular-nums font-medium text-(--fg-secondary)">
-            {brl(wc)}
-          </span>
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span
-            aria-hidden="true"
-            className="h-2 w-2 rounded-full bg-(--aw-purple-500)"
-          />
-          Meta cobra
-          <span className="tabular-nums font-medium text-(--fg-secondary)">
-            {brl(meta)}
-          </span>
-        </span>
-      </div>
+      {/* Uma linha só pro desconto — claro e sem sobrecarregar o card. */}
+      <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
+        <span
+          aria-hidden="true"
+          className="h-2 w-2 shrink-0 rounded-full bg-(--aw-emerald-500)"
+        />
+        <strong className="font-medium tabular-nums text-(--aw-emerald-700)">
+          {brl(discount)}
+        </strong>
+        em créditos e cupons aplicados
+      </span>
     </AwCard>
   );
 }
 
 /**
- * Duas barras sobrepostas no mesmo trilho: cada uma parte da esquerda e mede,
- * contra o limite do ciclo, quanto foi cobrado por cada provedor. A barra maior
- * fica atrás; a menor entra por cima com leve transparência pra leitura das
- * duas simultaneamente. Cores claras, todas por token.
+ * Barra de uso única. O trilho é o limite do ciclo; a parte preenchida é o
+ * total usado, dividida em dois trechos contíguos: o líquido (neutro) e, logo
+ * depois, o desconto já aplicado em verde — assim o abatimento de créditos e
+ * cupons aparece dentro do próprio gráfico. Tudo por token.
  */
-function OverlaidUsageBars({
-  wc,
-  meta,
+function UsageBar({
+  used,
+  discount,
   limit,
 }: {
-  wc: number;
-  meta: number;
+  used: number;
+  discount: number;
   limit: number;
 }) {
-  const scaleMax = Math.max(limit, wc, meta);
-  const wcPct = scaleMax > 0 ? (wc / scaleMax) * 100 : 0;
-  const metaPct = scaleMax > 0 ? (meta / scaleMax) * 100 : 0;
-  // A maior vai pro fundo; a menor por cima (semitransparente) pra não cobrir.
-  const wcIsBigger = wc >= meta;
+  const scaleMax = Math.max(limit, used);
+  // O desconto é um trecho da parte usada (nunca maior que ela).
+  const disc = Math.min(discount, used);
+  const net = Math.max(used - disc, 0);
+  const netPct = scaleMax > 0 ? (net / scaleMax) * 100 : 0;
+  const discPct = scaleMax > 0 ? (disc / scaleMax) * 100 : 0;
 
   return (
     <div
-      className="relative h-2.5 w-full"
+      className="flex h-2.5 w-full overflow-hidden rounded-full bg-(--bg-muted)"
       role="img"
-      aria-label={`Aswork cobrou ${brl(wc)} e Meta cobra ${brl(meta)}, de um limite de ${brl(limit)}.`}
+      aria-label={`Usado ${brl(used)} de ${brl(limit)}, dos quais ${brl(discount)} em créditos e cupons já aplicados.`}
     >
-      <div className="absolute inset-0 rounded-full bg-(--bg-muted)" />
       <div
-        className="absolute inset-y-0 left-0 rounded-full bg-(--aw-blue-500) transition-[width] duration-500 ease-out"
-        style={{
-          width: `${Math.min(wcPct, 100)}%`,
-          zIndex: wcIsBigger ? 1 : 2,
-          opacity: wcIsBigger ? 1 : 0.85,
-        }}
+        className="h-full bg-(--fg-primary) transition-[width] duration-500 ease-out"
+        style={{ width: `${netPct}%` }}
       />
       <div
-        className="absolute inset-y-0 left-0 rounded-full bg-(--aw-purple-500) transition-[width] duration-500 ease-out"
-        style={{
-          width: `${Math.min(metaPct, 100)}%`,
-          zIndex: wcIsBigger ? 2 : 1,
-          opacity: wcIsBigger ? 0.85 : 1,
-        }}
+        className="h-full bg-(--aw-emerald-500) transition-[width] duration-500 ease-out"
+        style={{ width: `${discPct}%` }}
       />
     </div>
   );
