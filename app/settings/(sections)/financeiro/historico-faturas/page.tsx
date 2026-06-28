@@ -287,7 +287,7 @@ export default function HistoricoFaturasPage() {
                 iconLeft="download"
                 onClick={confirmExport}
               >
-                Confirmar
+                Baixar relatório
               </AwButton>
             </div>
           )
