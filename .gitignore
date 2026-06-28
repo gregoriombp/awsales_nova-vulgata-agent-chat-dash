@@ -69,6 +69,7 @@ next-env.d.ts
 # review bridge runtime state (grows unbounded — not source code)
 review-bridge/data/*.json
 review-bridge/data/.backups/
+review-bridge/data/images/
 review-bridge/node_modules/
 
 # flow-bridge runtime state (grows unbounded — not source code)
