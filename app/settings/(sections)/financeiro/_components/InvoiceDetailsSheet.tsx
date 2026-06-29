@@ -34,7 +34,7 @@ function statusVariant(status: InvoiceHistoryRow["status"]): AwPillVariant {
     case "Falha no Pagamento":
       return "error";
     case "Disputada":
-      return "beta";
+      return "dispute";
   }
 }
 
@@ -89,9 +89,7 @@ export function InvoiceDetailsSheet({
               Baixar nota fiscal
             </AwButton>
           )}
-          <AwButton variant="primary" iconLeft="download">
-            Baixar fatura (PDF)
-          </AwButton>
+          <AwButton variant="primary">Baixar fatura</AwButton>
         </div>
       }
     >
@@ -118,10 +116,6 @@ export function InvoiceDetailsSheet({
             ) : null}
           </p>
         </section>
-
-        {invoice.status === "Disputada" && invoice.dispute && (
-          <DisputeTimeline dispute={invoice.dispute} />
-        )}
 
         <section>
           <p className="m-0 mb-2 aw-eyebrow text-(--fg-tertiary)">
@@ -172,6 +166,14 @@ export function InvoiceDetailsSheet({
             <Row label="Descrição" value={invoice.description} />
           </ul>
         </section>
+
+        {/* Linhas do tempo por status — sempre abaixo da tabela (pedido do Greg). */}
+        {invoice.status === "Falha no Pagamento" && (
+          <PaymentFailureTimeline invoice={invoice} />
+        )}
+        {invoice.status === "Disputada" && invoice.dispute && (
+          <DisputeTimeline dispute={invoice.dispute} />
+        )}
       </div>
     </AwSheet>
   );
@@ -189,7 +191,7 @@ function DisputeTimeline({
   );
 
   return (
-    <section className="rounded-xl border border-(--border-subtle) bg-(--bg-muted) p-4">
+    <section className="rounded-xl border border-(--border-subtle) p-4">
       <div className="mb-3 flex items-start gap-2">
         <Icon
           name="gavel"
@@ -258,6 +260,107 @@ function DisputeTimeline({
                 {current && (
                   <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
                     {stage.description}
+                  </p>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  );
+}
+
+/* ---------- linha do tempo da falha de pagamento ---------- */
+
+function PaymentFailureTimeline({ invoice }: { invoice: InvoiceHistoryRow }) {
+  const steps: {
+    label: string;
+    sub?: string;
+    state: "done" | "error" | "pending";
+  }[] = [
+    { label: "Cobrança lançada", sub: invoice.dueAt, state: "done" },
+    {
+      label: "Pagamento recusado pelo emissor do cartão",
+      sub: invoice.paymentMethod,
+      state: "error",
+    },
+    {
+      label: "Aguardando regularização",
+      sub: "Quite para evitar o congelamento da conta.",
+      state: "pending",
+    },
+  ];
+
+  return (
+    <section className="rounded-xl border border-(--border-subtle) p-4">
+      <div className="mb-3 flex items-start gap-2">
+        <Icon
+          name="credit_card_off"
+          size={18}
+          className="mt-0.5 shrink-0 text-(--accent-danger)"
+        />
+        <div className="min-w-0">
+          <p className="m-0 body-sm font-medium text-(--fg-primary)">
+            Pagamento não concluído
+          </p>
+          <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+            A cobrança foi tentada em {invoice.dueAt} e não foi autorizada.
+          </p>
+        </div>
+      </div>
+
+      <ol className="m-0 flex list-none flex-col gap-0 p-0">
+        {steps.map((step, i) => {
+          const last = i === steps.length - 1;
+          return (
+            <li key={step.label} className="flex gap-3">
+              <div className="flex flex-col items-center">
+                <span
+                  aria-hidden="true"
+                  className={
+                    "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border " +
+                    (step.state === "done"
+                      ? "border-(--accent-success) bg-(--accent-success) text-(--bg-raised)"
+                      : step.state === "error"
+                        ? "border-(--accent-danger) bg-(--accent-danger) text-(--bg-raised)"
+                        : "border-(--border-default) bg-(--bg-raised) text-(--fg-tertiary)")
+                  }
+                >
+                  {step.state === "done" ? (
+                    <Icon name="check" size={12} />
+                  ) : step.state === "error" ? (
+                    <Icon name="priority_high" size={12} />
+                  ) : (
+                    <span className="h-1.5 w-1.5 rounded-full bg-(--border-default)" />
+                  )}
+                </span>
+                {!last && (
+                  <span
+                    aria-hidden="true"
+                    className={
+                      "w-px flex-1 " +
+                      (step.state === "done"
+                        ? "bg-(--accent-success)"
+                        : "bg-(--border-subtle)")
+                    }
+                  />
+                )}
+              </div>
+              <div className={"min-w-0 pb-3 " + (last ? "pb-0" : "")}>
+                <p
+                  className={
+                    "m-0 body-sm " +
+                    (step.state === "pending"
+                      ? "text-(--fg-tertiary)"
+                      : "font-medium text-(--fg-primary)")
+                  }
+                >
+                  {step.label}
+                </p>
+                {step.sub && (
+                  <p className="m-0 mt-0.5 body-xs tabular-nums text-(--fg-secondary)">
+                    {step.sub}
                   </p>
                 )}
               </div>
