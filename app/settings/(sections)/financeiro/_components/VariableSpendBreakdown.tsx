@@ -108,6 +108,29 @@ function Swatch({
   );
 }
 
+/** Avatar do agente com o dot da cor sobreposto no canto inferior direito —
+ *  igual o indicador de status online de usuário. Pedido do Greg pra todos os
+ *  cenários da tela (legenda + tooltip), com o dot por cima da foto. */
+function AgentAvatarDot({
+  cat,
+  size,
+}: {
+  cat: { color: string; avatar?: string; gradient?: boolean };
+  size: number;
+}) {
+  const dot = Math.max(6, Math.round(size * 0.42));
+  return (
+    <span className="relative inline-flex shrink-0">
+      <Swatch cat={cat} size={size} showAvatar />
+      <span
+        aria-hidden="true"
+        className="absolute -right-0.5 -bottom-0.5 z-10 rounded-full ring-2 ring-(--bg-raised)"
+        style={{ width: dot, height: dot, backgroundColor: cat.color }}
+      />
+    </span>
+  );
+}
+
 function TooltipSwatch({
   cat,
 }: {
@@ -115,12 +138,7 @@ function TooltipSwatch({
 }) {
   if (!cat.avatar) return <Swatch cat={cat} size={8} />;
 
-  return (
-    <span className="inline-flex shrink-0 items-center gap-1">
-      <Swatch cat={cat} size={16} showAvatar />
-      <Swatch cat={cat} size={6} />
-    </span>
-  );
+  return <AgentAvatarDot cat={cat} size={16} />;
 }
 
 /* ---------- modal: confirmação antes de ir pro relatório completo ---------- */
@@ -328,7 +346,11 @@ function Controls({
                     dim && "opacity-40",
                   )}
                 >
-                  <Swatch cat={c} size={c.avatar ? 18 : 10} showAvatar />
+                  {c.avatar ? (
+                    <AgentAvatarDot cat={c} size={18} />
+                  ) : (
+                    <Swatch cat={c} size={10} showAvatar />
+                  )}
                   {c.label}
                 </button>
               </li>
@@ -426,9 +448,13 @@ function Chart({
               <button
                 type="button"
                 aria-label={`${OVERVIEW_SPEND_EVENT.title}. ${OVERVIEW_SPEND_EVENT.description}`}
-                className="pointer-events-auto mb-1 inline-flex h-12 w-12 cursor-default items-center justify-center rounded-full bg-(--aw-purple-600) body-sm font-semibold tabular-nums text-(--fg-on-inverse) shadow-sm ring-4 ring-(--bg-canvas) focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--ring-focus)"
+                className="pointer-events-auto mb-1 inline-flex cursor-default items-center gap-1.5 rounded-full border border-(--border-subtle) px-2.5 py-1 body-xs font-medium whitespace-nowrap text-(--fg-secondary) shadow-sm backdrop-blur-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--ring-focus)"
               >
-                +10%
+                <span
+                  aria-hidden="true"
+                  className="h-2 w-2 shrink-0 rounded-full bg-(--aw-blue-500)"
+                />
+                {OVERVIEW_SPEND_EVENT.label}
               </button>
             </TooltipTrigger>
             <TooltipContent
@@ -440,7 +466,7 @@ function Chart({
           </Tooltip>
           <span
             aria-hidden="true"
-            className="w-px flex-1 border-l border-dashed border-(--aw-purple-300)"
+            className="w-px flex-1 border-l border-dashed border-(--aw-blue-300)"
           />
         </div>
         )}
