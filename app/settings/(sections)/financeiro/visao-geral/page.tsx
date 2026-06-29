@@ -71,6 +71,9 @@ export default function VisaoGeralPage() {
         // sobreposto ao --bg-raised pra adaptar no dark. Pedido do Greg "bg
         // gradient, como da imagem".
         style={{
+          // Sem stroke (pedido do Greg) — borda transparente via inline vence o
+          // .aw-card (CSS unlayered, por isso a classe Tailwind não pegava).
+          borderColor: "transparent",
           background:
             "linear-gradient(100deg, rgba(71,138,255,0.13) 0%, rgba(158,91,223,0.08) 30%, rgba(255,255,255,0) 56%, rgba(248,183,138,0.13) 100%), var(--bg-raised)",
         }}
@@ -379,21 +382,24 @@ function ConsumoVariavelCard() {
           outra barra (pedido do Greg). */}
       <UsageBar used={used} discount={discount} limit={limit} />
 
-      <p className="m-0 body-xs tabular-nums text-(--fg-tertiary)">
-        Restam {brl(remaining)} antes da próxima cobrança.
-      </p>
-
-      {/* Uma linha só pro desconto — claro e sem sobrecarregar o card. */}
-      <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
-        <span
-          aria-hidden="true"
-          className="h-2 w-2 shrink-0 rounded-full bg-(--aw-emerald-500)"
-        />
-        <strong className="font-medium tabular-nums text-(--aw-emerald-700)">
-          {brl(discount)}
-        </strong>
-        em créditos e cupons aplicados
-      </span>
+      {/* Embaixo da barra: "Restam..." à esquerda e o desconto como tag (ícone
+          de cupom) à direita — claro e visível, sem sobrecarregar o card. */}
+      <div className="flex items-center justify-between gap-3">
+        <p className="m-0 body-xs tabular-nums text-(--fg-tertiary)">
+          Restam {brl(remaining)} antes da próxima cobrança.
+        </p>
+        <span className="inline-flex shrink-0 items-center gap-1 body-xs">
+          <Icon
+            name="local_offer"
+            size={13}
+            className="text-(--accent-success)"
+          />
+          <strong className="font-medium tabular-nums text-(--accent-success)">
+            {brl(discount)}
+          </strong>
+          <span className="text-(--fg-tertiary)">em créditos</span>
+        </span>
+      </div>
     </AwCard>
   );
 }
@@ -427,12 +433,19 @@ function UsageBar({
       aria-label={`Usado ${brl(used)} de ${brl(limit)}, dos quais ${brl(discount)} em créditos e cupons já aplicados.`}
     >
       <div
-        className="h-full bg-(--fg-primary) transition-[width] duration-500 ease-out"
+        className="h-full bg-(--accent-success) transition-[width] duration-500 ease-out"
         style={{ width: `${netPct}%` }}
       />
+      {/* Trecho do desconto: faixa clara hachurada (créditos/cupons já abatidos),
+          como no mid-fi — destaca o abatimento sem competir com o uso líquido. */}
       <div
-        className="h-full bg-(--aw-emerald-500) transition-[width] duration-500 ease-out"
-        style={{ width: `${discPct}%` }}
+        className="h-full transition-[width] duration-500 ease-out"
+        style={{
+          width: `${discPct}%`,
+          backgroundColor: "var(--aw-emerald-150)",
+          backgroundImage:
+            "repeating-linear-gradient(45deg, var(--aw-emerald-400) 0, var(--aw-emerald-400) 1.5px, transparent 1.5px, transparent 5px)",
+        }}
       />
     </div>
   );
