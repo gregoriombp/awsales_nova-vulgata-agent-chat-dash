@@ -221,9 +221,11 @@ fi
 #     versão de um arquivo PRESERVE. No design2 esse arquivo fica na versão do PG (sem o
 #     símbolo) → "Module has no exported member". Pega o caso automaticamente, mesmo que o
 #     arquivo novo não tenha sido listado em PRESERVE_PATHS. Roda também no --dry-run.
-GUARD_OUT="$(
-  for e in "${TO_SEND[@]+"${TO_SEND[@]}"}"; do printf '%s\n' "${e#*$'\t'}"; done \
-  | python3 - "$BASE" "$SOURCE_REF" "${PRESERVE_PATHS[@]}" <<'PY'
+# bash 3.2 + set -euo pipefail: pipe + heredoc na mesma linha causa SIGPIPE quando a lista
+# de arquivos tem mais de ~10 entradas (race entre writer e reader fechando stdin). Fix: escreve
+# o script python num temp file e faz o pipe separado, sem conflito de stdin.
+_GUARD_PY="$(mktemp /tmp/sync_guard_XXXXXX.py)"
+cat > "$_GUARD_PY" <<'PY'
 import sys, subprocess, re, os
 BASE, SRC = sys.argv[1], sys.argv[2]
 preserve = sys.argv[3:]
@@ -297,7 +299,11 @@ for f in pushed:
 for f, s, t in viol:
     print(f"{f}\t{s}\t{t}")
 PY
+GUARD_OUT="$(
+  for e in "${TO_SEND[@]+"${TO_SEND[@]}"}"; do printf '%s\n' "${e#*$'\t'}"; done \
+  | python3 "$_GUARD_PY" "$BASE" "$SOURCE_REF" "${PRESERVE_PATHS[@]}"
 )"
+rm -f "$_GUARD_PY"
 if [[ -n "$GUARD_OUT" ]]; then
   echo "✗ ABORT (guard de integridade): arquivo(s) que sobem importam símbolos que o design2 não tem nos arquivos PRESERVE:"
   printf '%s\n' "$GUARD_OUT" | while IFS=$'\t' read -r gf gs gt; do
