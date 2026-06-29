@@ -214,9 +214,13 @@ function CssOrb({
         style={{
           inset: "-22%",
           background: mesh,
+          // Play-state vai DENTRO do shorthand (último componente de `animation`)
+          // — misturar `animation` + `animationPlayState` faz o React avisar a
+          // cada rerender sobre shorthand/longhand conflitantes.
           animation:
-            spin > 0 ? `aw-css-orb-spin ${spin}s linear infinite` : undefined,
-          animationPlayState: playState,
+            spin > 0
+              ? `aw-css-orb-spin ${spin}s linear infinite ${playState}`
+              : undefined,
         }}
       />
       {/* Camada 2: brilho líquido contra-rotativo (conic suave + blur). */}
@@ -230,9 +234,8 @@ function CssOrb({
           mixBlendMode: "soft-light",
           animation:
             spin > 0
-              ? `aw-css-orb-spin-rev ${spin * 1.6}s linear infinite`
+              ? `aw-css-orb-spin-rev ${spin * 1.6}s linear infinite ${playState}`
               : undefined,
-          animationPlayState: playState,
         }}
       />
       {/* Núcleo claro fixo — o highlight que o shader pinta com color1. */}
