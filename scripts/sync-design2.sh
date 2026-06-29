@@ -38,6 +38,14 @@ PRIVATE_PATHS=(
   "scripts/sync-design2.sh"
   "docs/cursor-rules"
   ".cursor" ".agents" "cursor-import" ".codex"
+  # review-bridge: NADA vai pro PG — API serverless, lib, scripts e docs de recovery.
+  # O PG tem backend Supabase próprio; mandar qualquer coisa do review-bridge causa conflito.
+  "app/api/review-bridge"
+  "lib/bombardier-review"
+  "docs/review_recovery_2026_06_27"
+  "scripts/review-bridge-backup.mjs"
+  "scripts/review-bridge-externalize.mjs"
+  "scripts/review-bridge-quantize-anchors.mjs"
 )
 
 # ── TERRITÓRIO DO PG (PRESERVE): este repo era meu; o PG foi mexendo por conta própria.
