@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { AwAlert } from "@/components/ui/AwAlert";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCardBrand } from "@/components/ui/AwCardBrand";
@@ -56,7 +55,7 @@ function statusVariant(status: InvoiceStatus): AwPillVariant {
     case "Falha no Pagamento":
       return "error";
     case "Disputada":
-      return "beta";
+      return "dispute";
   }
 }
 
@@ -96,8 +95,18 @@ export default function HistoricoFaturasPage() {
     null,
   );
   const [exportConfirmed, setExportConfirmed] = React.useState(false);
-  const [alertDismissed, setAlertDismissed] = React.useState(false);
   const [regularizeOpen, setRegularizeOpen] = React.useState(false);
+
+  // Abre o fluxo de regularização quando chega via "?regularizar=1" (botão do
+  // banner de pagamento pendente, no cabeçalho global do Financeiro).
+  React.useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("regularizar") === "1"
+    ) {
+      setRegularizeOpen(true);
+    }
+  }, []);
 
   const openInvoice = INVOICE_HISTORY.find((r) => r.id === openId) ?? null;
 
@@ -115,10 +124,6 @@ export default function HistoricoFaturasPage() {
 
   const groups = React.useMemo(() => groupByMonth(rows), [rows]);
   const totalCount = rows.length;
-
-  const overdueCount = INVOICE_HISTORY.filter((r) => r.status === "Falha no Pagamento").length;
-  const lateCount = INVOICE_HISTORY.filter((r) => r.status === "Em atraso").length;
-  const showPaymentAlert = overdueCount + lateCount > 0;
 
   // Faturas que ainda precisam ser quitadas — entram no modal de regularização.
   const pendingInvoices = React.useMemo(
@@ -165,45 +170,6 @@ export default function HistoricoFaturasPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      {showPaymentAlert && !alertDismissed && (
-        <AwAlert
-          variant="warning"
-          title="Regularize seu pagamento"
-          onClose={() => setAlertDismissed(true)}
-        >
-          <p className="m-0 body-xs text-(--fg-primary)">
-            {overdueCount > 0 && (
-              <>
-                {overdueCount === 1
-                  ? "1 fatura está vencida"
-                  : `${overdueCount} faturas estão vencidas`}
-                {lateCount > 0 ? " e " : "."}
-              </>
-            )}
-            {lateCount > 0 && (
-              <>
-                {lateCount === 1
-                  ? "1 fatura está em atraso"
-                  : `${lateCount} faturas estão em atraso`}
-                .
-              </>
-            )}
-            {" "}
-            Quite para evitar o congelamento da conta.
-          </p>
-          <div className="mt-3">
-            <AwButton
-              size="sm"
-              variant="primary"
-              iconLeft="payments"
-              onClick={() => setRegularizeOpen(true)}
-            >
-              Regularizar pagamento
-            </AwButton>
-          </div>
-        </AwAlert>
-      )}
-
       <div className="flex flex-wrap items-center gap-3">
         <div className="min-w-[240px] flex-1">
           <AwInput
