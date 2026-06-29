@@ -285,36 +285,31 @@ function CardActionsMenu({
 function DefaultCardHero(props: MethodCardProps) {
   const { method } = props;
 
-  // Boleto e Pix não têm bandeira/validade — herói neutro com a marca do método.
+  // Selo de método principal — destaca o card sem precisar do desenho de cartão.
+  const padraoBadge = (
+    <span className="inline-flex w-fit items-center gap-1 rounded-full bg-(--bg-surface) px-2 py-0.5 aw-eyebrow text-(--fg-secondary)">
+      <Icon name="check_circle" size={12} className="text-(--accent-success)" />
+      Padrão
+    </span>
+  );
+
+  // Boleto/Pix: marca + rótulo, sem validade.
   if (method.kind !== "card") {
     const isPix = method.kind === "pix";
     const subtitle = isPix
       ? `Chave ${method.keyType} · ${method.key}`
       : `${method.holder} · ${method.taxId}`;
     return (
-      <div className="relative flex aspect-[856/540] w-full max-w-sm flex-col justify-between overflow-hidden rounded-2xl bg-(--bg-inverse) p-6 text-(--fg-on-inverse) shadow-sm">
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-14 -top-14 h-44 w-44 rounded-full bg-(--fg-on-inverse) opacity-10"
-        />
-        <div className="flex items-start justify-between gap-3">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-(--bg-raised) px-2.5 py-1 aw-eyebrow text-(--fg-primary)">
-            <Icon name="check_circle" size={13} />
-            Padrão
-          </span>
-          <CardActionsMenu {...props} onDark />
+      <div className="flex max-w-md items-center gap-4 rounded-2xl border border-(--border-default) bg-(--bg-raised) p-5 shadow-sm">
+        <AwBrandLogo brand={isPix ? "pix" : "boleto"} size="md" />
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          {padraoBadge}
+          <p className="m-0 body-lg font-medium text-(--fg-primary)">
+            {isPix ? "Pix automático" : "Boleto bancário"}
+          </p>
+          <p className="m-0 truncate body-sm text-(--fg-tertiary)">{subtitle}</p>
         </div>
-        <div className="relative flex items-end justify-between gap-4">
-          <div className="min-w-0">
-            <span className="block aw-eyebrow text-(--fg-on-inverse) opacity-60">
-              {isPix ? "Pix automático" : "Boleto bancário"}
-            </span>
-            <span className="mt-1 block truncate body-sm font-medium text-(--fg-on-inverse)">
-              {subtitle}
-            </span>
-          </div>
-          <AwBrandLogo brand={isPix ? "pix" : "boleto"} size="md" />
-        </div>
+        <CardActionsMenu {...props} />
       </div>
     );
   }
@@ -323,54 +318,23 @@ function DefaultCardHero(props: MethodCardProps) {
   const expiringSoon = isExpiringSoon(method.expiresAt);
 
   return (
-    <div className="relative flex aspect-[856/540] w-full max-w-sm flex-col justify-between overflow-hidden rounded-2xl bg-(--bg-inverse) p-6 text-(--fg-on-inverse) shadow-sm">
-      {/* leve brilho de canto, sutil e por token */}
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-14 -top-14 h-44 w-44 rounded-full bg-(--fg-on-inverse) opacity-10"
-      />
-
-      <div className="flex items-start justify-between gap-3">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-(--bg-raised) px-2.5 py-1 aw-eyebrow text-(--fg-primary)">
-          <Icon name="check_circle" size={13} />
-          Padrão
-        </span>
-        <CardActionsMenu {...props} onDark />
+    <div className="flex max-w-md items-center gap-4 rounded-2xl border border-(--border-default) bg-(--bg-raised) p-5 shadow-sm">
+      <AwCardBrand brand={BRAND_TO_AW[method.brand]} size="md" />
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        {padraoBadge}
+        <p className="m-0 body-lg font-medium tabular-nums text-(--fg-primary)">
+          {method.brand} •••• {method.last4}
+        </p>
+        <p className="m-0 body-sm text-(--fg-tertiary)">
+          Expira em {method.expiresAt}
+          {expired ? (
+            <span className="text-(--accent-danger)"> · expirado</span>
+          ) : expiringSoon ? (
+            <span className="text-(--accent-warning)"> · em breve</span>
+          ) : null}
+        </p>
       </div>
-
-      <div className="relative flex flex-col gap-4">
-        <span className="text-2xl tabular-nums tracking-widest text-(--fg-on-inverse)">
-          •••• •••• •••• {method.last4}
-        </span>
-        <div className="flex items-end justify-between gap-4">
-          <div className="min-w-0">
-            <span className="block aw-eyebrow text-(--fg-on-inverse) opacity-60">
-              Titular
-            </span>
-            <span className="block truncate body-sm font-medium text-(--fg-on-inverse)">
-              {BILLING_PROFILE.legalName}
-            </span>
-          </div>
-          <div className="shrink-0 text-right">
-            <span className="block aw-eyebrow text-(--fg-on-inverse) opacity-60">
-              {expired ? "Expirado" : expiringSoon ? "Expira em breve" : "Validade"}
-            </span>
-            <span
-              className={
-                "block body-sm tabular-nums " +
-                (expired
-                  ? "text-(--aw-red-300)"
-                  : expiringSoon
-                    ? "text-(--aw-amber-300)"
-                    : "text-(--fg-on-inverse)")
-              }
-            >
-              {method.expiresAt}
-            </span>
-          </div>
-          <AwCardBrand brand={BRAND_TO_AW[method.brand]} size="md" />
-        </div>
-      </div>
+      <CardActionsMenu {...props} />
     </div>
   );
 }
@@ -593,6 +557,8 @@ function BillingInfoSection() {
         open={contactOpen}
         onClose={() => setContactOpen(false)}
         managerName={ONBOARDING_ORG.accountManager.name}
+        managerPhoto={ONBOARDING_ORG.accountManager.photo}
+        managerInitials={ONBOARDING_ORG.accountManager.initials}
       />
     </section>
   );
