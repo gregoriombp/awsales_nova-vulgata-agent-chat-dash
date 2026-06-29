@@ -228,9 +228,9 @@ function AgentGlyph({
              *  id maps to each glyph's own box — correct at every size. CSS in
              *  globals.css points the stroke at it (`.is-gradient path`). */}
             <linearGradient id="aw-agent-gradient" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" style={{ stopColor: "var(--aw-blue-500)" }} />
-              <stop offset="50%" style={{ stopColor: "var(--aw-purple-500)" }} />
-              <stop offset="100%" style={{ stopColor: "var(--aw-pink-400)" }} />
+              <stop offset="0%" style={{ stopColor: "var(--aw-icon-g1, var(--aw-blue-500))" }} />
+              <stop offset="50%" style={{ stopColor: "var(--aw-icon-g2, var(--aw-purple-500))" }} />
+              <stop offset="100%" style={{ stopColor: "var(--aw-icon-g3, var(--aw-pink-400))" }} />
             </linearGradient>
           </defs>
         )}

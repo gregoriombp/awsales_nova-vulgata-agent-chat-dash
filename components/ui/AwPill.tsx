@@ -9,6 +9,7 @@ export type AwPillVariant =
   | "neutral"
   | "info"
   | "ai"
+  | "dispute"
 
 export type AwPillProps = React.HTMLAttributes<HTMLSpanElement> & {
   variant?: AwPillVariant

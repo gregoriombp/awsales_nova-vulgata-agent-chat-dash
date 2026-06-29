@@ -1926,6 +1926,19 @@
   --aw-btn-ai-c3: var(--aw-amber-300);
 }
 
+/* Icon gradient matches the button's own color language */
+.aw-btn--ai .aw-agent-glyph {
+  --aw-icon-g1: var(--aw-btn-ai-highlight);
+  --aw-icon-g2: var(--aw-btn-ai-highlight);
+  --aw-icon-g3: var(--aw-btn-ai-highlight);
+}
+.aw-btn--ai-spectrum .aw-agent-glyph,
+.aw-btn--ai-outline .aw-agent-glyph {
+  --aw-icon-g1: var(--aw-btn-ai-c1);
+  --aw-icon-g2: var(--aw-btn-ai-c2);
+  --aw-icon-g3: var(--aw-btn-ai-c3);
+}
+
 /* Loading */
 .aw-btn--loading .aw-btn__label { opacity: 0.6; }
 .aw-btn__spinner {
@@ -2586,6 +2599,11 @@
   box-shadow: 0 0 8px var(--aw-blue-500);
   animation: aw-pill-pulse 2.2s ease-in-out infinite;
 }
+.aw-pill--dispute {
+  background: var(--aw-purple-100);
+  color: var(--aw-purple-700);
+}
+.aw-pill--dispute .aw-pill__dot { background: var(--aw-purple-500); }
 @keyframes aw-pill-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
