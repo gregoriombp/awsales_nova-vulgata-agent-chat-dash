@@ -951,7 +951,7 @@ export function getAgentFeeBreakdown(total: number, seed: number): AgentFeeGroup
 // Disputa de fatura — o cliente contestou o valor e o time interno analisa.
 // Estágios em ordem; o `stage` aponta o atual. Copy em voz de produto (sem
 // "tecniquez"): o cliente entende em que pé está a análise.
-export type DisputeStage = "received" | "review" | "resolved";
+export type DisputeStage = "received" | "review" | "resolved" | "settled";
 
 export type InvoiceDispute = {
   stage: DisputeStage;
@@ -981,6 +981,12 @@ export const INVOICE_DISPUTE_STAGES: {
     id: "resolved",
     label: "Análise concluída",
     description: "Avisamos por e-mail assim que houver uma definição.",
+  },
+  {
+    id: "settled",
+    label: "Resolução aplicada",
+    description:
+      "Havendo ajuste a seu favor, o crédito entra na próxima fatura.",
   },
 ];
 
