@@ -528,34 +528,42 @@ function ddmm(d: Date): string {
   return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
 }
 
-/** Rótulos dos N dias do período (terminando "hoje" do protótipo). */
-function selectionDayLabels(sel: PeriodSelection, bars: number): string[] {
+/** Datas do centro de cada barra do período (terminando "hoje" do protótipo).
+ *  Fonte única usada tanto pelos rótulos do eixo quanto pelo posicionamento dos
+ *  marcadores de evento — assim rótulo e marcador nunca saem de sincronia. */
+function selectionDayDates(sel: PeriodSelection, bars: number): Date[] {
   if (sel.kind === "custom") {
     const step =
       bars > 1 ? (sel.to.getTime() - sel.from.getTime()) / (bars - 1) : 0;
-    return Array.from({ length: bars }, (_, i) =>
-      ddmm(new Date(sel.from.getTime() + step * i)),
+    return Array.from(
+      { length: bars },
+      (_, i) => new Date(sel.from.getTime() + step * i),
     );
   }
   if (sel.id === "this-month") {
-    return Array.from({ length: bars }, (_, i) =>
-      ddmm(
+    return Array.from(
+      { length: bars },
+      (_, i) =>
         new Date(OVERVIEW_ANCHOR.getFullYear(), OVERVIEW_ANCHOR.getMonth(), i + 1),
-      ),
     );
   }
   if (sel.id === "yesterday") {
     const d = new Date(OVERVIEW_ANCHOR);
     d.setDate(d.getDate() - 1);
-    return [ddmm(d)];
+    return [d];
   }
   // today / last-7 / last-30 / last-90 — termina em "hoje", recuando.
   const stepDays = sel.id === "last-90" ? 3 : 1;
   return Array.from({ length: bars }, (_, i) => {
     const d = new Date(OVERVIEW_ANCHOR);
     d.setDate(d.getDate() - (bars - 1 - i) * stepDays);
-    return ddmm(d);
+    return d;
   });
+}
+
+/** Rótulos dos N dias do período (terminando "hoje" do protótipo). */
+function selectionDayLabels(sel: PeriodSelection, bars: number): string[] {
+  return selectionDayDates(sel, bars).map(ddmm);
 }
 
 /** Pesos por dia (somam 1) — espalha um total por N barras com variação
@@ -602,6 +610,69 @@ export const OVERVIEW_SPEND_EVENT = {
   title: "Pagamento realizado",
   description: `Você atingiu o limite de ${brl(VARIABLE_SPENDING_LIMIT)} de uso. Uma cobrança foi debitada no seu Cartão de Crédito e seu limite foi liberado.`,
 } as const;
+
+/** Dia do mês em que o ciclo fecha e o limite é restaurado (cobrança parcial).
+ *  Ancorado no evento do ciclo vigente (11/05). */
+const RESET_DAY = OVERVIEW_ANCHOR.getDate() - 4; // 11
+
+/** Datas dos resets de limite — um por ciclo, recuando alguns meses a partir do
+ *  "hoje" do protótipo. Em janelas longas (Últimos 90 dias) aparecem vários;
+ *  no ciclo vigente, só o de 11/05. */
+function resetEventDates(): Date[] {
+  return Array.from({ length: 6 }, (_, back) => {
+    return new Date(
+      OVERVIEW_ANCHOR.getFullYear(),
+      OVERVIEW_ANCHOR.getMonth() - back,
+      RESET_DAY,
+    );
+  }).filter((d) => d.getTime() <= OVERVIEW_ANCHOR.getTime());
+}
+
+export type LimitEventMarker = {
+  /** Posição horizontal no plot, em % (centro da barra correspondente). */
+  leftPct: number;
+  dateLabel: string;
+  label: string;
+  title: string;
+  description: string;
+};
+
+/** Marcadores de "Limite restaurado" visíveis no recorte atual. Antes só o
+ *  ciclo vigente (this-month) mostrava o evento; agora qualquer janela mostra os
+ *  resets de ciclo que caem dentro dela — incluindo os de ciclos anteriores nos
+ *  Últimos 90 dias. Determinístico. */
+export function selectionLimitEvents(sel: PeriodSelection): LimitEventMarker[] {
+  const bars = selectionBars(sel);
+  const dates = selectionDayDates(sel, bars);
+  if (dates.length === 0) return [];
+  const first = dates[0].getTime();
+  const last = dates[dates.length - 1].getTime();
+  const span = last - first;
+  // Tolerância de meia-barra: um reset entre dois centros de barra ainda
+  // pertence ao recorte representado.
+  const halfBucket = bars > 1 ? span / (bars - 1) / 2 : 12 * 60 * 60 * 1000;
+
+  return resetEventDates()
+    .filter((d) => {
+      const t = d.getTime();
+      return t >= first - halfBucket && t <= last + halfBucket;
+    })
+    .map((d) => {
+      const t = d.getTime();
+      // Fração do eixo: mapeia a data pro centro da barra correspondente.
+      // Em this-month (15 barras) o reset de 11/05 cai em 70%, igual ao
+      // posicionamento original.
+      const ratio = span > 0 ? (t - first) / span : 0.5;
+      const frac = bars > 1 ? (0.5 + ratio * (bars - 1)) / bars : 0.5;
+      return {
+        leftPct: Math.min(100, Math.max(0, frac * 100)),
+        dateLabel: ddmm(d),
+        label: OVERVIEW_SPEND_EVENT.label,
+        title: OVERVIEW_SPEND_EVENT.title,
+        description: OVERVIEW_SPEND_EVENT.description,
+      };
+    });
+}
 
 /* ---------------------------------------------------------------------------
  * Tabela de detalhamento da Visão geral — por SERVIÇO.

@@ -19,11 +19,10 @@ import {
   overviewSpendSeries,
   selectionTarget,
   selectionLabel,
-  selectionShowsLimitEvent,
+  selectionLimitEvents,
   DEFAULT_PERIOD,
   OVERVIEW_SPEND_CATEGORIES,
-  OVERVIEW_SPEND_DAYS,
-  OVERVIEW_SPEND_EVENT,
+  type LimitEventMarker,
   type PeriodSelection,
   type SpendingGrouping,
 } from "./data";
@@ -204,7 +203,9 @@ export function VariableSpendBreakdown({
   );
   const cats = OVERVIEW_SPEND_CATEGORIES[grouping];
   const total = selectionTarget(selection);
-  const showEvent = selectionShowsLimitEvent(selection);
+  // Marcadores de "Limite restaurado" que caem no recorte — um por ciclo. Nos
+  // Últimos 90 dias aparecem os resets de ciclos anteriores também.
+  const events = selectionLimitEvents(selection);
 
   // Escala vertical: a barra mais alta (somando as fatias + respiros) encosta
   // no topo do plot.
@@ -241,7 +242,7 @@ export function VariableSpendBreakdown({
           cats={cats}
           scale={scale}
           activeCat={activeCat}
-          showEvent={showEvent}
+          events={events}
         />
 
         <OverviewBreakdownTable grouping={grouping} selection={selection} />
@@ -385,14 +386,14 @@ function Chart({
   cats,
   scale,
   activeCat,
-  showEvent,
+  events,
 }: {
   series: ReturnType<typeof overviewSpendSeries>;
   cats: typeof OVERVIEW_SPEND_CATEGORIES[SpendingGrouping];
   scale: number;
   activeCat: string | null;
-  /** Marcador "Limite restaurado" só aparece no recorte do ciclo (this-month). */
-  showEvent: boolean;
+  /** Marcadores "Limite restaurado" que caem no recorte — um por ciclo. */
+  events: LimitEventMarker[];
 }) {
   // Foco por DIA (hover na barra → escurece os outros dias) e a fatia sob o
   // mouse (pra o tooltip reagir à pilha selecionada). O foco por CATEGORIA vem
@@ -402,9 +403,6 @@ function Chart({
     day: number;
     cat: string;
   } | null>(null);
-
-  const eventLeftPct =
-    ((OVERVIEW_SPEND_EVENT.dayIndex + 0.5) / OVERVIEW_SPEND_DAYS) * 100;
 
   const chartLabel = `Gasto variável por dia. ${cats
     .map((c) => c.label)
@@ -434,34 +432,35 @@ function Chart({
           ))}
         </div>
 
-        {/* marcador de evento: limite atingido → cobrança → restaurado. Só o
+        {/* marcadores de evento: limite atingido → cobrança → restaurado. Só o
             badge é hoverável (o resto deixa passar o hover das barras); abre um
-            card contando o que rolou no fechamento parcial. Específico do ciclo
-            vigente — some nos outros períodos. */}
-        {showEvent && (
+            card contando o que rolou no fechamento parcial. Um por ciclo — nos
+            Últimos 90 dias aparecem os resets de ciclos anteriores também. */}
+        {events.map((ev, ei) => (
         <div
+          key={`${ev.dateLabel}-${ei}`}
           className="pointer-events-none absolute inset-y-0 z-10 flex flex-col items-center"
-          style={{ left: `${eventLeftPct}%`, transform: "translateX(-50%)" }}
+          style={{ left: `${ev.leftPct}%`, transform: "translateX(-50%)" }}
         >
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 type="button"
-                aria-label={`${OVERVIEW_SPEND_EVENT.title}. ${OVERVIEW_SPEND_EVENT.description}`}
+                aria-label={`${ev.title} em ${ev.dateLabel}. ${ev.description}`}
                 className="pointer-events-auto mb-1 inline-flex cursor-default items-center gap-1.5 rounded-full border border-(--border-subtle) px-2.5 py-1 body-xs font-medium whitespace-nowrap text-(--fg-secondary) shadow-sm backdrop-blur-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--ring-focus)"
               >
                 <span
                   aria-hidden="true"
                   className="h-2 w-2 shrink-0 rounded-full bg-(--aw-blue-500)"
                 />
-                {OVERVIEW_SPEND_EVENT.label}
+                {ev.label}
               </button>
             </TooltipTrigger>
             <TooltipContent
               side="top"
               className="max-w-[280px] border-(--border-subtle) bg-(--bg-raised) p-0 text-(--fg-secondary)"
             >
-              <EventCard />
+              <EventCard event={ev} />
             </TooltipContent>
           </Tooltip>
           <span
@@ -469,7 +468,7 @@ function Chart({
             className="w-px flex-1 border-l border-dashed border-(--aw-blue-300)"
           />
         </div>
-        )}
+        ))}
 
         {/* barras */}
         <div className="absolute inset-0 flex items-end justify-center gap-2">
@@ -601,19 +600,24 @@ function Chart({
 
 /* ---------- card do evento de fechamento (hover no marcador) ---------- */
 
-function EventCard() {
+function EventCard({ event }: { event: LimitEventMarker }) {
   return (
     <div className="flex flex-col gap-1.5 px-3.5 py-3">
-      <span className="inline-flex items-center gap-2">
-        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-(--aw-emerald-100) text-(--aw-emerald-700)">
-          <Icon name="check" size={13} weight={600} />
+      <span className="inline-flex items-center justify-between gap-2">
+        <span className="inline-flex items-center gap-2">
+          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-(--aw-emerald-100) text-(--aw-emerald-700)">
+            <Icon name="check" size={13} weight={600} />
+          </span>
+          <span className="body-sm font-semibold text-(--fg-primary)">
+            {event.title}
+          </span>
         </span>
-        <span className="body-sm font-semibold text-(--fg-primary)">
-          {OVERVIEW_SPEND_EVENT.title}
+        <span className="shrink-0 body-xs tabular-nums text-(--fg-tertiary)">
+          {event.dateLabel}
         </span>
       </span>
       <p className="m-0 body-xs text-(--fg-secondary) text-pretty">
-        {OVERVIEW_SPEND_EVENT.description}
+        {event.description}
       </p>
     </div>
   );
