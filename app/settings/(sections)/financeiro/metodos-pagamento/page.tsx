@@ -208,21 +208,28 @@ export default function MetodosPagamentoPage() {
         open={!!pendingDefault}
         onClose={() => setPendingDefaultId(null)}
         size="md"
-        title="Definir como padrão?"
+        title="Alterar a forma principal de pagamento?"
         footer={
           <div className="flex w-full items-center justify-end gap-2">
             <AwButton variant="ghost" onClick={() => setPendingDefaultId(null)}>
               Cancelar
             </AwButton>
             <AwButton variant="primary" onClick={confirmDefault}>
-              Definir como padrão
+              Definir como principal
             </AwButton>
           </div>
         }
       >
         <p className="m-0 body-sm text-(--fg-secondary)">
-          As próximas cobranças passam a tentar este método primeiro. Você pode
-          trocar de volta quando quiser.
+          {pendingDefault && (
+            <>
+              <strong className="font-medium text-(--fg-primary)">
+                {methodTitle(pendingDefault)}
+              </strong>{" "}
+              passa a ser a forma principal — as próximas cobranças tentam este
+              método primeiro. Você pode trocar de volta quando quiser.
+            </>
+          )}
         </p>
       </AwModal>
     </div>
