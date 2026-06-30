@@ -65,6 +65,13 @@ export default function MetodosPagamentoPage() {
   const [pendingDefaultId, setPendingDefaultId] = React.useState<string | null>(
     null,
   );
+  // Ao remover o método PADRÃO (havendo outros), não promovemos ninguém
+  // automaticamente: abrimos um 2º modal pra o usuário escolher o novo
+  // principal — um já existente ou um novo método.
+  const [choosingPrincipal, setChoosingPrincipal] = React.useState(false);
+  // Quando o usuário escolhe "adicionar novo método" como novo principal,
+  // forçamos o recém-criado a virar o padrão.
+  const [addForcesPrincipal, setAddForcesPrincipal] = React.useState(false);
 
   const pendingRemove =
     pendingRemoveId === null
@@ -87,21 +94,50 @@ export default function MetodosPagamentoPage() {
 
   const confirmRemove = () => {
     if (pendingRemoveId === null) return;
-    setMethods((prev) => {
-      const next = prev.filter((m) => m.id !== pendingRemoveId);
-      const hadDefault = prev.find((m) => m.id === pendingRemoveId)?.isDefault;
-      if (hadDefault && next.length > 0) {
-        next[0] = { ...next[0], isDefault: true };
-      }
-      return next;
-    });
+    const removed = methods.find((m) => m.id === pendingRemoveId);
+    const remaining = methods.filter((m) => m.id !== pendingRemoveId);
+    setMethods(remaining);
     setPendingRemoveId(null);
+    // Removeu o padrão e ainda há outros → pergunta quem vira o principal.
+    // (Caso contrário, segue sem novo padrão — a rede de segurança abaixo
+    // promove o primeiro se ninguém ficar marcado.)
+    if (removed?.isDefault && remaining.length > 0) {
+      setChoosingPrincipal(true);
+    }
   };
+
+  const choosePrincipal = (id: string) => {
+    setAsDefault(id);
+    setChoosingPrincipal(false);
+  };
+
+  const addNewPrincipal = () => {
+    setChoosingPrincipal(false);
+    setAddForcesPrincipal(true);
+    setAddOpen(true);
+  };
+
+  // Rede de segurança: fora do fluxo de escolha (modal fechado) e do de
+  // adicionar, nunca deixamos a lista sem um padrão.
+  React.useEffect(() => {
+    if (
+      !choosingPrincipal &&
+      !addOpen &&
+      methods.length > 0 &&
+      !methods.some((m) => m.isDefault)
+    ) {
+      setMethods((prev) =>
+        prev.length > 0 && !prev.some((m) => m.isDefault)
+          ? [{ ...prev[0], isDefault: true }, ...prev.slice(1)]
+          : prev,
+      );
+    }
+  }, [choosingPrincipal, addOpen, methods]);
 
   const addMethod = (draft: NewPaymentMethod, asDefault: boolean) => {
     setMethods((prev) => {
       const id = `pm-${Date.now()}`;
-      const isDefault = asDefault || prev.length === 0;
+      const isDefault = asDefault || addForcesPrincipal || prev.length === 0;
       let fresh: PaymentMethod;
       if (draft.kind === "card") {
         fresh = {
@@ -134,7 +170,8 @@ export default function MetodosPagamentoPage() {
         : prev;
       return [...cleared, fresh];
     });
-    setAddOpen(false);
+    // Não fecha aqui: o modal mostra a etapa de confirmação e fecha pelo
+    // botão "Concluir" (onClose).
   };
 
   // Default first, others below.
@@ -194,7 +231,10 @@ export default function MetodosPagamentoPage() {
 
       <AddPaymentMethodModal
         open={addOpen}
-        onClose={() => setAddOpen(false)}
+        onClose={() => {
+          setAddOpen(false);
+          setAddForcesPrincipal(false);
+        }}
         onAdd={addMethod}
       />
 
@@ -202,6 +242,14 @@ export default function MetodosPagamentoPage() {
         method={pendingRemove}
         onClose={() => setPendingRemoveId(null)}
         onConfirm={confirmRemove}
+      />
+
+      <ChoosePrincipalModal
+        open={choosingPrincipal}
+        methods={methods}
+        onClose={() => setChoosingPrincipal(false)}
+        onChoose={choosePrincipal}
+        onAddNew={addNewPrincipal}
       />
 
       <AwModal
@@ -653,17 +701,20 @@ function RemovePaymentMethodModal({
     >
       {method && (
         <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-raised) px-3 py-2">
+          {/* Flat: sem caixa nem sombra (pedido do Greg / direção do Germano) —
+              só uma divisória abaixo do bloco do método. Bandeira sm + título
+              body-sm pra equilibrar a hierarquia com a imagem. */}
+          <div className="flex items-center gap-3 border-b border-(--border-subtle) pb-3">
             {method.kind === "card" ? (
-              <AwCardBrand brand={BRAND_TO_AW[method.brand]} size="md" />
+              <AwCardBrand brand={BRAND_TO_AW[method.brand]} size="sm" />
             ) : (
               <AwBrandLogo
                 brand={method.kind === "pix" ? "pix" : "boleto"}
-                size="md"
+                size="sm"
               />
             )}
             <div className="min-w-0 flex-1">
-              <p className="m-0 body-xs font-medium tabular-nums text-(--fg-primary)">
+              <p className="m-0 body-sm font-medium tabular-nums text-(--fg-primary)">
                 {methodTitle(method)}
               </p>
               <p className="m-0 body-xs text-(--fg-tertiary)">
@@ -680,17 +731,141 @@ function RemovePaymentMethodModal({
               </AwPill>
             )}
           </div>
-          <p className="m-0 body-xs text-(--fg-primary)">
+          <p className="m-0 body-sm text-(--fg-primary)">
             Você vai remover este método das cobranças desta organização.
           </p>
           {method.isDefault && (
             <p className="m-0 body-xs text-(--accent-warning)">
-              Este é o método padrão. Depois da remoção, o próximo da lista
-              vira o padrão automaticamente.
+              Este é o método padrão. Depois de remover, você escolhe qual
+              método vira o principal.
             </p>
           )}
         </div>
       )}
+    </AwModal>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * Escolher novo principal — abre ao remover o método padrão. Lista os
+ * métodos restantes como radio-cards (mesma anatomia do TypeStep do
+ * "Adicionar método") e oferece adicionar um novo no mesmo fluxo.
+ * ----------------------------------------------------------------- */
+
+function ChoosePrincipalModal({
+  open,
+  methods,
+  onClose,
+  onChoose,
+  onAddNew,
+}: {
+  open: boolean;
+  methods: PaymentMethod[];
+  onClose: () => void;
+  onChoose: (id: string) => void;
+  onAddNew: () => void;
+}) {
+  const [selected, setSelected] = React.useState<string | null>(null);
+
+  // Zera a seleção a cada abertura.
+  React.useEffect(() => {
+    if (open) setSelected(null);
+  }, [open]);
+
+  const confirm = () => {
+    if (selected) onChoose(selected);
+  };
+
+  return (
+    <AwModal
+      open={open}
+      onClose={onClose}
+      title="Qual método vira o principal?"
+      footer={
+        <div className="flex w-full items-center justify-end gap-2">
+          <AwButton variant="ghost" onClick={onClose}>
+            Cancelar
+          </AwButton>
+          <AwButton variant="primary" disabled={!selected} onClick={confirm}>
+            Confirmar
+          </AwButton>
+        </div>
+      }
+    >
+      <div className="flex flex-col gap-3">
+        <p className="m-0 body-sm text-(--fg-secondary)">
+          Escolha qual forma de pagamento assume como principal — as próximas
+          cobranças tentam este método primeiro.
+        </p>
+        <div
+          role="radiogroup"
+          aria-label="Novo método principal"
+          className="flex flex-col gap-2"
+        >
+          {methods.map((m) => {
+            const isSel = m.id === selected;
+            const subtitle =
+              m.kind === "card"
+                ? `Expira em ${m.expiresAt}`
+                : m.kind === "pix"
+                  ? `Chave ${m.keyType} · ${m.key}`
+                  : m.holder;
+            return (
+              <button
+                key={m.id}
+                type="button"
+                role="radio"
+                aria-checked={isSel}
+                onClick={() => setSelected(m.id)}
+                className={
+                  "flex items-center gap-3 rounded-md border px-3 py-2.5 text-left transition-colors duration-aw-fast " +
+                  (isSel
+                    ? "border-(--border-strong) bg-(--bg-hover)"
+                    : "border-(--border-subtle) hover:border-(--border-default) hover:bg-(--bg-hover)")
+                }
+              >
+                {m.kind === "card" ? (
+                  <AwCardBrand brand={BRAND_TO_AW[m.brand]} size="sm" />
+                ) : (
+                  <AwBrandLogo
+                    brand={m.kind === "pix" ? "pix" : "boleto"}
+                    size="sm"
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="m-0 body-sm font-medium tabular-nums text-(--fg-primary)">
+                    {methodTitle(m)}
+                  </p>
+                  <p className="m-0 mt-0.5 truncate body-xs text-(--fg-tertiary)">
+                    {subtitle}
+                  </p>
+                </div>
+                <span
+                  aria-hidden="true"
+                  className={
+                    "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors duration-aw-fast " +
+                    (isSel
+                      ? "border-(--fg-primary) bg-(--fg-primary)"
+                      : "border-(--border-default)")
+                  }
+                >
+                  {isSel && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-(--bg-raised)" />
+                  )}
+                </span>
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            onClick={onAddNew}
+            className="mt-1 flex items-center gap-2 rounded-md border border-dashed border-(--border-subtle) px-3 py-2.5 text-left text-(--fg-secondary) transition-colors duration-aw-fast hover:border-(--border-strong) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+          >
+            <Icon name="add" size={18} />
+            <span className="body-sm font-medium">Adicionar novo método</span>
+          </button>
+        </div>
+      </div>
     </AwModal>
   );
 }

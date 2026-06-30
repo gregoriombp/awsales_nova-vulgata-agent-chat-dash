@@ -3,7 +3,11 @@
 import * as React from "react";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
-import { AwCardBrand, detectCardBrand } from "@/components/ui/AwCardBrand";
+import {
+  AwCardBrand,
+  detectCardBrand,
+  type AwCardBrandId,
+} from "@/components/ui/AwCardBrand";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwField, AwInput } from "@/components/ui/AwInput";
@@ -48,7 +52,7 @@ const KIND_OPTIONS: {
   },
 ];
 
-type Step = "type" | "details" | "address";
+type Step = "type" | "details" | "address" | "success";
 
 export function AddPaymentMethodModal({
   open,
@@ -88,6 +92,13 @@ export function AddPaymentMethodModal({
   // Mostra os erros inline só depois que o usuário tentou avançar/submeter.
   const [showErrors, setShowErrors] = React.useState(false);
 
+  // Guarda o método recém-adicionado para a etapa de confirmação (o modal não
+  // some "seco" — ele mostra o que entrou antes de fechar).
+  const [added, setAdded] = React.useState<{
+    method: NewPaymentMethod;
+    asDefault: boolean;
+  } | null>(null);
+
   const reset = () => {
     setStep("type");
     setKind("card");
@@ -107,6 +118,7 @@ export function AddPaymentMethodModal({
     setZip("");
     setSetAsDefault(false);
     setShowErrors(false);
+    setAdded(null);
   };
 
   const close = () => {
@@ -192,7 +204,9 @@ export function AddPaymentMethodModal({
       payload = { kind: "pix", keyType: pixKeyType, key: pixKey.trim() };
     }
     onAdd(payload, setAsDefault);
-    reset();
+    // Não fecha: registra o método e mostra a etapa de confirmação.
+    setAdded({ method: payload, asDefault: setAsDefault });
+    setStep("success");
   };
 
   const steps = React.useMemo<{ id: Step; label: string }[]>(() => {
@@ -206,6 +220,13 @@ export function AddPaymentMethodModal({
   }, [kind]);
 
   const footer = (() => {
+    if (step === "success") {
+      return (
+        <AwButton size="md" variant="primary" onClick={close}>
+          Concluir
+        </AwButton>
+      );
+    }
     if (step === "type") {
       return (
         <>
@@ -275,17 +296,21 @@ export function AddPaymentMethodModal({
     <AwModal
       open={open}
       onClose={close}
-      title="Adicionar método de pagamento"
+      title={step === "success" ? "Método adicionado" : "Adicionar método de pagamento"}
       footer={footer}
     >
       <div className="flex flex-col gap-5">
-        <StepIndicator
-          steps={steps}
-          current={step}
-          detailsValid={detailsValid}
-        />
+        {step !== "success" && (
+          <StepIndicator
+            steps={steps}
+            current={step}
+            detailsValid={detailsValid}
+          />
+        )}
 
-        {step === "type" ? (
+        {step === "success" && added ? (
+          <SuccessStep method={added.method} asDefault={added.asDefault} />
+        ) : step === "type" ? (
           <TypeStep kind={kind} onKindChange={setKind} />
         ) : step === "details" ? (
           kind === "card" ? (
@@ -357,6 +382,80 @@ function toCardBrand(detected: string): CardBrand {
   if (detected === "mastercard") return "Mastercard";
   if (detected === "amex") return "Amex";
   return "Visa";
+}
+
+/* ---------- success step ---------- */
+
+function SuccessStep({
+  method,
+  asDefault,
+}: {
+  method: NewPaymentMethod;
+  asDefault: boolean;
+}) {
+  const isPix = method.kind === "pix";
+  const label =
+    method.kind === "card"
+      ? `${method.brand} •••• ${method.last4}`
+      : isPix
+        ? "Pix automático"
+        : "Boleto bancário";
+  const sub =
+    method.kind === "card"
+      ? `Expira em ${method.expiresAt}`
+      : isPix
+        ? `Chave ${method.keyType} · ${method.key}`
+        : method.holder;
+  const note = isPix
+    ? "Confirme a primeira autorização no app do seu banco. Os próximos ciclos são cobrados automaticamente."
+    : method.kind === "boleto"
+      ? "A cada ciclo, o boleto chega nos e-mails de faturamento."
+      : "Já pode ser usado nas próximas cobranças desta organização.";
+
+  return (
+    <div className="flex flex-col items-center gap-4 py-2 text-center">
+      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-(--bg-surface) text-(--accent-success)">
+        <Icon name="check_circle" size={28} />
+      </span>
+      <div>
+        <p className="m-0 body-md font-medium text-(--fg-primary)">
+          Método adicionado
+        </p>
+        <p className="m-0 mt-1 max-w-[320px] body-xs text-(--fg-secondary)">
+          {note}
+        </p>
+      </div>
+
+      <div className="flex w-full items-center gap-3 rounded-xl border border-(--border-subtle) bg-(--bg-raised) p-3 text-left">
+        {method.kind === "card" ? (
+          <AwCardBrand
+            brand={method.brand.toLowerCase() as AwCardBrandId}
+            size="md"
+          />
+        ) : (
+          <AwBrandLogo brand={isPix ? "pix" : "boleto"} size="md" />
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="m-0 body-sm font-medium tabular-nums text-(--fg-primary)">
+            {label}
+          </p>
+          <p className="m-0 mt-0.5 truncate body-xs text-(--fg-tertiary)">
+            {sub}
+          </p>
+        </div>
+        {asDefault && (
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-(--bg-surface) px-2 py-0.5 aw-eyebrow text-(--fg-secondary)">
+            <Icon
+              name="check_circle"
+              size={12}
+              className="text-(--accent-success)"
+            />
+            Padrão
+          </span>
+        )}
+      </div>
+    </div>
+  );
 }
 
 /* ---------- step indicator ---------- */
@@ -547,20 +646,28 @@ function CardStep({
             <AwInput
               id="card-number"
               placeholder="0000 0000 0000 0000"
-              iconLeft="credit_card"
               autoComplete="cc-number"
               inputMode="numeric"
               invalid={!!errors.number}
               value={number}
               onChange={(e) => onNumber(formatCardNumber(e.target.value))}
-              style={{ paddingRight: 44 }}
+              style={{ paddingLeft: 44 }}
               autoFocus
             />
-            {brand !== "unknown" && (
-              <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+            {/* O slot da esquerda começa com o ícone genérico e, assim que o BIN
+                identifica a marca, é substituído pela bandeira — sem deslocar os
+                dígitos (paddingLeft constante). */}
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
+              {brand === "unknown" ? (
+                <Icon
+                  name="credit_card"
+                  size={18}
+                  className="text-(--fg-tertiary)"
+                />
+              ) : (
                 <AwCardBrand brand={brand} size="sm" />
-              </span>
-            )}
+              )}
+            </span>
           </div>
         </AwField>
         <div className="grid grid-cols-2 gap-3">
