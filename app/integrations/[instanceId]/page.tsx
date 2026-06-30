@@ -491,12 +491,12 @@ function DetailHeader({
 }) {
   const status: { variant: "live" | "draft" | "error"; label: string } =
     !account.active
-      ? { variant: "error", label: "inativo" }
+      ? { variant: "error", label: "Inativo" }
       : account.health === "down"
-        ? { variant: "error", label: "com erro" }
+        ? { variant: "error", label: "Com erro" }
         : account.health === "degraded"
-          ? { variant: "draft", label: "atenção" }
-          : { variant: "live", label: "ativo" };
+          ? { variant: "draft", label: "Atenção" }
+          : { variant: "live", label: "Ativo" };
 
   const paused = !account.active;
 
@@ -637,7 +637,7 @@ function OverviewTab({
               k: "Status",
               v: (
                 <AwPill variant={account.active ? "live" : "error"}>
-                  {account.active ? "ativo" : "inativo"}
+                  {account.active ? "Ativo" : "Inativo"}
                 </AwPill>
               ),
             },
@@ -655,7 +655,12 @@ function OverviewTab({
                     }
                     size="sm"
                   />
-                  {account.health} · última verificação 2 min atrás
+                  {account.health === "healthy"
+                    ? "Saudável"
+                    : account.health === "degraded"
+                      ? "Atenção"
+                      : "Fora do ar"}{" "}
+                  · última verificação 2 min atrás
                 </span>
               ),
             },
