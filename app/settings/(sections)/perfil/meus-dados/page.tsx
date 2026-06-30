@@ -7,6 +7,7 @@ import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
+import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
 import { SettingsPageHeader } from "../../_components/shared";
@@ -230,108 +231,87 @@ export default function MeusDadosPage() {
         </AwButton>
       </AwCard>
 
-      {/* Histórico de pedidos — único card, full width. A breakdown de "o
-       *  que vem na cópia" agora vive dentro do modal de Solicitar
-       *  exportação (sequencial), não mais na página. */}
-      <div className="mt-6">
-        <AwCard className="flex flex-col gap-4 p-6!">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h6 className="m-0 body-md font-medium text-(--fg-primary)">
-                Solicitações recentes
-              </h6>
-              <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-                Status das exportações solicitadas.
-              </p>
-            </div>
-            {readyCount > 0 && (
-              <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-(--aw-emerald-300) bg-(--aw-emerald-100) px-2.5 py-0.5 body-xs font-medium text-(--aw-emerald-800)">
-                <Icon name="check_circle" size={13} />
-                {readyCount} pronta{readyCount === 1 ? "" : "s"}
-              </span>
-            )}
-          </div>
-
-          {requests.length === 0 ? (
-            <p className="m-0 py-8 text-center body-xs text-(--fg-tertiary)">
-              Nenhuma exportação ainda — peça uma cópia quando precisar.
+      {/* Histórico de pedidos — seção flat: título + descrição como cabeçalho e
+       *  a tabela do styleguide logo abaixo (sem card aninhado). A breakdown de
+       *  "o que vem na cópia" vive no modal de Solicitar exportação. */}
+      <section className="mt-10">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h6 className="m-0 body-md font-medium text-(--fg-primary)">
+              Solicitações recentes
+            </h6>
+            <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+              Status das exportações solicitadas.
             </p>
-          ) : (
-            /* Tabela enxuta — grade de 3 colunas (Data · Status · ação) com
-             *  cabeçalho quieto e divisórias sutis. Sem borda externa nem chrome
-             *  de planilha: alinha os valores numa coluna, mantém o ar premium. */
-            <div role="table" aria-label="Solicitações recentes">
-              <div
-                role="row"
-                className="grid grid-cols-[1fr_auto_auto] items-center gap-4 border-b border-(--border-subtle) pb-2"
-              >
-                <span
-                  role="columnheader"
-                  className="body-xs font-medium uppercase tracking-wide text-(--fg-tertiary)"
-                >
-                  Data
-                </span>
-                <span
-                  role="columnheader"
-                  className="body-xs font-medium uppercase tracking-wide text-(--fg-tertiary)"
-                >
-                  Status
-                </span>
-                <span role="columnheader" aria-label="Ações" className="w-8" />
-              </div>
-
-              <div role="rowgroup" className="divide-y divide-(--border-subtle)">
-                {requests.map((r) => (
-                  <div
-                    key={r.id}
-                    role="row"
-                    className="grid grid-cols-[1fr_auto_auto] items-center gap-4 py-3 first:pt-3"
-                  >
-                    <div role="cell" className="min-w-0">
-                      <p className="m-0 body-sm tabular-nums text-(--fg-primary)">
-                        {r.requestedAt}
-                      </p>
-                      {r.status === "Pronto" && r.expiresInDays !== undefined && (
-                        <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
-                          link expira em {r.expiresInDays}{" "}
-                          {r.expiresInDays === 1 ? "dia" : "dias"}
-                        </p>
-                      )}
-                    </div>
-                    <div role="cell">
-                      <StatusBadge status={r.status} />
-                    </div>
-                    <div role="cell" className="justify-self-end">
-                      {r.status === "Pronto" ? (
-                        <AwButton
-                          size="sm"
-                          variant="ghost"
-                          iconOnly="download"
-                          aria-label="Baixar cópia"
-                          title="Baixar cópia"
-                        />
-                      ) : r.status === "Expirado" ? (
-                        <AwButton
-                          size="sm"
-                          variant="ghost"
-                          iconOnly="refresh"
-                          aria-label="Pedir uma nova cópia"
-                          title="Pedir uma nova cópia"
-                          onClick={openConfirm}
-                        />
-                      ) : (
-                        <span className="flex h-8 w-8 items-center justify-center text-(--fg-tertiary)">
-                          <Icon name="hourglass_top" size={16} />
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          </div>
+          {readyCount > 0 && (
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-(--aw-emerald-300) bg-(--aw-emerald-100) px-2.5 py-0.5 body-xs font-medium text-(--aw-emerald-800)">
+              <Icon name="check_circle" size={13} />
+              {readyCount} pronta{readyCount === 1 ? "" : "s"}
+            </span>
           )}
-        </AwCard>
-      </div>
+        </div>
+
+        {requests.length === 0 ? (
+          <p className="m-0 mt-4 border-t border-(--border-subtle) py-10 text-center body-xs text-(--fg-tertiary)">
+            Nenhuma exportação ainda — peça uma cópia quando precisar.
+          </p>
+        ) : (
+          <AwTable className="mt-3">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Status</th>
+                <th className="w-12" aria-label="Ações" />
+              </tr>
+            </thead>
+            <tbody>
+              {requests.map((r) => (
+                <tr key={r.id}>
+                  <td>
+                    <p className="m-0 body-sm tabular-nums text-(--fg-primary)">
+                      {r.requestedAt}
+                    </p>
+                    {r.status === "Pronto" && r.expiresInDays !== undefined && (
+                      <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
+                        link expira em {r.expiresInDays}{" "}
+                        {r.expiresInDays === 1 ? "dia" : "dias"}
+                      </p>
+                    )}
+                  </td>
+                  <td>
+                    <StatusBadge status={r.status} />
+                  </td>
+                  <td className="text-right">
+                    {r.status === "Pronto" ? (
+                      <AwButton
+                        size="sm"
+                        variant="ghost"
+                        iconOnly="download"
+                        aria-label="Baixar cópia"
+                        title="Baixar cópia"
+                      />
+                    ) : r.status === "Expirado" ? (
+                      <AwButton
+                        size="sm"
+                        variant="ghost"
+                        iconOnly="refresh"
+                        aria-label="Pedir uma nova cópia"
+                        title="Pedir uma nova cópia"
+                        onClick={openConfirm}
+                      />
+                    ) : (
+                      <span className="inline-flex h-8 w-8 items-center justify-center text-(--fg-tertiary)">
+                        <Icon name="hourglass_top" size={16} />
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </AwTable>
+        )}
+      </section>
 
       {/* Remover dados — nota discreta no rodapé, sem peso de card (ação rara). */}
       <div className="mt-8 flex items-start gap-3 border-t border-(--border-subtle) pt-6">
