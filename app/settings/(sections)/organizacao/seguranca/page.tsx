@@ -115,7 +115,9 @@ const PASSWORD_RULES = [
   { ok: true, label: "10 a 64 caracteres" },
   { ok: true, label: "Bloqueia senhas já expostas em vazamentos conhecidos" },
   { ok: true, label: "Não reaproveita as últimas 5 senhas" },
-  { ok: false, label: "Sem perguntas de segurança" },
+  // Boa prática per NIST: NÃO usar perguntas de segurança. É um item positivo
+  // (check verde), não uma regra ausente.
+  { ok: true, label: "Sem perguntas de segurança" },
 ];
 
 /* ===================================================================== *
@@ -166,8 +168,13 @@ export default function OrgSegurancaPage() {
         <PostureTile
           icon="phonelink_lock"
           label="Verificação em 2 etapas"
-          value={mfaRequired ? "Obrigatória" : "Pendente"}
-          tone={mfaRequired ? "ok" : "warn"}
+          // Com SSO exigido o MFA é gerenciado pelo IdP — não há ação pendente
+          // aqui. Mostrar "Via provedor" (muted) em vez do âmbar "Pendente", que
+          // confunde o admin achando que precisa ativar algo.
+          value={
+            ssoRequired ? "Via provedor" : mfaRequired ? "Obrigatória" : "Pendente"
+          }
+          tone={ssoRequired ? "muted" : mfaRequired ? "ok" : "warn"}
         />
         <PostureTile icon="password" label="Senha" value="Reforçada" tone="ok" />
         <PostureTile
@@ -430,9 +437,9 @@ export default function OrgSegurancaPage() {
           title="Acessos à organização"
           description="Quem tem acesso ativo a esta organização. Encerrar um acesso aqui não afeta outras organizações."
           action={
-            <AwButton asChild size="sm" variant="primary">
+            <AwButton asChild size="sm" variant="secondary">
               <Link href="/settings/organizacao/seguranca/acessos">
-                Configurações
+                Ver acessos
               </Link>
             </AwButton>
           }
