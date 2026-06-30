@@ -135,7 +135,7 @@ function ForecastBlock() {
                         side="top"
                         className="max-w-[300px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
                       >
-                        Ao atingir o limite do ciclo ({brl(VARIABLE_SPENDING_LIMIT)}),
+                        Ao atingir o limite do uso variável ({brl(VARIABLE_SPENDING_LIMIT)}),
                         o uso variável acumulado é cobrado na hora — então pode
                         aparecer mais de uma cobrança no mesmo mês.
                       </TooltipContent>
@@ -345,7 +345,7 @@ function ConsumoVariavelCard() {
     <AwCard className="flex flex-col gap-4 border-(--aw-gray-25) px-6! py-4!">
       <div className="flex items-baseline justify-between gap-3">
         <h6 className="m-0 flex items-center gap-1.5 body-lg font-medium text-(--fg-primary)">
-          Uso variável
+          Limite de uso antes da cobrança
           <TooltipProvider delayDuration={120}>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -360,10 +360,7 @@ function ConsumoVariavelCard() {
               <TooltipContent
                 side="top"
                 className="max-w-[280px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
-              >
-                Total de variáveis usado no período (disparos, mensagens, tokens
-                de IA e leads), além do plano fixo. Ao atingir o limite do ciclo,
-                o acumulado é cobrado automaticamente.
+              >Quando sua conta atingir este limite, uma nova cobrança será feita automaticamente pelo método de pagamento cadastrado. Se a cobrança não for aprovada ou confirmada — como em casos de cartão recusado, boleto vencido ou Pix expirado — seus agentes podem ser pausados por segurança até que o pagamento seja regularizado.
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
