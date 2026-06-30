@@ -13,8 +13,10 @@
  * navigating to /tools/new?conn=<scheme>:<id>.
  * ---------------------------------------------------------------- */
 
+import * as React from "react";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
+import { AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { Icon } from "@/components/ui/Icon";
 import type { IntegrationCatalogItem } from "@/lib/integrationsCatalog";
@@ -54,6 +56,40 @@ export function PickIntegrationModal({
 }) {
   const isNative = type === "native";
 
+  // Busca pra conter a lista (antes ela crescia e cortava a tela). Mesmo padrão
+  // do explorador de /integrações: AwInput com ícone de busca + lista rolável.
+  const [query, setQuery] = React.useState("");
+  const q = query.trim().toLowerCase();
+
+  // Zera a busca ao abrir ou trocar de tipo.
+  React.useEffect(() => {
+    setQuery("");
+  }, [type, open]);
+
+  const filteredNative = React.useMemo(
+    () =>
+      q
+        ? nativeOptions.filter(({ instance, integration }) =>
+            `${integration.name} ${instance.name}`.toLowerCase().includes(q),
+          )
+        : nativeOptions,
+    [nativeOptions, q],
+  );
+  const filteredCustom = React.useMemo(
+    () =>
+      q
+        ? customOptions.filter((c) =>
+            `${c.name} ${c.alias ?? ""}`.toLowerCase().includes(q),
+          )
+        : customOptions,
+    [customOptions, q],
+  );
+
+  // Só mostra o campo de busca quando a lista é grande o bastante pra valer.
+  const showSearch = (isNative ? nativeOptions.length : customOptions.length) > 6;
+  const listClass =
+    "flex max-h-[min(52vh,360px)] flex-col gap-2 overflow-y-auto pr-0.5";
+
   return (
     <AwModal
       open={open}
@@ -88,6 +124,20 @@ export function PickIntegrationModal({
             : "Sua habilidade vai herdar a credencial bearer/api-key/basic dessa conexão."}
         </p>
 
+        {showSearch && (
+          <AwInput
+            iconLeft="search"
+            placeholder="Buscar integração…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-label={
+              isNative
+                ? "Buscar integração nativa"
+                : "Buscar integração personalizada"
+            }
+          />
+        )}
+
         {isNative ? (
           nativeOptions.length === 0 ? (
             <EmptyHint>
@@ -95,9 +145,11 @@ export function PickIntegrationModal({
               em <span className="font-medium">/integrações</span> pra
               criar habilidades em cima delas.
             </EmptyHint>
+          ) : filteredNative.length === 0 ? (
+            <EmptyHint>Nenhuma integração encontrada para “{query}”.</EmptyHint>
           ) : (
-            <div className="flex flex-col gap-2">
-              {nativeOptions.map(({ instance, integration }) => {
+            <div className={listClass}>
+              {filteredNative.map(({ instance, integration }) => {
                 const useInstanceLabel = instance.name !== integration.name;
                 return (
                   <PickCard
@@ -124,23 +176,27 @@ export function PickIntegrationModal({
                 Você ainda não tem integrações personalizadas. Crie a
                 primeira no card abaixo.
               </EmptyHint>
+            ) : filteredCustom.length === 0 ? (
+              <EmptyHint>Nenhuma integração encontrada para “{query}”.</EmptyHint>
             ) : (
-              customOptions.map((c) => (
-                <PickCard
-                  key={c.id}
-                  leading={
-                    <div
-                      className="flex shrink-0 items-center justify-center rounded-md bg-linear-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
-                      style={{ width: 32, height: 32 }}
-                    >
-                      <Icon name={c.icon} size={16} />
-                    </div>
-                  }
-                  title={c.alias ? `${c.name} · ${c.alias}` : c.name}
-                  subtitle={`${authLabel(c.auth)} · personalizada`}
-                  onClick={() => onSelectCustom(c.id)}
-                />
-              ))
+              <div className={listClass}>
+                {filteredCustom.map((c) => (
+                  <PickCard
+                    key={c.id}
+                    leading={
+                      <div
+                        className="flex shrink-0 items-center justify-center rounded-md bg-linear-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
+                        style={{ width: 32, height: 32 }}
+                      >
+                        <Icon name={c.icon} size={16} />
+                      </div>
+                    }
+                    title={c.alias ? `${c.name} · ${c.alias}` : c.name}
+                    subtitle={`${authLabel(c.auth)} · personalizada`}
+                    onClick={() => onSelectCustom(c.id)}
+                  />
+                ))}
+              </div>
             )}
 
             {/* Create-new card — only relevant in custom mode. */}
