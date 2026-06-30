@@ -427,27 +427,57 @@ function UsageBar({
   const discPct = scaleMax > 0 ? (disc / scaleMax) * 100 : 0;
 
   return (
-    <div
-      className="flex h-2.5 w-full overflow-hidden rounded-full bg-(--bg-muted)"
-      role="img"
-      aria-label={`Usado ${brl(used)} de ${brl(limit)}, dos quais ${brl(discount)} em créditos e cupons já aplicados.`}
-    >
+    // Tooltip por trecho da barra (pedido do Greg): o verde sólido é o uso
+    // variável consumido; o trecho hachurado é o bônus já abatido.
+    <TooltipProvider delayDuration={120}>
       <div
-        className="h-full bg-(--accent-success) transition-[width] duration-500 ease-out"
-        style={{ width: `${netPct}%` }}
-      />
-      {/* Trecho do desconto: faixa clara hachurada (créditos/cupons já abatidos),
-          como no mid-fi — destaca o abatimento sem competir com o uso líquido. */}
-      <div
-        className="h-full transition-[width] duration-500 ease-out"
-        style={{
-          width: `${discPct}%`,
-          backgroundColor: "var(--aw-emerald-150)",
-          backgroundImage:
-            "repeating-linear-gradient(45deg, var(--aw-emerald-400) 0, var(--aw-emerald-400) 1.5px, transparent 1.5px, transparent 5px)",
-        }}
-      />
-    </div>
+        className="flex h-2.5 w-full overflow-hidden rounded-full bg-(--bg-muted)"
+        role="img"
+        aria-label={`Usado ${brl(used)} de ${brl(limit)}, dos quais ${brl(discount)} em créditos e cupons já aplicados.`}
+      >
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div
+              className="h-full cursor-default bg-(--accent-success) transition-[width] duration-500 ease-out"
+              style={{ width: `${netPct}%` }}
+            />
+          </TooltipTrigger>
+          <TooltipContent
+            side="top"
+            className="max-w-[260px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+          >
+            <strong className="font-medium text-(--fg-primary)">
+              Uso variável consumido
+            </strong>{" "}
+            · {brl(net)}. É o que conta pra próxima cobrança.
+          </TooltipContent>
+        </Tooltip>
+        {/* Trecho do desconto: faixa clara hachurada (créditos/cupons já abatidos),
+            como no mid-fi — destaca o abatimento sem competir com o uso líquido. */}
+        {disc > 0 && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div
+                className="h-full cursor-default transition-[width] duration-500 ease-out"
+                style={{
+                  width: `${discPct}%`,
+                  backgroundColor: "var(--aw-emerald-150)",
+                  backgroundImage:
+                    "repeating-linear-gradient(45deg, var(--aw-emerald-400) 0, var(--aw-emerald-400) 1.5px, transparent 1.5px, transparent 5px)",
+                }}
+              />
+            </TooltipTrigger>
+            <TooltipContent
+              side="top"
+              className="max-w-[260px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+            >
+              <strong className="font-medium text-(--fg-primary)">Bônus</strong>{" "}
+              · {brl(disc)} em créditos e cupons já abatidos.
+            </TooltipContent>
+          </Tooltip>
+        )}
+      </div>
+    </TooltipProvider>
   );
 }
 
