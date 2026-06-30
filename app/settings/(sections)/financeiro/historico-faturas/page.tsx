@@ -12,6 +12,7 @@ import { AwFileIcon } from "@/components/ui/AwFileIcon";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
+import { AwQrPlaceholder } from "@/components/ui/AwQrPlaceholder";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { Icon } from "@/components/ui/Icon";
 import {
@@ -577,8 +578,15 @@ function RegularizePaymentModal({
               ? "Boleto gerado"
               : "Confirmar cobrança";
 
+  // No Pix a confirmação é automática (o QR detecta o pagamento), então o CTA
+  // não "confirma" nada — é só o usuário sinalizando que já pagou. Cartão é uma
+  // cobrança ativa de verdade; boleto encerra o passo.
   const checkoutCta =
-    selectedMethod?.id === "boleto" ? "Concluir" : "Confirmar pagamento";
+    selectedMethod?.id === "boleto"
+      ? "Concluir"
+      : selectedMethod?.id === "pix"
+        ? "Já fiz o pagamento"
+        : "Confirmar pagamento";
 
   const footer =
     phase === "select" ? (
@@ -879,15 +887,12 @@ function CheckoutStep({
 }
 
 function PixCheckout({ total }: { total: number }) {
-  const payload = `pix-aswork-${total.toFixed(2)}`;
   const copyPaste =
     "00020126580014br.gov.bcb.pix0136aswork-" + total.toFixed(2).replace(".", "");
 
   return (
     <div className="flex flex-col items-center gap-3 text-center">
-      <div className="rounded-2xl border border-(--border-subtle) bg-(--bg-raised) p-4">
-        <QrMatrix payload={payload} />
-      </div>
+      <AwQrPlaceholder px={168} ariaLabel="QR Code do Pix" />
       <p className="m-0 body-sm font-medium text-(--fg-primary)">
         Escaneie o QR Code no app do seu banco
       </p>
@@ -991,66 +996,6 @@ function CopyField({ label, value }: { label: string; value: string }) {
         {copied ? "Copiado" : "Copiar"}
       </AwButton>
     </div>
-  );
-}
-
-/** QR ilustrativo — matriz determinística a partir do payload. Não é um QR
- *  válido (o real vem do provedor de pagamento), mas lê como um na prévia. */
-function QrMatrix({ payload }: { payload: string }) {
-  const N = 25;
-  const cells: boolean[] = [];
-  let s = 0;
-  for (let i = 0; i < payload.length; i++) s = (s * 31 + payload.charCodeAt(i)) >>> 0;
-  const isFinder = (r: number, c: number) => {
-    const inBox = (br: number, bc: number) =>
-      r >= br && r < br + 7 && c >= bc && c < bc + 7;
-    return inBox(0, 0) || inBox(0, N - 7) || inBox(N - 7, 0);
-  };
-  const finderOn = (r: number, c: number) => {
-    const local = (br: number, bc: number) => {
-      const rr = r - br;
-      const cc = c - bc;
-      const edge = rr === 0 || rr === 6 || cc === 0 || cc === 6;
-      const core = rr >= 2 && rr <= 4 && cc >= 2 && cc <= 4;
-      return edge || core;
-    };
-    if (r < 7 && c < 7) return local(0, 0);
-    if (r < 7 && c >= N - 7) return local(0, N - 7);
-    if (r >= N - 7 && c < 7) return local(N - 7, 0);
-    return false;
-  };
-  for (let r = 0; r < N; r++) {
-    for (let c = 0; c < N; c++) {
-      if (isFinder(r, c)) {
-        cells.push(finderOn(r, c));
-      } else {
-        s = (s * 1103515245 + 12345) >>> 0;
-        cells.push((s & 0xff) > 128);
-      }
-    }
-  }
-  return (
-    <svg
-      width={150}
-      height={150}
-      viewBox={`0 0 ${N} ${N}`}
-      role="img"
-      aria-label="QR Code do Pix (ilustrativo)"
-      shapeRendering="crispEdges"
-    >
-      {cells.map((on, i) =>
-        on ? (
-          <rect
-            key={i}
-            x={i % N}
-            y={Math.floor(i / N)}
-            width={1}
-            height={1}
-            fill="var(--fg-primary)"
-          />
-        ) : null,
-      )}
-    </svg>
   );
 }
 
