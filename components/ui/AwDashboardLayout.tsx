@@ -4,8 +4,10 @@ import { usePathname } from "next/navigation";
 import { AwSidebar } from "@/components/ui/AwSidebar";
 import { AwHeader } from "@/components/ui/AwHeader";
 import { AwCopilotDrawer } from "@/components/ui/AwCopilotDrawer";
+import { AwHelpDrawer, HELP_DRAWER_WIDTH } from "@/components/ui/AwHelpDrawer";
 import { AwBreadcrumbsBar, type BreadcrumbItem } from "@/components/ui/AwBreadcrumbsBar";
 import { useCopilotDrawer } from "@/lib/copilot/store";
+import { useHelpDrawer } from "@/lib/help/store";
 
 export function AwDashboardLayout({
   children,
@@ -28,6 +30,7 @@ export function AwDashboardLayout({
 }) {
   const isCopilotOpen = useCopilotDrawer((s) => s.open);
   const setIsCopilotOpen = useCopilotDrawer((s) => s.setOpen);
+  const isHelpOpen = useHelpDrawer((s) => s.open);
   const pathname = usePathname();
   const isInMemoryBase = pathname?.startsWith("/memory-base") ?? false;
 
@@ -82,6 +85,20 @@ export function AwDashboardLayout({
               onClose={() => setIsCopilotOpen(false)}
               embedded
             />
+          </div>
+          {/* Ajuda rápida — mesma mecânica do Copilot: calha in-flow que
+              empurra o conteúdo pra esquerda ao abrir, em vez de sobrepor. */}
+          <div
+            className="my-2 overflow-hidden rounded-xl border border-(--border-subtle) shadow-[0_24px_48px_-12px_rgba(15,23,42,0.18)] transition-[width,margin] duration-300 ease-out shrink-0"
+            style={{
+              width: isHelpOpen ? HELP_DRAWER_WIDTH : 0,
+              marginRight: isHelpOpen ? 8 : 0,
+              borderWidth: isHelpOpen ? 1 : 0,
+              pointerEvents: isHelpOpen ? "auto" : "none",
+            }}
+            aria-hidden={!isHelpOpen}
+          >
+            <AwHelpDrawer />
           </div>
         </div>
       </div>

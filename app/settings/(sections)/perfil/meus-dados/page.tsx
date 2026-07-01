@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { AwAlert } from "@/components/ui/AwAlert";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
@@ -9,6 +8,7 @@ import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
+import { useHelpDrawer } from "@/lib/help/store";
 import { cn } from "@/lib/utils";
 import { SettingsPageHeader } from "../../_components/shared";
 
@@ -136,7 +136,7 @@ function StatusBadge({ status }: { status: ExportStatus }) {
 }
 
 export default function MeusDadosPage() {
-  const router = useRouter();
+  const openHelp = useHelpDrawer((s) => s.openHelp);
   const [requests, setRequests] = useState(INITIAL_REQUESTS);
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"confirm" | "stepup" | "done">("confirm");
@@ -342,7 +342,7 @@ export default function MeusDadosPage() {
           variant="secondary"
           iconRight="arrow_forward"
           className="shrink-0"
-          onClick={() => router.push("/settings/seguranca")}
+          onClick={() => openHelp("exclusao-de-dados-privacidade")}
         >
           Entender exclusão de dados e privacidade
         </AwButton>

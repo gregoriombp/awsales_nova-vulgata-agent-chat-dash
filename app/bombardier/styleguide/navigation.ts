@@ -343,6 +343,11 @@ export const navigation: NavSection[] = [
         aliases: ["AwCopilotDrawer", "AwCopilotOrb", "Cortex", "assistente", "drawer", "painel lateral", "copilot"],
       },
       {
+        name: "Help drawer",
+        href: "/bombardier/styleguide/components/aw-help-drawer",
+        aliases: ["AwHelpDrawer", "ajuda rápida", "help center", "saiba mais", "entender", "documentação", "push drawer", "empurra conteúdo"],
+      },
+      {
         name: "Instagram panel",
         href: "/bombardier/styleguide/components/instagram-panel",
         aliases: ["AwInstagramPanel", "canais", "DM", "stories", "comentários"],
