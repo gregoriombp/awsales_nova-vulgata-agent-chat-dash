@@ -163,8 +163,10 @@ function Toolbar({
 }) {
   return (
     <div className="flex shrink-0 items-center gap-3 border-b border-(--border-subtle) px-8 py-3.5">
-      <SearchBar />
+      {/* A busca global saiu (cmt-7fcac64b) — filtrar é papel dos controles de
+          escopo; a tabela de Detalhamento tem os próprios filtros por coluna. */}
       <ActiveFilterPills />
+      <div className="min-w-0 flex-1" />
       {editing ? (
         <div className="flex shrink-0 items-center gap-2.5">
           <span className="inline-flex items-center gap-1.5 body-xs font-medium text-(--accent-brand)">
@@ -469,44 +471,6 @@ function SaveReportButton() {
     >
       Salvar
     </AwButton>
-  );
-}
-
-function SearchBar() {
-  const { search, setSearch } = useConsumo();
-  const ref = React.useRef<HTMLInputElement>(null);
-
-  React.useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        ref.current?.focus();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
-  return (
-    <div className="relative flex-1">
-      <Icon
-        name="search"
-        size={18}
-        className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-(--fg-tertiary)"
-      />
-      <input
-        ref={ref}
-        type="text"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Buscar qualquer item de custo…"
-        aria-label="Buscar item de custo"
-        className="h-11 w-full rounded-full border border-(--border-subtle) bg-(--bg-raised) pl-11 pr-16 body-sm text-(--fg-primary) outline-none placeholder:text-(--fg-muted) hover:border-(--border-default) focus:border-(--border-strong) focus:ring-2 focus:ring-(--ring-focus)"
-      />
-      <kbd className="pointer-events-none absolute right-3.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-1.5 py-0.5 font-mono text-3xs text-(--fg-tertiary)">
-        ⌘K
-      </kbd>
-    </div>
   );
 }
 
