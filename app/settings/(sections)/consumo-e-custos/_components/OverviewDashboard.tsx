@@ -10,7 +10,7 @@ import { DIMENSIONS } from "./explorer-model";
 import { ExportCsvMenu } from "./ExportCsvMenu";
 import { HighlightCards } from "./KpiCards";
 import { SpendHeadline } from "./SpendHeadline";
-import { ScopeFilters } from "./ExplorerMain";
+import { FilterHub } from "./FilterHub";
 import {
   ComposicaoWidget,
   ConsumoChartWidget,
@@ -62,7 +62,7 @@ function OverviewBody() {
             ),
           }))}
         />
-        <ScopeFilters />
+        <FilterHub />
         <div className="ml-auto flex flex-wrap items-center gap-3">
           <PeriodPicker />
           <ExportCsvMenu />

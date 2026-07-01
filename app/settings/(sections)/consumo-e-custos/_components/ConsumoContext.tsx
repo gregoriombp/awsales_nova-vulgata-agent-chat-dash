@@ -7,6 +7,7 @@ import {
   getPeriodSummary,
   SPENDING_CATEGORIES,
   SPENDING_PERIODS,
+  type AgentBreakdownRow,
   type PeriodSummary,
   type ServiceBreakdownRow,
   type SpendingCategory,
@@ -27,6 +28,12 @@ import {
   scaledServiceRows,
   trendPct,
 } from "./explorer-model";
+import {
+  agentChannelFactor,
+  ALL_CHANNELS,
+  rowChannelFactor,
+  type SpendChannel,
+} from "./channels-model";
 import { useBoardOrder, useBoardSpans, type Span } from "./WidgetBoard";
 import {
   BOARD_DEFAULT_ORDER,
@@ -60,6 +67,10 @@ export { BOARD_DEFAULT_ORDER, BOARD_DEFAULT_SPANS };
 export type PeriodSelection =
   | { kind: "preset"; id: SpendingPeriod }
   | { kind: "custom"; from: Date; to: Date };
+
+/** Filtro rápido de disparos no controle geral (cmt-33a8d4dd): tudo, só
+ *  marketing, só utilidade ou sem disparos. */
+export type DisparosFilter = "all" | "mkt" | "util" | "none";
 
 /** Superfície que está montando o provider. O explorador (default) é a única
  *  que persiste board/relatórios e consome deep-links; "overview" (dashboard
@@ -195,6 +206,10 @@ type ConsumoContextValue = {
 
   /* derivados compartilhados pelos widgets */
   categories: SpendingCategory[];
+  /** Linhas de agente escaladas (período + canal) — alimenta o widget de silos. */
+  agentRows: AgentBreakdownRow[];
+  /** Abre o recorte de um silo: lente Agente + drill no grupo (cmt-f014416f). */
+  drillAgentDepartment: (label: string, agentIds: string[]) => void;
   accumulated: number;
   summary: PeriodSummary;
   previous: number;
@@ -218,6 +233,14 @@ type ConsumoContextValue = {
   }[];
   /** Fração do total visível sobre o total cheio — escala o "Custo Aswork × Meta por dia". */
   scopeFactor: number;
+
+  /* filtro de canal (WhatsApp/Instagram/Messenger) — cmt-f014416f */
+  channels: Set<SpendChannel>;
+  selectChannels: (ids: SpendChannel[]) => void;
+  toggleChannel: (c: SpendChannel) => void;
+  /* filtro rápido de disparos — cmt-33a8d4dd */
+  disparosFilter: DisparosFilter;
+  setDisparosFilter: (f: DisparosFilter) => void;
 
   /* filtro de pagador (Aswork/Meta) — independente da lente */
   payers: Set<ProviderId>;
@@ -313,6 +336,29 @@ export function ConsumoProvider({
     setPayers(new Set(ids.length ? ids : (["aswork", "meta"] as ProviderId[])));
   }, []);
   const metaIncluded = payers.has("meta");
+
+  // Canal ativo (WhatsApp/Instagram/Messenger). Todos ligados por padrão;
+  // nunca esvazia — sem canal, volta pros três (mesma regra dos pagadores).
+  const [channels, setChannels] = React.useState<Set<SpendChannel>>(
+    () => new Set<SpendChannel>(ALL_CHANNELS),
+  );
+  const selectChannels = React.useCallback((ids: SpendChannel[]) => {
+    setChannels(new Set(ids.length ? ids : ALL_CHANNELS));
+  }, []);
+  const toggleChannel = React.useCallback((c: SpendChannel) => {
+    setChannels((prev) => {
+      const next = new Set(prev);
+      if (next.has(c)) {
+        if (next.size > 1) next.delete(c);
+      } else {
+        next.add(c);
+      }
+      return next;
+    });
+  }, []);
+
+  // Filtro rápido de disparos (todos | só marketing | só utilidade | sem).
+  const [disparosFilter, setDisparosFilter] = React.useState<DisparosFilter>("all");
 
   // Widgets removidos da visualização atual (faz parte do snapshot do relatório).
   const [hidden, setHidden] = React.useState<Set<string>>(() => new Set());
@@ -413,11 +459,13 @@ export function ConsumoProvider({
       order,
       spans,
       hidden: [...hidden],
+      channels: [...channels],
+      disparos: disparosFilter,
       kind: reportKind,
       invoiceId: invoiceId ?? undefined,
       reportType: reportType ?? undefined,
     }),
-    [grouping, selection, payers, search, drill, order, spans, hidden, reportKind, invoiceId, reportType],
+    [grouping, selection, payers, search, drill, order, spans, hidden, channels, disparosFilter, reportKind, invoiceId, reportType],
   );
 
   const applySnapshot = React.useCallback(
@@ -430,6 +478,8 @@ export function ConsumoProvider({
       setOrder(snap.order ?? BOARD_DEFAULT_ORDER);
       setSpans(snap.spans ?? BOARD_DEFAULT_SPANS);
       setHidden(new Set(snap.hidden ?? []));
+      setChannels(new Set(snap.channels?.length ? snap.channels : ALL_CHANNELS));
+      setDisparosFilter(snap.disparos ?? "all");
       setReportKind(snap.kind ?? "exploration");
       setInvoiceId(snap.invoiceId ?? null);
       setReportType(snap.reportType ?? null);
@@ -690,15 +740,25 @@ export function ConsumoProvider({
   const categories = SPENDING_CATEGORIES[grouping];
   const allCatIds = React.useMemo(() => categories.map((c) => c.id), [categories]);
 
-  // Linhas escaladas do detalhamento (fonte autoritativa dos totais).
-  const serviceRows = React.useMemo(
-    () => scaledServiceRows(selection.kind === "preset" ? selection.id : null, customDays),
-    [selection, customDays],
-  );
-  const agentRows = React.useMemo(
-    () => scaledAgentRows(selection.kind === "preset" ? selection.id : null, customDays),
-    [selection, customDays],
-  );
+  // Linhas escaladas do detalhamento (fonte autoritativa dos totais). O filtro
+  // de canal entra AQUI, na fonte: tabela, gráficos, KPIs e destino conciliam
+  // de graça (telefone/outros não são canal-dependentes — fator 1).
+  const serviceRows = React.useMemo(() => {
+    const rows = scaledServiceRows(selection.kind === "preset" ? selection.id : null, customDays);
+    if (channels.size >= ALL_CHANNELS.length) return rows;
+    return rows.map((r) => ({
+      ...r,
+      total: Math.round(r.total * rowChannelFactor(r.id, channels) * 100) / 100,
+    }));
+  }, [selection, customDays, channels]);
+  const agentRows = React.useMemo(() => {
+    const rows = scaledAgentRows(selection.kind === "preset" ? selection.id : null, customDays);
+    if (channels.size >= ALL_CHANNELS.length) return rows;
+    return rows.map((r) => ({
+      ...r,
+      total: Math.round(r.total * agentChannelFactor(r.id, channels) * 100) / 100,
+    }));
+  }, [selection, customDays, channels]);
   const byId = React.useMemo(() => new Map(serviceRows.map((r) => [r.id, r])), [serviceRows]);
 
   // Total por pagador do detalhamento — usado pra re-escalar o gráfico, pra que
@@ -721,8 +781,18 @@ export function ConsumoProvider({
   // widgets leem disso, desligar "Meta" tira as séries pagas ao Meta de tudo.
   const visibleIds = React.useMemo(() => {
     const base = drill.length ? drill[drill.length - 1].categoryIds : allCatIds;
-    return new Set(base.filter((catId) => payers.has(catProviderOf(catId, grouping))));
-  }, [drill, allCatIds, payers, grouping]);
+    const byPayer = base.filter((catId) => payers.has(catProviderOf(catId, grouping)));
+    // Filtro rápido de disparos (só na lente Serviço — agente não tem a categoria).
+    const byDisparos =
+      grouping === "service" && disparosFilter !== "all"
+        ? byPayer.filter((catId) => {
+            if (catId === "disparos-mkt") return disparosFilter === "mkt";
+            if (catId === "disparos-util") return disparosFilter === "util";
+            return true;
+          })
+        : byPayer;
+    return new Set(byDisparos);
+  }, [drill, allCatIds, payers, grouping, disparosFilter]);
 
   // Escopo do drill ignorando o pagador — alimenta "Por destino", que sempre
   // mostra Aswork e Meta pra você ligar/desligar.
@@ -1005,6 +1075,13 @@ export function ConsumoProvider({
       { label: `Comparando ${ids.length} agentes`, categoryIds: ids, kind: "agent-compare" },
     ]);
   }, []);
+  // Silo de departamento: troca pra lente Agente e ancora o drill no grupo —
+  // setGrouping zeraria o drill, então os dois entram juntos aqui.
+  const drillAgentDepartment = React.useCallback((label: string, agentIds: string[]) => {
+    if (!agentIds.length) return;
+    setGroupingState("agent");
+    setDrill([{ label, categoryIds: agentIds }]);
+  }, []);
   const resetDrill = React.useCallback(() => setDrill([]), []);
   const popTo = React.useCallback((index: number) => setDrill((prev) => prev.slice(0, index + 1)), []);
 
@@ -1039,9 +1116,28 @@ export function ConsumoProvider({
     } else if (!payers.has("aswork")) {
       chips.push({ id: "payer", label: "Pagador: só Meta", onRemove: () => togglePayer("aswork") });
     }
+    if (channels.size < ALL_CHANNELS.length) {
+      const names = ALL_CHANNELS.filter((c) => channels.has(c)).map(
+        (c) => ({ whatsapp: "WhatsApp", instagram: "Instagram", messenger: "Messenger" })[c],
+      );
+      chips.push({
+        id: "channels",
+        label: `Canais: ${names.join(", ")}`,
+        onRemove: () => selectChannels([]),
+      });
+    }
+    if (disparosFilter !== "all") {
+      const label =
+        disparosFilter === "mkt"
+          ? "Disparos: só marketing"
+          : disparosFilter === "util"
+            ? "Disparos: só utilidade"
+            : "Sem disparos";
+      chips.push({ id: "disparos", label, onRemove: () => setDisparosFilter("all") });
+    }
     if (search.trim()) chips.push({ id: "search", label: `Busca: "${search.trim()}"`, onRemove: () => setSearch("") });
     return chips;
-  }, [payers, search, togglePayer]);
+  }, [payers, search, togglePayer, channels, selectChannels, disparosFilter]);
 
   const selectInvoice = React.useCallback((id: string) => setInvoiceId(id), []);
 
@@ -1072,6 +1168,8 @@ export function ConsumoProvider({
     setSearch,
     filterChips,
     categories,
+    agentRows,
+    drillAgentDepartment,
     accumulated,
     summary,
     previous,
@@ -1087,6 +1185,11 @@ export function ConsumoProvider({
     detailRows,
     destino,
     scopeFactor,
+    channels,
+    selectChannels,
+    toggleChannel,
+    disparosFilter,
+    setDisparosFilter,
     payers,
     togglePayer,
     selectPayers,

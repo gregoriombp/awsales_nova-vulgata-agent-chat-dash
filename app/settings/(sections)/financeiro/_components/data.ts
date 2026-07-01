@@ -974,6 +974,44 @@ export function agentType(id: string): string {
   return AGENT_TYPE_BY_ID[id] ?? "Geral";
 }
 
+/* ---------- silos de departamento (camada acima do tipo funcional) ----------
+ * Pedido do Greg (cmt-f014416f): empresas organizam agentes por departamento —
+ * "um departamento é só atendimento ao cliente e suporte; outro, só vendas".
+ * O tipo funcional (Prospecção, Suporte…) continua; o departamento agrega. */
+
+export type AgentDepartment = "vendas" | "atendimento" | "operacoes";
+
+export const AGENT_DEPARTMENTS: {
+  id: AgentDepartment;
+  label: string;
+  icon: string;
+  /** Paleta própria de silo — sem azul/roxo (reservados a Aswork/Meta). */
+  colorVar: string;
+}[] = [
+  { id: "vendas", label: "Vendas", icon: "sell", colorVar: "var(--aw-amber-500)" },
+  { id: "atendimento", label: "Atendimento e suporte", icon: "support_agent", colorVar: "var(--aw-teal-500)" },
+  { id: "operacoes", label: "Operações", icon: "settings", colorVar: "var(--aw-slate-500)" },
+];
+
+export const AGENT_DEPARTMENT_BY_ID: Record<string, AgentDepartment> = {
+  aria: "vendas", // Prospecção
+  nova: "vendas", // Prospecção
+  atlas: "vendas", // Reativação
+  bria: "vendas", // Reativação
+  iris: "vendas", // Qualificação
+  theo: "vendas", // Qualificação
+  kai: "vendas", // Follow-up
+  milo: "vendas", // Agendamento
+  stella: "atendimento", // Onboarding
+  luma: "atendimento", // Suporte
+  vega: "operacoes", // Cobrança
+  sol: "operacoes", // Pesquisa
+};
+
+export function agentDepartment(id: string): AgentDepartment {
+  return AGENT_DEPARTMENT_BY_ID[id] ?? "operacoes";
+}
+
 // Detalhamento do gasto de um agente, por tipo de cobrança (modal "Ver
 // detalhes"). Os tokens seguem o canon atual — Knowledge / Brain / Skills, sem
 // quebra input/output. A quantidade exibida é derivada do valor alocado ÷ taxa,

@@ -8,14 +8,12 @@ import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
-import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
-import { AwLogo } from "@/components/ui/AwLogo";
 import { Icon } from "@/components/ui/Icon";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { INVOICE_HISTORY } from "../../financeiro/_components/data";
 import { useConsumo, type ComparedAgent } from "./ConsumoContext";
-import { type ProviderId } from "./explorer-model";
-import { PeriodPicker, ScopeFilterDropdown } from "./controls";
+import { PeriodPicker } from "./controls";
+import { FilterHub } from "./FilterHub";
 import { ExportCsvMenu } from "./ExportCsvMenu";
 import { HighlightCards } from "./KpiCards";
 import { SpendHeadline } from "./SpendHeadline";
@@ -27,6 +25,8 @@ import {
   UsadoCobradoWidget,
 } from "./ChartWidgets";
 import { DetalhamentoWidget } from "./ExplorerTable";
+import { ChannelWidget } from "./ChannelWidget";
+import { AgentTypeWidget } from "./AgentTypeWidget";
 import { DraggableBoard, type BoardWidget, type Span, type WidgetChrome } from "./WidgetBoard";
 import { useReportsUI } from "./SavedReports";
 
@@ -85,6 +85,8 @@ export function ExplorerMain() {
         { id: "composicao", span: 1 as const, label: "Composição do período", icon: "donut_small", render: (c: WidgetChrome) => <ComposicaoWidget {...c} /> },
         { id: "usado-cobrado", span: 1 as const, label: "Custo Aswork × Meta por dia", icon: "sync_alt", render: (c: WidgetChrome) => <UsadoCobradoWidget {...c} /> },
         { id: "provedor", span: 1 as const, label: "Valor atribuído ao provedor", icon: "account_balance", render: (c: WidgetChrome) => <ProvedorWidget {...c} /> },
+        { id: "canal", span: 1 as const, label: "Gasto por canal", icon: "hub", render: (c: WidgetChrome) => <ChannelWidget {...c} /> },
+        { id: "tipo-agente", span: 1 as const, label: "Gasto por tipo de agente", icon: "diversity_3", render: (c: WidgetChrome) => <AgentTypeWidget {...c} /> },
         { id: "detalhamento", span: 2 as const, label: "Detalhamento", icon: "table_rows", render: (c: WidgetChrome) => <DetalhamentoWidget {...c} /> },
         // Widgets fora do TIPO ativo somem de verdade: nem board, nem AddWidget
         // (cmt-b0869104 + cmt-44007d84 — ex.: "Uso de variáveis" não oferece
@@ -187,7 +189,7 @@ function Toolbar({
         </div>
       ) : (
         <>
-          <ScopeFilters />
+          <FilterHub />
           <PeriodOrInvoice />
           <SaveReportButton />
           <ExportCsvMenu />
@@ -210,53 +212,6 @@ function Toolbar({
           />
         </>
       )}
-    </div>
-  );
-}
-
-/* ----------------------------------------------------------------------------
- * Filtro de pagador ("Por destino") na topbar — um dropdown compacto (estilo do
- * period picker) na mesma linha da busca/período. A lente "Dividir por" voltou
- * pro trilho esquerdo (ficava estranha lado a lado com a pill de agentes).
- * ------------------------------------------------------------------------- */
-export function ScopeFilters() {
-  const { payers, selectPayers } = useConsumo();
-  // 2-way: os dois pagadores → "all"; senão → "aswork". A opção "só Meta" saiu
-  // (pedido do Greg) — sempre há Aswork no recorte; Meta só acompanha junto.
-  const payerMode = payers.has("aswork") && payers.has("meta") ? "all" : "aswork";
-  return (
-    <div className="flex shrink-0 items-center gap-2">
-      <ScopeFilterDropdown
-        collapsed
-        ariaLabel="Filtrar por destino do pagamento"
-        value={payerMode}
-        onChange={(v) =>
-          selectPayers(v === "all" ? (["aswork", "meta"] as ProviderId[]) : ([v] as ProviderId[]))
-        }
-        options={[
-          {
-            value: "aswork",
-            label: "Aswork",
-            leading: <AwLogo variant="mark" height={13} className="text-(--aw-blue-500)" />,
-          },
-          {
-            value: "all",
-            label: "Aswork e Meta",
-            // Os dois logos juntos se confundiam (pedido do Greg): cada um ganha
-            // um disco branco com anel, ficando dois "selos" separados.
-            leading: (
-              <span className="inline-flex items-center">
-                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-(--bg-raised) ring-1 ring-(--border-subtle)">
-                  <AwLogo variant="mark" height={11} className="text-(--aw-blue-500)" />
-                </span>
-                <span className="-ml-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-(--bg-raised) ring-1 ring-(--border-subtle)">
-                  <AwBrandLogo brand="meta" size={12} markOnly />
-                </span>
-              </span>
-            ),
-          },
-        ]}
-      />
     </div>
   );
 }

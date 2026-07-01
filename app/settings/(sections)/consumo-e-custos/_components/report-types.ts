@@ -1,4 +1,5 @@
 import type { SpendingGrouping, SpendingPeriod } from "../../financeiro/_components/data";
+import type { SpendChannel } from "./channels-model";
 import type { Span } from "./WidgetBoard";
 
 /* ----------------------------------------------------------------------------
@@ -36,6 +37,10 @@ export type ExplorerSnapshot = {
   spans: Record<string, Span>;
   /** Widgets removidos desta visualização (ids do board). */
   hidden?: string[];
+  /** Canais ativos no filtro (ausente = todos). */
+  channels?: SpendChannel[];
+  /** Filtro rápido de disparos (ausente = todos). */
+  disparos?: "all" | "mkt" | "util" | "none";
   /** Recorte técnico (default: exploração de custos). */
   kind?: ReportKind;
   /** Fatura recortada, quando kind === "invoice". */
@@ -74,6 +79,8 @@ export const BOARD_DEFAULT_ORDER = [
   "composicao",
   "usado-cobrado",
   "provedor",
+  "canal",
+  "tipo-agente",
   "detalhamento",
 ];
 
@@ -82,6 +89,8 @@ export const BOARD_DEFAULT_SPANS: Record<string, Span> = {
   composicao: 1,
   "usado-cobrado": 1,
   provedor: 1,
+  canal: 1,
+  "tipo-agente": 1,
   detalhamento: 2,
 };
 
@@ -122,9 +131,9 @@ export const REPORT_TYPES: ReportTypeDef[] = [
     // atribuído ao provedor" é assunto de cobrança — os dois são INCOMPATÍVEIS
     // com o modelo "Uso de variáveis" (cmt-b0869104 + cmt-44007d84): fora do
     // board e do "Adicionar gráfico" deste tipo, não apenas ocultos.
-    hidden: [],
+    hidden: ["canal", "tipo-agente"],
     excluded: ["usado-cobrado", "provedor"],
-    order: ["consumo", "composicao", "detalhamento"],
+    order: ["consumo", "composicao", "detalhamento", "canal", "tipo-agente"],
   },
   {
     type: "faturas",
@@ -134,7 +143,7 @@ export const REPORT_TYPES: ReportTypeDef[] = [
     desc: "Abra uma fatura e veja, item a item, o que entrou naquele ciclo de cobrança.",
     accentVar: "var(--aw-emerald-500)",
     grouping: "service",
-    hidden: [],
+    hidden: ["canal", "tipo-agente"],
     order: BOARD_DEFAULT_ORDER,
   },
   {
@@ -149,7 +158,7 @@ export const REPORT_TYPES: ReportTypeDef[] = [
     // pagamento) + Usado × cobrado. Sem os gráficos de consumo/variáveis nem a
     // tabela de detalhamento — isso é assunto do "Uso de variáveis".
     hidden: ["consumo", "composicao", "detalhamento"],
-    order: ["provedor", "usado-cobrado", "consumo", "composicao", "detalhamento"],
+    order: ["provedor", "usado-cobrado", "canal", "tipo-agente", "consumo", "composicao", "detalhamento"],
   },
 ];
 
