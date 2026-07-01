@@ -3,7 +3,6 @@
 import * as React from "react";
 import Link from "next/link";
 import { AwButton } from "@/components/ui/AwButton";
-import { AwChannelIcon } from "@/components/ui/AwChannelIcon";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwModal } from "@/components/ui/AwModal";
@@ -18,21 +17,22 @@ import { SettingsPageHeader } from "../_components/shared";
  * sempre recebe, canais permitidos) mora em /settings/organizacao/notificacoes;
  * aqui o usuário afina o que o atinge e por quais canais. Itens marcados
  * "definido pela organização" vêm travados (sempre enviados).
+ *
+ * A entrega é uma MATRIZ por linha: cada notificação × cada canal (No app /
+ * E-mail / WhatsApp) é um checkbox. Não há mais "canais globais" no topo —
+ * o usuário controla tudo por linha, inclusive o No app.
  * ===================================================================== */
 
 type ChannelKey = "app" | "email" | "whatsapp";
 type ChannelState = Record<ChannelKey, boolean>;
 
+/* As três colunas da matriz. Todas controláveis por linha — o "No app", que
+ * antes era travado no topo, agora a pessoa liga/desliga como os outros. */
 const CHANNELS: { key: ChannelKey; label: string }[] = [
   { key: "app", label: "No app" },
   { key: "email", label: "E-mail" },
   { key: "whatsapp", label: "WhatsApp" },
 ];
-
-/* Canais mostrados na MATRIZ por linha. "No app" fica de fora: é sempre on e o
- * card "No app · Sempre ativo" no topo é a única fonte de verdade — assim a
- * linha não contradiz o cadeado do card. */
-const MATRIX_CHANNELS = CHANNELS.filter((c) => c.key !== "app");
 
 type NotifDef = {
   id: string;
@@ -206,9 +206,6 @@ const SECTIONS: SectionDef[] = [
 /** Organização ativa — o escopo das preferências é por organização. */
 const ORG_NAME = "Fyntra";
 
-/** E-mail de destino do usuário (reflexo da conta). */
-const USER_EMAIL = "guilherme@fyntra.com";
-
 /** Estado padrão da matriz de canais, derivado de SECTIONS — itens "on"
  * herdam seus canais; os demais nascem com tudo desmarcado. É também o
  * alvo do "Restaurar padrão". */
@@ -236,14 +233,11 @@ export default function NotificationsSettingsPage() {
   const [channelsById, setChannelsById] =
     React.useState<Record<string, ChannelState>>(defaultChannels);
 
-  // Preferências globais de canal (teto da entrega, abaixo da matriz).
-  const [emailDelivery, setEmailDelivery] = React.useState(true);
-  const [whatsappDelivery, setWhatsappDelivery] = React.useState(true);
+  // Resumo semanal — único ajuste global (é um digest, não uma notificação
+  // por-linha), então vive numa linha própria no rodapé.
   const [weeklyDigest, setWeeklyDigest] = React.useState(false);
 
   const [resetOpen, setResetOpen] = React.useState(false);
-  const enabledDeliveryCount =
-    1 + Number(emailDelivery) + Number(whatsappDelivery) + Number(weeklyDigest);
 
   // Toast de "salvo" com coalescing — marcar vários canais em sequência não
   // empilha toasts; um único aviso aparece quando a rajada termina.
@@ -272,21 +266,8 @@ export default function NotificationsSettingsPage() {
     notifySaved();
   };
 
-  /** Liga ou desliga um canal global (teto da entrega). Desligar NÃO apaga as
-   *  escolhas por linha — apenas MASCARA: os checkboxes daquele canal ficam
-   *  inativos, mas o estado é preservado e volta intacto ao religar. (Antes
-   *  zerava channelsById e o usuário perdia toda a configuração num clique.) */
-  const setGlobalChannel = (ch: ChannelKey, val: boolean) => {
-    if (ch === "app") return; // No app é sempre on (locked).
-    if (ch === "email") setEmailDelivery(val);
-    if (ch === "whatsapp") setWhatsappDelivery(val);
-    notifySaved();
-  };
-
-  /** "Marcar todos / Desmarcar todos" — só toca eventos não-locked da seção.
-   *  Grava a intenção do usuário direto, sem filtrar por canal global: se um
-   *  canal estiver desligado no topo, o estado fica guardado e só aparece
-   *  mascarado até religar. "No app" segue sempre ligado. */
+  /** "Marcar todos / Desmarcar todos" — só toca eventos não-locked da seção,
+   *  e agora atinge os três canais (inclusive No app). */
   const setAllInSection = (sectionId: string, val: boolean) => {
     const section = SECTIONS.find((s) => s.id === sectionId);
     if (!section) return;
@@ -294,7 +275,7 @@ export default function NotificationsSettingsPage() {
       const next = { ...s };
       for (const it of section.items) {
         if (it.orgLocked) continue;
-        next[it.id] = { app: true, email: val, whatsapp: val };
+        next[it.id] = { app: val, email: val, whatsapp: val };
       }
       return next;
     });
@@ -303,8 +284,6 @@ export default function NotificationsSettingsPage() {
 
   const restoreDefaults = () => {
     setChannelsById(defaultChannels());
-    setEmailDelivery(true);
-    setWhatsappDelivery(true);
     setWeeklyDigest(false);
     setResetOpen(false);
     push({
@@ -348,43 +327,10 @@ export default function NotificationsSettingsPage() {
         }
       />
 
-      {/* Canais de entrega — 4 cards no topo. Desligar um canal aqui apenas
-       *  mascara (desabilita) esse canal nas notificações abaixo; as escolhas
-       *  por linha ficam guardadas e voltam ao religar. */}
-      <div className="mt-8">
-        <ChannelsRow
-          email={emailDelivery}
-          whatsapp={whatsappDelivery}
-          weekly={weeklyDigest}
-          userEmail={USER_EMAIL}
-          onToggle={(ch, val) => {
-            if (ch === "weekly") {
-              setWeeklyDigest(val);
-              notifySaved();
-              return;
-            }
-            setGlobalChannel(ch, val);
-          }}
-        />
-        <DeliverySummary
-          enabledCount={enabledDeliveryCount}
-          email={emailDelivery}
-          whatsapp={whatsappDelivery}
-          weekly={weeklyDigest}
-        />
-      </div>
-
-      {/* Cabeçalho de colunas da matriz — nomeia os canais UMA vez (em vez de
-       *  repetir o rótulo em toda linha) e carrega a ação "ligar" quando o
-       *  canal está desligado no topo. */}
-      <MatrixHeader
-        email={emailDelivery}
-        whatsapp={whatsappDelivery}
-        onEnable={(ch) => setGlobalChannel(ch, true)}
-      />
-
-      {/* Divisor cinza entre cada tipo de notificação. */}
-      <div className="mt-2 flex flex-col divide-y divide-(--border-subtle)">
+      {/* Matriz de notificações — cada seção é uma "tabela" que repete o
+       *  cabeçalho de canais (No app / E-mail / WhatsApp), pra que a coluna
+       *  fique sempre legível conforme se desce a página. */}
+      <div className="mt-10 flex flex-col divide-y divide-(--border-subtle)">
         {SECTIONS.map((section) => (
           <CollapsibleSection
             key={section.id}
@@ -400,22 +346,50 @@ export default function NotificationsSettingsPage() {
               />
             }
           >
+            <ChannelColumnsHeader />
             {section.items.map((def) => (
               <NotifRow
                 key={def.id}
                 def={def}
                 channels={channelsById[def.id]}
                 onChannel={setChannel}
-                emailDelivery={emailDelivery}
-                whatsappDelivery={whatsappDelivery}
               />
             ))}
           </CollapsibleSection>
         ))}
       </div>
 
+      {/* Resumo semanal — digest global (não é uma notificação por-linha). */}
+      <div className="mt-8 border-t border-(--border-subtle) pt-6">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
+              <Icon name="summarize" size={20} />
+            </span>
+            <div className="min-w-0">
+              <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                Resumo semanal por e-mail
+              </p>
+              <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+                Toda segunda, um apanhado da semana. Não substitui os alertas
+                acima.
+              </p>
+            </div>
+          </div>
+          <AwToggle
+            checked={weeklyDigest}
+            onChange={(v) => {
+              setWeeklyDigest(v);
+              notifySaved();
+            }}
+            label="Resumo semanal por e-mail"
+            className="shrink-0"
+          />
+        </div>
+      </div>
+
       {/* Rodapé — restaurar padrão da org. */}
-      <div className="mt-10 flex items-center justify-between gap-4 border-t border-(--border-subtle) pt-6">
+      <div className="mt-8 flex items-center justify-between gap-4 border-t border-(--border-subtle) pt-6">
         <p className="m-0 max-w-[520px] body-xs text-(--fg-tertiary)">
           As mudanças salvam sozinhas.
         </p>
@@ -442,178 +416,6 @@ export default function NotificationsSettingsPage() {
 /* ===================================================================== *
  * Peças
  * ===================================================================== */
-
-function DeliverySummary({
-  enabledCount,
-  email,
-  whatsapp,
-  weekly,
-}: {
-  enabledCount: number;
-  email: boolean;
-  whatsapp: boolean;
-  weekly: boolean;
-}) {
-  const disabled = [
-    !email ? "e-mail" : null,
-    !whatsapp ? "WhatsApp" : null,
-    !weekly ? "resumo semanal" : null,
-  ].filter(Boolean);
-
-  return (
-    <div className="mt-3 flex items-start gap-2 rounded-lg border border-(--border-subtle) bg-(--bg-muted) px-3 py-2.5">
-      <Icon
-        name="rule_settings"
-        size={16}
-        className="mt-0.5 shrink-0 text-(--fg-tertiary)"
-      />
-      <div className="min-w-0">
-        <p className="m-0 body-xs font-medium text-(--fg-primary)">
-          {enabledCount} {enabledCount === 1 ? "canal ativo" : "canais ativos"}
-        </p>
-        <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-          No app fica sempre ligado.{" "}
-          {disabled.length > 0
-            ? `Desligados agora: ${disabled.join(", ")}.`
-            : "Todos os canais liberados estão ativos."}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-/** Row de 4 canais no topo da página, em cards iguais. Coerente com o
- *  estilo de "Canais permitidos" em /organizacao/notificacoes. */
-function ChannelsRow({
-  email,
-  whatsapp,
-  weekly,
-  userEmail,
-  onToggle,
-}: {
-  email: boolean;
-  whatsapp: boolean;
-  weekly: boolean;
-  userEmail: string;
-  onToggle: (ch: "email" | "whatsapp" | "weekly", val: boolean) => void;
-}) {
-  return (
-    <div role="group" aria-label="Canais de entrega" className="grid grid-cols-2 gap-3 md:grid-cols-4">
-      <ChannelCard
-        icon="notifications"
-        name="No app"
-        note="Sempre ativo"
-        locked
-      />
-      <ChannelCard
-        icon="mail"
-        name="E-mail"
-        note={userEmail}
-        on={email}
-        onToggle={(v) => onToggle("email", v)}
-      />
-      <ChannelCard
-        channelGlyph="whatsapp"
-        name="WhatsApp"
-        note="Liberado pela organização"
-        on={whatsapp}
-        onToggle={(v) => onToggle("whatsapp", v)}
-      />
-      <ChannelCard
-        icon="summarize"
-        name="Resumo semanal"
-        note="Segunda · por e-mail"
-        on={weekly}
-        onToggle={(v) => onToggle("weekly", v)}
-      />
-    </div>
-  );
-}
-
-function ChannelCard({
-  icon,
-  channelGlyph,
-  name,
-  note,
-  on,
-  locked,
-  onToggle,
-}: {
-  icon?: string;
-  channelGlyph?: "whatsapp";
-  name: string;
-  note: string;
-  on?: boolean;
-  locked?: boolean;
-  onToggle?: (v: boolean) => void;
-}) {
-  const active = !!on;
-  return (
-    <div
-      className={cn(
-        "flex flex-col gap-3 rounded-xl border px-4 py-4 transition-colors duration-aw-fast",
-        active
-          ? "border-(--fg-primary) bg-(--bg-selected)"
-          : "border-(--border-subtle) bg-(--bg-raised)",
-      )}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <span
-          className={cn(
-            "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
-            active
-              ? "bg-(--fg-primary) text-(--bg-canvas)"
-              : "bg-(--bg-muted) text-(--fg-secondary)",
-          )}
-        >
-          {channelGlyph ? (
-            <AwChannelIcon channel={channelGlyph} size={18} />
-          ) : (
-            <Icon name={icon ?? "circle"} size={18} fill={active ? 1 : 0} />
-          )}
-        </span>
-        {locked ? (
-          <span
-            className={cn(
-              "inline-flex items-center gap-1 body-xs font-medium",
-              active ? "text-(--fg-secondary)" : "text-(--fg-tertiary)",
-            )}
-          >
-            <Icon name="lock" size={12} />
-            {note}
-          </span>
-        ) : (
-          <AwToggle
-            checked={active}
-            onChange={onToggle}
-            label={name}
-            className="shrink-0"
-          />
-        )}
-      </div>
-      <div className="min-w-0">
-        <p
-          className={cn(
-            "m-0 body-sm font-medium",
-            "text-(--fg-primary)",
-          )}
-        >
-          {name}
-        </p>
-        {!locked && (
-          <p
-            className={cn(
-              "m-0 mt-0.5 truncate body-xs",
-              active ? "text-(--fg-secondary)" : "text-(--fg-tertiary)",
-            )}
-          >
-            {note}
-          </p>
-        )}
-      </div>
-    </div>
-  );
-}
 
 /** Dropdown discreto ao lado do chevron — marcar/desmarcar todos os
  *  eventos opcionais da seção. Não toca em locked. */
@@ -737,82 +539,41 @@ function OrgBadge() {
   );
 }
 
-/** Ícone do canal — usado no cabeçalho e (apagado) quando o canal está off. */
-function ChannelGlyph({ channel, dim }: { channel: ChannelKey; dim?: boolean }) {
-  if (channel === "whatsapp") {
-    return (
-      <span className={cn("inline-flex", dim && "opacity-50 grayscale")}>
-        <AwChannelIcon channel="whatsapp" size={13} />
-      </span>
-    );
-  }
-  return <Icon name={channel === "app" ? "notifications" : "mail"} size={13} />;
-}
-
-/** Cabeçalho de colunas da matriz: nomeia E-mail / WhatsApp uma única vez e
- *  alinha com os checkboxes das linhas (mesma grid de colunas fixas). Quando o
- *  canal está desligado no topo, vira um rótulo apagado + ação "ligar". */
-function MatrixHeader({
-  email,
-  whatsapp,
-  onEnable,
-}: {
-  email: boolean;
-  whatsapp: boolean;
-  onEnable: (ch: ChannelKey) => void;
-}) {
-  const on: Record<"email" | "whatsapp", boolean> = { email, whatsapp };
+/** Cabeçalho de colunas da tabela — repetido por seção (pedido do Greg):
+ *  nomeia No app / E-mail / WhatsApp UMA vez por tabela, alinhado à grade dos
+ *  checkboxes das linhas. Rótulos em texto limpo (sem ícone) pra não estourar
+ *  a última coluna contra a borda da tabela. */
+function ChannelColumnsHeader() {
   return (
-    <div className="mt-8 flex items-end justify-end border-b border-(--border-subtle) pb-2.5">
-      <div className="grid grid-cols-2 gap-x-2">
-        {MATRIX_CHANNELS.map((ch) => {
-          const isOn = on[ch.key as "email" | "whatsapp"];
-          return (
-            <div key={ch.key} className="flex w-20 flex-col items-center gap-0.5">
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1.5 body-xs font-medium",
-                  isOn ? "text-(--fg-secondary)" : "text-(--fg-muted)",
-                )}
-              >
-                <ChannelGlyph channel={ch.key} dim={!isOn} />
-                {ch.label}
-              </span>
-              {!isOn && (
-                <button
-                  type="button"
-                  onClick={() => onEnable(ch.key)}
-                  className="rounded body-xs font-medium text-(--accent-brand) hover:underline"
-                >
-                  ligar
-                </button>
-              )}
-            </div>
-          );
-        })}
+    <div className="flex items-center justify-end pb-2.5">
+      <div className="grid grid-cols-3 gap-x-2">
+        {CHANNELS.map((ch) => (
+          <span
+            key={ch.key}
+            className="flex w-20 items-center justify-center body-xs font-medium text-(--fg-secondary)"
+          >
+            {ch.label}
+          </span>
+        ))}
       </div>
     </div>
   );
 }
 
-/** Uma célula da matriz (canal × evento). Três estados:
+/** Uma célula da matriz (canal × evento). Dois estados:
  *  · orgLocked → check travado, sempre on (a organização força);
- *  · canal desligado no topo → traço mudo + tooltip (sem checkbox morto; a
- *    ação "ligar" mora no cabeçalho da coluna);
  *  · normal → checkbox clicável. */
 function ChannelCell({
   def,
   channel,
   label,
   checked,
-  globallyOff,
   onChannel,
 }: {
   def: NotifDef;
   channel: ChannelKey;
   label: string;
   checked: boolean;
-  globallyOff: boolean;
   onChannel: (id: string, ch: ChannelKey, val: boolean) => void;
 }) {
   const id = `${def.id}-${channel}`;
@@ -830,18 +591,6 @@ function ChannelCell({
           onChange={() => {}}
           label={`${def.title} — ${label} (definido pela organização)`}
         />
-      </div>
-    );
-  }
-
-  if (globallyOff) {
-    return (
-      <div
-        className="flex w-20 items-center justify-center text-(--fg-muted)"
-        title={`${label} está desligado no topo da página`}
-        aria-label={`${def.title} — ${label} desligado no topo da página`}
-      >
-        <span aria-hidden="true">—</span>
       </div>
     );
   }
@@ -865,22 +614,11 @@ function NotifRow({
   def,
   channels,
   onChannel,
-  emailDelivery,
-  whatsappDelivery,
 }: {
   def: NotifDef;
   channels: ChannelState;
   onChannel: (id: string, ch: ChannelKey, val: boolean) => void;
-  emailDelivery: boolean;
-  whatsappDelivery: boolean;
 }) {
-  // Canal global desligado no topo → a coluna daquele canal vira um traço
-  // mudo (ver ChannelCell), sem checkbox morto. O estado segue guardado.
-  const globallyOff: Record<ChannelKey, boolean> = {
-    app: false,
-    email: !emailDelivery,
-    whatsapp: !whatsappDelivery,
-  };
   return (
     // Linha plana (sem card/radius) — separada das vizinhas por divisor.
     <div className="flex items-start justify-between gap-6 py-4">
@@ -895,17 +633,16 @@ function NotifRow({
         <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{def.desc}</p>
       </div>
 
-      {/* Canais à direita — grid de colunas fixas, alinhada ao MatrixHeader.
-       *  Só checkboxes (os rótulos vivem no cabeçalho). */}
-      <div className="grid shrink-0 grid-cols-2 gap-x-2 pt-0.5">
-        {MATRIX_CHANNELS.map((ch) => (
+      {/* Canais à direita — grid de colunas fixas, alinhada ao cabeçalho.
+       *  Só checkboxes (os rótulos vivem no cabeçalho da tabela). */}
+      <div className="grid shrink-0 grid-cols-3 gap-x-2 pt-0.5">
+        {CHANNELS.map((ch) => (
           <ChannelCell
             key={ch.key}
             def={def}
             channel={ch.key}
             label={ch.label}
             checked={channels[ch.key]}
-            globallyOff={globallyOff[ch.key]}
             onChannel={onChannel}
           />
         ))}
