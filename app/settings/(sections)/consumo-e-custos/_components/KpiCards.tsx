@@ -25,32 +25,33 @@ import { useConsumo } from "./ConsumoContext";
 
 export function HighlightCards() {
   const { summary } = useConsumo();
+  // O card "Subtotal de uso" saiu (cmt-c1a2dccb): repetia o valor de "Uso no
+  // período" do cabeçalho. O fluxo financeiro agora começa em Uso no período
+  // (topo) e segue: Créditos e cupons → Ajustes → Total do período.
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <HighlightCard
-        label="Subtotal de uso"
-        value={brl(summary.subtotal)}
-        tooltip="Soma do uso variável Aswork no período — sem plano fixo e sem Meta."
-      />
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
       <HighlightCard
         label="Créditos e cupons"
+        description="Abatidos no período"
         value={`− ${brl(summary.credits)}`}
         valueClassName="text-(--accent-success)"
-        tooltip="Créditos e cupons abatem somente valores cobrados pela Aswork — nunca o valor do Meta, que é cobrado direto no seu cartão pela plataforma do Meta."
+        tooltip="Total de créditos e cupons aplicados no período selecionado. Esse valor reduz o total a ser cobrado ou faturado, conforme as regras de validade, elegibilidade e aplicação de cada crédito ou cupom."
       />
       <HighlightCard
         label="Ajustes"
+        description="Correções aplicadas no período"
         value={signedBrl(summary.adjustments)}
-        tooltip="Estornos e correções reconhecidos no período — somam (+) ou abatem (−) do total. Costuma vir zerado."
+        tooltip="Ajustes são correções financeiras aplicadas pela Aswork para aumentar ou reduzir o valor do período. Eles podem ocorrer por estornos, compensações, erros operacionais, falhas de provedor, cobranças indevidas ou outras correções comerciais. Ajustes negativos reduzem o total; ajustes positivos aumentam o total."
         footer={
           summary.adjustments !== 0 ? <AdjustmentsDetail /> : undefined
         }
       />
       <HighlightCard
-        label="Total no período"
+        label="Total do período"
+        description="Valor após créditos, cupons e ajustes"
         value={brl(summary.total)}
         emphasized
-        tooltip="Subtotal de uso − créditos + ajustes. É o valor que entra na sua fatura Aswork no período."
+        tooltip="Valor final do período após aplicar créditos, cupons e ajustes sobre o uso variável. Esse é o valor que será cobrado, faturado ou considerado na fatura do cliente, conforme o ciclo e as regras de cobrança da conta."
       />
     </div>
   );
@@ -58,6 +59,7 @@ export function HighlightCards() {
 
 function HighlightCard({
   label,
+  description,
   value,
   tooltip,
   valueClassName,
@@ -65,6 +67,7 @@ function HighlightCard({
   footer,
 }: {
   label: string;
+  description?: string;
   value: string;
   tooltip: string;
   valueClassName?: string;
@@ -96,6 +99,9 @@ function HighlightCard({
         {/* "Saiba mais" (Ajustes) fica à direita, centrado com o número. */}
         {footer}
       </div>
+      {description && (
+        <p className="m-0 body-xs text-(--fg-tertiary)">{description}</p>
+      )}
     </div>
   );
 }

@@ -555,7 +555,7 @@ function SpendHeadline() {
         <AwTrendDelta value={trend} tone="neutral" />
       </div>
       <span className="body-xs text-(--fg-tertiary)">
-        {periodLabel} · comparado ao período anterior
+        {periodLabel} · comparado ao período anterior equivalente
       </span>
     </header>
   );

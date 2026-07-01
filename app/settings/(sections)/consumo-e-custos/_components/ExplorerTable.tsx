@@ -223,8 +223,8 @@ export function DetalhamentoWidget({ dragHandle, resizeButton, removeButton }: W
       icon="table_rows"
       description={
         grouping === "service"
-          ? "Cada serviço e taxa do período, em BRL e USD"
-          : "Consumo por agente no período, em BRL e USD"
+          ? "Cada serviço e taxa do período, em USD e BRL"
+          : "Consumo por agente no período, em USD e BRL"
       }
       dragHandle={dragHandle}
       resizeButton={resizeButton}

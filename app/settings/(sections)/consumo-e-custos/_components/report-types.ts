@@ -110,12 +110,14 @@ export const REPORT_TYPES: ReportTypeDef[] = [
     type: "variaveis",
     kind: "exploration",
     icon: "data_usage",
-    title: "Uso de variáveis",
-    desc: "Acompanhe disparos, mensagens, leads e tokens de IA — tudo que varia com o uso, no período que você escolher.",
+    title: "Uso variável",
+    desc: "Analise o uso financeiro variável da conta no período selecionado, com detalhamento por serviço, agente, provedor e moeda. Os valores podem incluir custos da Aswork e custos da Meta, conforme os filtros aplicados.",
     accentVar: "var(--aw-blue-500)",
     grouping: "service",
-    // Tira a cobrança do provedor de pagamento: não é desse relatório.
-    hidden: ["provedor"],
+    // Tira a cobrança do provedor de pagamento: não é desse relatório. E o gráfico
+    // "usado-cobrado" (Uso do período) sai por padrão — duplicava o "Uso total no
+    // período" (cmt-c1a2dccb). Fica disponível pra readicionar como comparativo.
+    hidden: ["provedor", "usado-cobrado"],
     order: ["consumo", "composicao", "usado-cobrado", "detalhamento", "provedor"],
   },
   {

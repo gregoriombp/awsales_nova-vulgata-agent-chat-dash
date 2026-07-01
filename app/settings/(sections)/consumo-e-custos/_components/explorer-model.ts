@@ -36,7 +36,7 @@ export const PROVIDERS: Record<
   { id: ProviderId; label: string; desc: string; colorVar: string }
 > = {
   aswork: { id: "aswork", label: "Aswork", desc: "Serviços da plataforma", colorVar: "var(--aw-blue-500)" },
-  meta: { id: "meta", label: "Meta", desc: "Disparos de WhatsApp", colorVar: "var(--aw-purple-500)" },
+  meta: { id: "meta", label: "Meta", desc: "Disparos cobrados via Meta", colorVar: "var(--aw-purple-500)" },
 };
 
 export const PROVIDER_ORDER: ProviderId[] = ["aswork", "meta"];
@@ -123,7 +123,7 @@ type GroupDef = {
 };
 
 const SERVICE_GROUPS: GroupDef[] = [
-  { id: "meta", label: "Meta", desc: "Disparos de WhatsApp cobrados via Meta", icon: "campaign", rowIds: ["disp-mkt", "disp-util"], aggregateFormat: "decimal" },
+  { id: "meta", label: "Meta", desc: "Disparos cobrados via Meta", icon: "campaign", rowIds: ["disp-mkt", "disp-util"], aggregateFormat: "decimal" },
   { id: "msgs", label: "Mensagens transacionadas", desc: "Mensagens transacionadas pelos agentes", icon: "forum", rowIds: ["msgs"], aggregateFormat: "decimal" },
   { id: "leads", label: "Leads ativos", desc: "Contatos que viraram lead ativo no período", icon: "person_add", rowIds: ["leads"], aggregateFormat: "decimal" },
   { id: "tokens", label: "Tokens", desc: "Knowledge, Brain e Skills dos agentes", icon: "agent", rowIds: ["tok-k", "tok-b", "tok-s"], aggregateFormat: "abbrev" },
