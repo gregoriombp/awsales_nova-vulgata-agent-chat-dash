@@ -256,7 +256,7 @@ export default function DadosPessoaisPage() {
             src={previewSrc ?? "/assets/users/greg.jpg"}
             alt={fullName}
             initials={initials(fullName)}
-            className="h-24! w-24!"
+            className="h-32! w-32!"
           />
           <input
             ref={fileRef}
