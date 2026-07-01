@@ -85,7 +85,11 @@ export function AgentTypeWidget({ dragHandle, menu }: WidgetChrome) {
                   className="shrink-0 text-(--fg-muted) transition-colors duration-aw-fast group-hover:text-(--fg-secondary)"
                 />
               </span>
-              <span className="ml-[42px] flex items-center gap-3">
+              <span className="flex items-center gap-2.5">
+                {/* Espaçador estrutural: mesma largura do tile do ícone acima,
+                    pra barra alinhar com o rótulo sem valor mágico. */}
+                <span className="w-8 shrink-0" aria-hidden="true" />
+                <span className="flex min-w-0 flex-1 items-center gap-3">
                 <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-(--bg-muted)">
                   <span
                     className="block h-full rounded-full transition-[width] duration-aw-base ease-aw-out"
@@ -97,6 +101,7 @@ export function AgentTypeWidget({ dragHandle, menu }: WidgetChrome) {
                 </span>
                 <span className="w-9 shrink-0 text-right body-xs tabular-nums text-(--fg-tertiary)">
                   {r.share.toFixed(0)}%
+                </span>
                 </span>
               </span>
             </button>

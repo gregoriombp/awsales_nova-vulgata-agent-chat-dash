@@ -49,7 +49,7 @@ import { useConsumo, type SeriesTotal } from "./ConsumoContext";
 import { catProviderOf, categoryPayerSplit, PROVIDERS } from "./explorer-model";
 import { SegmentedToggle } from "./controls";
 import { InfoTip } from "./KpiCards";
-import { bucketRows, categoryMatchesConfig, widgetConfigLabel, type ChartGranularity } from "./chart-utils";
+import { bucketRows, categoryMatchesConfig, othersOnTop, widgetConfigLabel, type ChartGranularity } from "./chart-utils";
 import { GranularityToggle } from "./GranularityToggle";
 import { LimitEventMarkers } from "../../financeiro/_components/LimitEventMarkers";
 import { selectionLimitEvents } from "../../financeiro/_components/data";
@@ -229,20 +229,15 @@ export function ConsumoChartWidget({
     });
     const colorByRank = chartColorByRank(totals, grouping);
     const totalById = new Map(totals.map((t) => [t.id, t.total]));
-    return filtered
-      .map((c) => ({
+    // "Outros" SEMPRE no topo da pilha (regra da casa, cmt-750ce724) — a
+    // ordenação vem do helper único (othersOnTop), o mesmo de todo stacked.
+    return othersOnTop(
+      filtered.map((c) => ({
         ...c,
         colorVar: colorByRank.get(c.id) ?? c.colorVar,
-      }))
-      .sort((a, b) => {
-        // "Outros" é o resto agregado — sempre no topo da pilha (último a
-        // renderizar), nunca no meio/base, independente do total. O id real é
-        // "__others__" (gerado no ConsumoContext); comparar com "outros" deixava
-        // o resto cair pro fundo pela ordem de total.
-        if (a.id === "__others__") return 1;
-        if (b.id === "__others__") return -1;
-        return (totalById.get(b.id) ?? 0) - (totalById.get(a.id) ?? 0);
-      });
+      })),
+      (c) => totalById.get(c.id) ?? 0,
+    );
   }, [chartModel, chartIds, grouping, instanceCfg]);
   const config = React.useMemo(() => buildConfig(categories), [categories]);
   const totalDays = chartModel.data.length;

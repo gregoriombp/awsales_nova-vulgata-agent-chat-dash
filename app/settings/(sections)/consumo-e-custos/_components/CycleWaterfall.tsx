@@ -39,28 +39,39 @@ const SHORT_LABEL: Record<string, string> = {
 
 export function CycleWaterfall({ rows }: { rows: StatementRow[] }) {
   const data = React.useMemo(() => {
+    // Loop explícito (sem closure mutando `running` dentro de .map — a regra
+    // do React Compiler não deixa): cada barra flutua a partir do acumulado.
+    const out: {
+      id: string;
+      name: string;
+      fullLabel: string;
+      base: number;
+      delta: number;
+      signed: number;
+      kind: StatementRow["kind"];
+      color: string;
+    }[] = [];
     let running = 0;
-    return rows.map((row) => {
+    for (const row of rows) {
       const isBalance = row.kind === "balance";
       const from = isBalance ? 0 : running;
       const to = isBalance ? row.signed : running + row.signed;
       running = isBalance ? row.signed : to;
-      const base = Math.min(from, to);
-      const delta = Math.abs(to - from);
-      return {
+      out.push({
         id: row.id,
         name: SHORT_LABEL[row.id] ?? row.label,
         fullLabel: row.label,
-        base,
+        base: Math.min(from, to),
         // Delta 0 ainda desenha um fiapo visível (senão a linha "some").
-        delta: Math.max(delta, 0.01),
+        delta: Math.max(Math.abs(to - from), 0.01),
         signed: row.signed,
         kind: row.kind,
         // "color" (não "fill"): um campo `fill` no dado sobrescreveria o
         // fill="transparent" da barra-base no Recharts e pintaria a base.
         color: COLOR_BY_KIND[row.kind],
-      };
-    });
+      });
+    }
+    return out;
   }, [rows]);
 
   const config: ChartConfig = { delta: { label: "Valor" } };
