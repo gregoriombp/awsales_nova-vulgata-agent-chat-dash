@@ -1,22 +1,47 @@
 "use client";
 
 import { useState } from "react";
+import { AwButton } from "@/components/ui/AwButton";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwField } from "@/components/ui/AwInput";
-import { AwToggleRow } from "@/components/ui/AwToggle";
+import { AwSelect } from "@/components/ui/AwSelect";
 import { Icon } from "@/components/ui/Icon";
 import { useAwTheme, type ThemePreference } from "@/components/ui/AwThemeProvider";
 import { SettingsPageHeader } from "../_components/shared";
 
 type DensityPreference = "comfortable" | "compact";
-type WeekStartPreference = "monday" | "sunday";
+
+const LANGUAGES = [
+  { value: "pt-BR", label: "Português (Brasil)" },
+  { value: "en-US", label: "English (US)" },
+  { value: "es-ES", label: "Español (España)" },
+  { value: "es-419", label: "Español (Latinoamérica)" },
+];
+
+const TIMEZONES = [
+  { value: "America/Sao_Paulo", label: "(GMT−3) Brasília — São Paulo" },
+  { value: "America/Fortaleza", label: "(GMT−3) Fortaleza" },
+  { value: "America/Manaus", label: "(GMT−4) Manaus" },
+  { value: "America/Rio_Branco", label: "(GMT−5) Rio Branco" },
+  { value: "America/Noronha", label: "(GMT−2) Fernando de Noronha" },
+  { value: "UTC", label: "(GMT+0) UTC" },
+];
+
+function labelOf(list: { value: string; label: string }[], value: string) {
+  return list.find((o) => o.value === value)?.label ?? value;
+}
 
 export default function AppearanceSettingsPage() {
   const { theme, setTheme } = useAwTheme();
-  const [reduceMotion, setReduceMotion] = useState(false);
   const [density, setDensity] = useState<DensityPreference>("comfortable");
-  const [weekStart, setWeekStart] = useState<WeekStartPreference>("monday");
-  const [focusHints, setFocusHints] = useState(true);
-  const [openInNewTab, setOpenInNewTab] = useState(false);
+  const [language, setLanguage] = useState("pt-BR");
+  const [timezone, setTimezone] = useState("America/Sao_Paulo");
+  const [savedRegion, setSavedRegion] = useState({
+    language: "pt-BR",
+    timezone: "America/Sao_Paulo",
+  });
+  const regionDirty =
+    language !== savedRegion.language || timezone !== savedRegion.timezone;
 
   return (
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
@@ -85,74 +110,51 @@ export default function AppearanceSettingsPage() {
           <PreferenceSectionTitle
             icon="language"
             title="Região"
-            description="Idioma, calendário e formatos usados em listas e relatórios."
+            description="Idioma da plataforma e fuso horário."
           />
 
-          <AwField label="Idioma da interface">
-            <div className="flex items-center justify-between gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-3 py-2.5">
-              <span className="inline-flex items-center gap-2 body-sm text-(--fg-primary)">
-                <Icon name="language" size={16} className="text-(--fg-tertiary)" />
-                Português (Brasil)
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-(--bg-raised) px-2 py-0.5 body-xs text-(--fg-tertiary)">
-                Mais idiomas em breve
-              </span>
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <AwField label="Idioma da plataforma">
+              <AwDropdownMenu
+                trigger={
+                  <AwSelect className="w-full">
+                    {labelOf(LANGUAGES, language)}
+                  </AwSelect>
+                }
+                items={LANGUAGES.map((l) => ({
+                  id: l.value,
+                  label: l.label,
+                  onSelect: () => setLanguage(l.value),
+                }))}
+              />
+            </AwField>
+            <AwField label="Fuso horário">
+              <AwDropdownMenu
+                trigger={
+                  <AwSelect className="w-full">
+                    {labelOf(TIMEZONES, timezone)}
+                  </AwSelect>
+                }
+                items={TIMEZONES.map((t) => ({
+                  id: t.value,
+                  label: t.label,
+                  onSelect: () => setTimezone(t.value),
+                }))}
+              />
+            </AwField>
+          </div>
+
+          {regionDirty && (
+            <div className="mt-4 flex justify-end">
+              <AwButton
+                size="sm"
+                variant="primary"
+                onClick={() => setSavedRegion({ language, timezone })}
+              >
+                Salvar
+              </AwButton>
             </div>
-          </AwField>
-
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <PreferenceChoice
-              icon="calendar_view_week"
-              title="Semana começa na segunda"
-              description="Calendários e relatórios seguem o padrão comercial."
-              active={weekStart === "monday"}
-              onClick={() => setWeekStart("monday")}
-            />
-            <PreferenceChoice
-              icon="event"
-              title="Semana começa no domingo"
-              description="Use quando sua operação acompanha esse calendário."
-              active={weekStart === "sunday"}
-              onClick={() => setWeekStart("sunday")}
-            />
-          </div>
-        </section>
-
-        <section className="py-6">
-          <PreferenceSectionTitle
-            icon="tune"
-            title="Comportamento"
-            description="Pequenos ajustes que deixam o produto mais previsível no uso diário."
-          />
-
-          <div className="mt-2 flex flex-col divide-y divide-(--border-subtle)">
-            <AwToggleRow
-              title="Realçar foco do teclado"
-              description="Mostra estados de foco mais visíveis ao navegar com Tab."
-              checked={focusHints}
-              onChange={setFocusHints}
-            />
-            <AwToggleRow
-              title="Abrir atalhos em nova aba"
-              description="Mantém a página atual quando você abre relatórios, conversas e detalhes."
-              checked={openInNewTab}
-              onChange={setOpenInNewTab}
-            />
-          </div>
-        </section>
-
-        <section className="py-6">
-          <PreferenceSectionTitle
-            icon="accessibility_new"
-            title="Acessibilidade"
-            description="Preferências para reduzir movimento e tornar interações mais calmas."
-          />
-          <AwToggleRow
-            title="Reduzir movimento"
-            description="Reduz transições e movimentos de fundo."
-            checked={reduceMotion}
-            onChange={setReduceMotion}
-          />
+          )}
         </section>
       </div>
     </div>
