@@ -3,9 +3,8 @@
 import * as React from "react";
 import { Reorder, useDragControls } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
-import { AwModal } from "@/components/ui/AwModal";
+import { AwDropdownMenu, type AwDropdownItem } from "@/components/ui/AwDropdownMenu";
 import { Icon } from "@/components/ui/Icon";
 import { AddWidgetCard, type AddableWidget } from "./AddWidgetCard";
 
@@ -20,12 +19,11 @@ import { AddWidgetCard, type AddableWidget } from "./AddWidgetCard";
 
 export type Span = 1 | 2;
 
-/** Controles de chrome injetados em cada widget (arrastar + redimensionar +
- *  remover da visualização). */
+/** Controles de chrome injetados em cada widget: a alça de arraste (só no modo
+ *  de reorganização) e o menu de opções (⋮) sempre visível no header. */
 export type WidgetChrome = {
-  dragHandle: React.ReactNode;
-  resizeButton: React.ReactNode;
-  removeButton?: React.ReactNode;
+  dragHandle?: React.ReactNode;
+  menu?: React.ReactNode;
 };
 
 export type BoardWidget = {
@@ -174,21 +172,24 @@ export function DraggableBoard({
   hidden,
   onRemove,
   onAdd,
+  onEdit,
 }: {
   widgets: BoardWidget[];
   order: string[];
   setOrder: (next: string[]) => void;
   spans: Record<string, Span>;
   toggleSpan: (id: string) => void;
-  /** Arrastar/redimensionar só liga no modo de edição (botão "Editar"). */
+  /** O arraste (reordenar) só liga no modo de reorganização. */
   editing?: boolean;
   /** Ids removidos da visualização — não renderizam. */
   hidden?: Set<string>;
-  /** Remove um widget da visualização atual (mostra o ícone no header). */
+  /** Remove um widget da visualização atual (item "Remover" do menu do card). */
   onRemove?: (id: string) => void;
   /** Re-exibe um widget escondido — alimenta o card "Adicionar gráfico" no fim
    *  do board. Quando passado, o card-placeholder é sempre renderizado. */
   onAdd?: (id: string) => void;
+  /** Entra no modo de reorganização (arraste) — item "Reorganizar painel". */
+  onEdit?: () => void;
 }) {
   const byId = React.useMemo(
     () => new Map(widgets.map((w) => [w.id, w])),
@@ -214,6 +215,40 @@ export function DraggableBoard({
         .map((w) => ({ id: w.id, label: w.label ?? w.id, icon: w.icon ?? "insert_chart" }))
     : [];
 
+  const items = ordered.map((w) => (
+    <BoardItem
+      key={w.id}
+      widget={w}
+      span={spans[w.id] ?? w.span}
+      onToggleSpan={() => toggleSpan(w.id)}
+      editing={editing}
+      onRemove={onRemove ? () => onRemove(w.id) : undefined}
+      onEdit={onEdit}
+      constraintsRef={boardRef}
+    />
+  ));
+  // Último item do board: placeholder tracejado pra readicionar um gráfico
+  // escondido. Some quando todos já estão no painel (pedido do Greg).
+  const addCard =
+    onAdd && available.length > 0 ? (
+      <AddWidgetCard available={available} onAdd={onAdd} />
+    ) : null;
+
+  // Fora do modo de reorganização o board é um grid CSS puro — sem o Reorder do
+  // framer-motion. O Reorder é 1D e, num grid de 2 colunas, dispara animação de
+  // layout (FLIP com transform + z-index) sempre que um card muda de altura (ex.:
+  // expandir uma linha da tabela de Detalhamento): os cards vizinhos ganham
+  // transform + z-index e um "sobe por cima" do outro. Sem arraste, o grid reflui
+  // sozinho. O Reorder só entra no modo de edição, quando de fato há arraste.
+  if (!editing) {
+    return (
+      <div ref={boardRef} className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        {items}
+        {addCard}
+      </div>
+    );
+  }
+
   return (
     <Reorder.Group
       as="div"
@@ -227,22 +262,8 @@ export function DraggableBoard({
       }}
       className="grid grid-cols-1 gap-5 lg:grid-cols-2"
     >
-      {ordered.map((w) => (
-        <BoardItem
-          key={w.id}
-          widget={w}
-          span={spans[w.id] ?? w.span}
-          onToggleSpan={() => toggleSpan(w.id)}
-          editing={editing}
-          onRemove={onRemove ? () => onRemove(w.id) : undefined}
-          constraintsRef={boardRef}
-        />
-      ))}
-      {/* Último item do board: placeholder tracejado pra adicionar um gráfico
-          escondido de volta. Fica fora do Reorder (não é arrastável). Some
-          quando todos os gráficos já estão no painel (pedido do Greg) — sem o
-          estado desabilitado "Todos já estão no painel". */}
-      {onAdd && available.length > 0 && <AddWidgetCard available={available} onAdd={onAdd} />}
+      {items}
+      {addCard}
     </Reorder.Group>
   );
 }
@@ -253,6 +274,7 @@ function BoardItem({
   onToggleSpan,
   editing,
   onRemove,
+  onEdit,
   constraintsRef,
 }: {
   widget: BoardWidget;
@@ -260,17 +282,20 @@ function BoardItem({
   onToggleSpan: () => void;
   editing: boolean;
   onRemove?: () => void;
+  /** Entra no modo de reorganização (arraste) a partir do menu do card. */
+  onEdit?: () => void;
   /** Área do board: limita o arrasto pra o card não escapar pra fora da tela. */
   constraintsRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const controls = useDragControls();
   const [dragging, setDragging] = React.useState(false);
-  const [confirmRemove, setConfirmRemove] = React.useState(false);
 
+  // Alça de arraste — só no modo de reorganização (arrastar é um modo, não um
+  // item de menu). Fora dele, reordenar entra pelo item "Reorganizar painel".
   const dragHandle = editing ? (
     <button
       type="button"
-      aria-label="Arrastar widget"
+      aria-label="Arrastar gráfico"
       onPointerDown={(e) => {
         e.preventDefault();
         controls.start(e);
@@ -281,36 +306,36 @@ function BoardItem({
     </button>
   ) : undefined;
 
-  // Resize só faz sentido onde o grid tem 2 colunas (lg+); abaixo disso tudo já
-  // é largura cheia, então o botão fica oculto.
-  const resizeButton = editing ? (
-    <button
-      type="button"
-      aria-label={span === 2 ? "Reduzir para meia largura" : "Expandir para largura total"}
-      title={span === 2 ? "Meia largura" : "Largura total"}
-      onClick={onToggleSpan}
-      className="hidden h-8 w-8 items-center justify-center rounded-md text-(--fg-tertiary) transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-primary) lg:inline-flex"
-    >
-      <Icon name={span === 2 ? "close_fullscreen" : "open_in_full"} size={16} />
-    </button>
-  ) : undefined;
+  // Menu de opções (⋮) SEMPRE visível no header: largura, reorganizar e remover.
+  // É o caminho pra tirar/ajustar um gráfico sem entrar num modo — remover é
+  // imediato (reversível pelo banner "Restaurar") e já deixa o relatório "editado".
+  const menu = (
+    <WidgetMenu
+      widgetLabel={widget.label}
+      span={span}
+      onToggleSpan={onToggleSpan}
+      onReorganize={editing ? undefined : onEdit}
+      onRemove={onRemove}
+    />
+  );
 
-  // "Excluir este gráfico do painel" — terceiro ícone do chrome do header. Ícone
-  // de LIXEIRA + modal de confirmação (pedido do Greg, no lugar do antigo olho).
-  // Visível só no MODO DE EDIÇÃO. Não apaga nada permanente: oculta o widget desta
-  // visualização (o snapshot do relatório guarda) e dá pra readicionar pelo card
-  // "Adicionar gráfico".
-  const removeButton = editing && onRemove ? (
-    <button
-      type="button"
-      aria-label="Excluir gráfico do painel"
-      title="Excluir do painel"
-      onClick={() => setConfirmRemove(true)}
-      className="inline-flex h-8 w-8 items-center justify-center rounded-md text-(--fg-tertiary) transition-all duration-aw-fast hover:bg-(--bg-hover) hover:text-(--accent-danger)"
+  const inner = (
+    <div
+      className={cn(
+        "group/widget h-full rounded-2xl transition-shadow duration-aw-fast",
+        editing && "ring-1 ring-(--border-default) ring-offset-2 ring-offset-(--bg-canvas)",
+        dragging && "shadow-lg",
+      )}
     >
-      <Icon name="delete" size={16} />
-    </button>
-  ) : undefined;
+      {widget.render({ dragHandle, menu })}
+    </div>
+  );
+
+  // Fora do modo de reorganização: div simples no grid (sem Reorder), pra o grid
+  // refluir sem transform/FLIP quando um card muda de altura (ex.: tabela expande).
+  if (!editing) {
+    return <div className={cn("min-w-0", span === 2 && "lg:col-span-2")}>{inner}</div>;
+  }
 
   return (
     <Reorder.Item
@@ -322,57 +347,87 @@ function BoardItem({
       dragElastic={0.12}
       onDragStart={() => setDragging(true)}
       onDragEnd={() => setDragging(false)}
-      whileDrag={editing ? { scale: 1.01, zIndex: 30 } : undefined}
+      whileDrag={{ scale: 1.01, zIndex: 30 }}
       className={cn(
         "min-w-0",
         span === 2 && "lg:col-span-2",
         dragging && "relative z-30",
       )}
     >
-      <div
-        className={cn(
-          "group/widget h-full rounded-2xl transition-shadow duration-aw-fast",
-          editing && "ring-1 ring-(--border-default) ring-offset-2 ring-offset-(--bg-canvas)",
-          dragging && "shadow-lg",
-        )}
-      >
-        {widget.render({ dragHandle, resizeButton, removeButton })}
-      </div>
-
-      <AwModal
-        open={confirmRemove}
-        onClose={() => setConfirmRemove(false)}
-        title="Excluir gráfico?"
-        footer={
-          <>
-            <AwButton size="sm" variant="ghost" onClick={() => setConfirmRemove(false)}>
-              Cancelar
-            </AwButton>
-            <AwButton
-              size="sm"
-              variant="danger"
-              iconLeft="delete"
-              onClick={() => {
-                onRemove?.();
-                setConfirmRemove(false);
-              }}
-            >
-              Excluir
-            </AwButton>
-          </>
-        }
-      >
-        <p className="m-0 body-sm text-(--fg-secondary) text-pretty">
-          Tirar{" "}
-          {widget.label ? (
-            <strong className="font-medium text-(--fg-primary)">“{widget.label}”</strong>
-          ) : (
-            "este gráfico"
-          )}{" "}
-          do painel? Você pode adicionar de volta depois pelo card “Adicionar gráfico”.
-        </p>
-      </AwModal>
+      {inner}
     </Reorder.Item>
+  );
+}
+
+/* ---------- menu de opções (⋮) do card ---------- */
+
+/**
+ * Menu de opções sempre visível no header de cada gráfico. Reúne largura,
+ * reorganizar e remover — o caminho pra tirar/ajustar um card SEM entrar no modo
+ * de edição. A remoção é imediata (não destrói nada: o snapshot guarda e o banner
+ * "Restaurar" desfaz), e já marca o relatório como editado.
+ *
+ * Passe só os handlers que fazem sentido: um card fixo (ex.: "Uso total no
+ * período") recebe apenas `onRemove`, então o menu vira uma ação única.
+ */
+export function WidgetMenu({
+  widgetLabel,
+  span,
+  onToggleSpan,
+  onReorganize,
+  onRemove,
+}: {
+  widgetLabel?: string;
+  span?: Span;
+  onToggleSpan?: () => void;
+  onReorganize?: () => void;
+  onRemove?: () => void;
+}) {
+  const items: AwDropdownItem[] = [];
+  if (onToggleSpan) {
+    items.push({
+      id: "span",
+      label: span === 2 ? "Meia largura" : "Largura total",
+      icon: span === 2 ? "close_fullscreen" : "open_in_full",
+      onSelect: onToggleSpan,
+    });
+  }
+  if (onReorganize) {
+    items.push({
+      id: "reorg",
+      label: "Reorganizar painel",
+      icon: "drag_indicator",
+      onSelect: onReorganize,
+    });
+  }
+  if (onRemove) {
+    if (items.length > 0) items.push({ id: "sep", separator: true });
+    items.push({
+      id: "remove",
+      label: "Remover do painel",
+      icon: "delete",
+      danger: true,
+      onSelect: onRemove,
+    });
+  }
+  if (items.length === 0) return null;
+
+  const label = widgetLabel ? `Opções de “${widgetLabel}”` : "Opções do gráfico";
+  return (
+    <AwDropdownMenu
+      align="end"
+      aria-label={label}
+      trigger={
+        <button
+          type="button"
+          aria-label={label}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-(--fg-tertiary) transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+        >
+          <Icon name="more_vert" size={18} />
+        </button>
+      }
+      items={items}
+    />
   );
 }
 
@@ -384,8 +439,7 @@ export function WidgetShell({
   description,
   actions,
   dragHandle,
-  resizeButton,
-  removeButton,
+  menu,
   children,
   contentClassName,
   variant = "default",
@@ -395,8 +449,7 @@ export function WidgetShell({
   description?: React.ReactNode;
   actions?: React.ReactNode;
   dragHandle?: React.ReactNode;
-  resizeButton?: React.ReactNode;
-  removeButton?: React.ReactNode;
+  menu?: React.ReactNode;
   children: React.ReactNode;
   contentClassName?: string;
   variant?: "default" | "ai-warm";
@@ -425,11 +478,10 @@ export function WidgetShell({
             )}
           </div>
         </div>
-        {(actions || resizeButton || removeButton) && (
+        {(actions || menu) && (
           <div className="flex shrink-0 items-center gap-1.5">
             {actions}
-            {resizeButton}
-            {removeButton}
+            {menu}
           </div>
         )}
       </div>

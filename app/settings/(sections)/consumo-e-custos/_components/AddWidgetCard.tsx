@@ -112,7 +112,7 @@ export function AddWidgetCard({
                 Todos os gráficos já estão no painel
               </p>
               <p className="m-0 body-xs text-(--fg-tertiary)">
-                Remova um gráfico pelo modo de edição para liberá-lo aqui.
+                Remova um gráfico pelo menu de opções do card para trazê-lo de volta aqui.
               </p>
             </div>
           </div>

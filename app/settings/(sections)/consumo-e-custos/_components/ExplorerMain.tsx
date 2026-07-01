@@ -81,7 +81,7 @@ export function ExplorerMain() {
     () => [
       { id: "consumo", span: 2, label: "Uso por dia", icon: "bar_chart", render: (c) => <ConsumoChartWidget {...c} /> },
       { id: "composicao", span: 1, label: "Composição do período", icon: "donut_small", render: (c) => <ComposicaoWidget {...c} /> },
-      { id: "usado-cobrado", span: 1, label: "Uso do período", icon: "sync_alt", render: (c) => <UsadoCobradoWidget {...c} /> },
+      { id: "usado-cobrado", span: 1, label: "Custo Aswork × Meta por dia", icon: "sync_alt", render: (c) => <UsadoCobradoWidget {...c} /> },
       { id: "provedor", span: 1, label: "Valor atribuído ao provedor", icon: "account_balance", render: (c) => <ProvedorWidget {...c} /> },
       { id: "detalhamento", span: 2, label: "Detalhamento", icon: "table_rows", render: (c) => <DetalhamentoWidget {...c} /> },
     ],
@@ -138,6 +138,7 @@ export function ExplorerMain() {
             hidden={hiddenWidgets}
             onRemove={toggleWidgetHidden}
             onAdd={toggleWidgetHidden}
+            onEdit={startEdit}
           />
         </div>
       </div>
@@ -168,13 +169,13 @@ function Toolbar({
         <div className="flex shrink-0 items-center gap-2.5">
           <span className="inline-flex items-center gap-1.5 body-xs font-medium text-(--accent-brand)">
             <Icon name="dashboard_customize" size={16} />
-            Editando layout
+            Reorganizando painel
           </span>
           <AwButton size="sm" variant="ghost" onClick={onCancel}>
             Cancelar
           </AwButton>
           <AwButton size="sm" variant="primary" iconLeft="check" onClick={onSave}>
-            Salvar
+            Concluir
           </AwButton>
         </div>
       ) : (
@@ -428,17 +429,18 @@ function AgentFilterPill({ agents, onClear }: { agents: ComparedAgent[]; onClear
 }
 
 function SaveReportButton() {
-  const { activeReport, isReportDirty, updateActiveReport } = useConsumo();
+  const { activeReport, isReportDirty, isDraft, updateActiveReport } = useConsumo();
   const { openSave } = useReportsUI();
 
-  // Com relatório ativo, "Salvar" atualiza o snapshot direto (sem perguntar
-  // nome, como o Greg pediu); sem alterações, vira um "Salvo" passivo. Sem
-  // relatório ativo, abre o modal pra nomear e criar.
+  // Relatório ativo: com mudanças, "Salvar" fica PRIMÁRIO — a interface já
+  // entende que você editou (ex.: removeu um gráfico) — e grava o snapshot
+  // direto; sem mudanças, vira um "Salvo" passivo com check.
   if (activeReport) {
     return (
       <AwButton
         type="button"
-        variant="ghost"
+        variant={isReportDirty ? "primary" : "ghost"}
+        iconLeft={isReportDirty ? undefined : "check"}
         onClick={() => {
           if (isReportDirty) updateActiveReport();
         }}
@@ -454,12 +456,13 @@ function SaveReportButton() {
       </AwButton>
     );
   }
-  // Rascunho aberto por um card: destaca o "Salvar" (primário) pra deixar claro
-  // que nada está guardado ainda. Exploração avulsa segue discreta (secundário).
+  // Rascunho aberto por um card: "Salvar" PRIMÁRIO, pra deixar claro que nada
+  // está guardado ainda. Exploração avulsa segue discreta (ghost).
   return (
     <AwButton
       type="button"
-      variant="ghost"
+      variant={isDraft ? "primary" : "ghost"}
+      iconLeft={isDraft ? "bookmark_add" : undefined}
       onClick={openSave}
       title="Salvar como relatório"
       className="h-11! shrink-0"
@@ -555,7 +558,7 @@ function SpendHeadline() {
         <AwTrendDelta value={trend} tone="neutral" />
       </div>
       <span className="body-xs text-(--fg-tertiary)">
-        {periodLabel} · comparado ao período anterior equivalente
+        {periodLabel} · comparado ao período anterior
       </span>
     </header>
   );

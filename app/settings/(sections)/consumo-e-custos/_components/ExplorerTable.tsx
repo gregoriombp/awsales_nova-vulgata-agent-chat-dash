@@ -64,7 +64,7 @@ function isOutlier(value: number, all: number[]): boolean {
   return median > 0 && value >= median * 2;
 }
 
-export function DetalhamentoWidget({ dragHandle, resizeButton, removeButton }: WidgetChrome) {
+export function DetalhamentoWidget({ dragHandle, menu }: WidgetChrome) {
   const { detailRows, grouping, drill, drillInto, compareAgents, selection, customDays, periodLabel } = useConsumo();
   const [agentDetail, setAgentDetail] = React.useState<AgentBreakdownRow | null>(null);
   const [expandedRows, setExpandedRows] = React.useState<Set<string>>(
@@ -227,8 +227,7 @@ export function DetalhamentoWidget({ dragHandle, resizeButton, removeButton }: W
           : "Consumo por agente no período, em USD e BRL"
       }
       dragHandle={dragHandle}
-      resizeButton={resizeButton}
-      removeButton={removeButton}
+      menu={menu}
     >
       {grouping === "agent" && selectedAgents.size > 0 && (
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-(--border-default) bg-(--bg-muted) px-3 py-2 animate-in fade-in slide-in-from-top-1 duration-200 motion-reduce:animate-none">

@@ -48,7 +48,7 @@ import {
 import { useConsumo, type SeriesTotal } from "./ConsumoContext";
 import { catProviderOf, categoryPayerSplit, PROVIDERS } from "./explorer-model";
 import { SegmentedToggle } from "./controls";
-import { WidgetShell, type WidgetChrome } from "./WidgetBoard";
+import { WidgetShell, WidgetMenu, type WidgetChrome } from "./WidgetBoard";
 
 /* ----------------------------------------------------------------------------
  * Widgets de gráfico do dashboard. Cada um lê o modelo do contexto e oferece
@@ -130,13 +130,14 @@ function payerColorByRank(
 // comparação ficaria ilegível. Atribui por ranking (maior gasto = 1ª cor) pra
 // garantir contraste entre os líderes; cicla se passar de 9. "Outros" fica de
 // fora (cai no colorVar neutro).
+// Sem azul nem roxo aqui de propósito: esses dois ficam reservados pro
+// significado de PAGADOR (azul = Aswork, roxo = Meta) no resto da tela, então
+// usá-los pra agente confundiria as duas leituras.
 const AGENT_CHART_PALETTE = [
-  "var(--aw-blue-500)",
   "var(--aw-amber-500)",
   "var(--aw-emerald-500)",
-  "var(--aw-purple-500)",
-  "var(--aw-pink-500)",
   "var(--aw-teal-500)",
+  "var(--aw-pink-500)",
   "var(--aw-red-500)",
   "var(--aw-lime-500)",
   "var(--aw-slate-500)",
@@ -187,8 +188,7 @@ type ConsumoViz = "bar" | "area" | "line";
 
 export function ConsumoChartWidget({
   dragHandle,
-  resizeButton,
-  removeButton,
+  menu,
 }: WidgetChrome) {
   const { chartModel, chartIds, chartPeriod, grouping, accumulated, metaIncluded } =
     useConsumo();
@@ -238,6 +238,12 @@ export function ConsumoChartWidget({
     [chartModel, chartPeriod, totalDays],
   );
 
+  // "Outros" é o resto agregado, ampliado só pra dominar a leitura da pilha — não
+  // é um valor real. Quando ele está na pilha, o total do dia (soma das barras
+  // exibidas) deixa de bater com o número honesto do topo, então não mostramos um
+  // total fabricado no tooltip, e a fatia "Outros" aparece como proporção.
+  const hasOthers = chartModel.othersLabels.length > 0;
+
   const tooltip = (
     <ChartTooltip
       cursor={{ fill: "var(--bg-hover)" }}
@@ -256,18 +262,25 @@ export function ConsumoChartWidget({
                   <span className="body-xs font-medium text-(--fg-primary)">
                     {label}
                   </span>
-                  <span className="body-xs font-semibold tabular-nums text-(--fg-primary)">
-                    {brl(total)}
-                  </span>
+                  {!hasOthers && (
+                    <span className="body-xs font-semibold tabular-nums text-(--fg-primary)">
+                      {brl(total)}
+                    </span>
+                  )}
                 </div>
                 <span className="text-3xs text-(--fg-tertiary)">
-                  {metaIncluded ? "Total · Aswork + Meta" : "Só valores pagos à Aswork"}
+                  {hasOthers
+                    ? "“Outros” aparece ampliado só pra leitura"
+                    : metaIncluded
+                      ? "Total · Aswork + Meta"
+                      : "Só valores pagos à Aswork"}
                 </span>
               </div>
             );
           }}
           formatter={(value, name) => {
             const cat = categories.find((c) => c.id === name);
+            const isOthers = name === "__others__";
             return (
               <div className="flex w-full items-center justify-between gap-3">
                 <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
@@ -278,9 +291,15 @@ export function ConsumoChartWidget({
                   />
                   {cat?.label ?? String(name)}
                 </span>
-                <span className="body-xs font-medium tabular-nums text-(--fg-primary)">
-                  {brl(Number(value))}
-                </span>
+                {isOthers ? (
+                  <span className="body-xs text-(--fg-tertiary)">
+                    proporção ilustrativa
+                  </span>
+                ) : (
+                  <span className="body-xs font-medium tabular-nums text-(--fg-primary)">
+                    {brl(Number(value))}
+                  </span>
+                )}
               </div>
             );
           }}
@@ -314,8 +333,7 @@ export function ConsumoChartWidget({
       icon="bar_chart"
       description={`${grouping === "service" ? "Por serviço" : "Por agente"} · acumulado ${brl(accumulated)}`}
       dragHandle={dragHandle}
-      resizeButton={resizeButton}
-      removeButton={removeButton}
+      menu={menu}
       actions={
         <VizToggle
           value={viz}
@@ -409,8 +427,7 @@ type ComposicaoViz = "donut" | "bars";
 
 export function ComposicaoWidget({
   dragHandle,
-  resizeButton,
-  removeButton,
+  menu,
 }: WidgetChrome) {
   const { seriesTotals, grouping, accumulated } = useConsumo();
   const [viz, setViz] = React.useState<ComposicaoViz>("donut");
@@ -489,8 +506,7 @@ export function ComposicaoWidget({
       icon="donut_small"
       description={grouping === "service" ? "Participação por serviço / taxa" : "Participação por agente"}
       dragHandle={dragHandle}
-      resizeButton={resizeButton}
-      removeButton={removeButton}
+      menu={menu}
       actions={
         <VizToggle
           value={viz}
@@ -506,6 +522,7 @@ export function ComposicaoWidget({
         <EmptyChart />
       ) : viz === "donut" ? (
         <div className="flex flex-col items-center gap-4 sm:flex-row">
+          <div className="flex shrink-0 flex-col items-center gap-2.5">
           <ChartContainer
             key={viz}
             config={config}
@@ -571,6 +588,29 @@ export function ComposicaoWidget({
               )}
             </PieChart>
           </ChartContainer>
+          {/* Legenda do anel INTERNO: divisão pagador (Aswork × Meta) dentro de
+              cada fatia. Só quando há split — espelha a legenda da visão em barras. */}
+          {splitData.length > 0 && (
+            <div className="flex items-center gap-4 body-xs text-(--fg-tertiary)">
+              <span className="inline-flex items-center gap-1.5">
+                <span
+                  aria-hidden="true"
+                  className="inline-block h-2.5 w-2.5 rounded-full"
+                  style={{ background: PROVIDERS.aswork.colorVar }}
+                />
+                Aswork
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span
+                  aria-hidden="true"
+                  className="inline-block h-2.5 w-2.5 rounded-full"
+                  style={{ background: PROVIDERS.meta.colorVar }}
+                />
+                Meta
+              </span>
+            </div>
+          )}
+          </div>
           <ShareList
             totals={colored}
             total={accumulated}
@@ -801,8 +841,7 @@ function useUsadoSeries() {
 
 export function UsadoCobradoWidget({
   dragHandle,
-  resizeButton,
-  removeButton,
+  menu,
 }: WidgetChrome) {
   const { data, wcTotal, metaTotal, metaIncluded } = useUsadoSeries();
   const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
@@ -815,7 +854,7 @@ export function UsadoCobradoWidget({
 
   return (
     <WidgetShell
-      title="Uso do período"
+      title="Custo Aswork × Meta por dia"
       icon="sync_alt"
       description={
         metaIncluded
@@ -823,8 +862,7 @@ export function UsadoCobradoWidget({
           : `Custo Aswork ${brl(wcTotal)}`
       }
       dragHandle={dragHandle}
-      resizeButton={resizeButton}
-      removeButton={removeButton}
+      menu={menu}
       contentClassName="flex min-h-0 flex-col"
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pb-1">
@@ -915,8 +953,7 @@ export function UsadoCobradoWidget({
 
 export function ProvedorWidget({
   dragHandle,
-  resizeButton,
-  removeButton,
+  menu,
 }: WidgetChrome) {
   const { data, chargedTotal } = useUsadoSeries();
   const provedorConfig: ChartConfig = {
@@ -925,13 +962,15 @@ export function ProvedorWidget({
 
   return (
     <WidgetShell
-      title="Valor atribuído ao provedor de pagamento"
+      title="Valor atribuído ao provedor"
       icon="account_balance"
       description={`Entrou na fatura no período · ${brl(chargedTotal)}`}
       dragHandle={dragHandle}
-      resizeButton={resizeButton}
-      removeButton={removeButton}
+      menu={menu}
     >
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pb-1">
+        <LegendDot color="var(--aw-amber-400)" label="Atribuído ao provedor" />
+      </div>
       <ChartContainer
         config={provedorConfig}
         className="aspect-auto h-[220px] w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
@@ -1033,20 +1072,12 @@ export function GastoTotalCard({ onHide }: { onHide?: () => void } = {}) {
 
   return (
     <WidgetShell
-      title="Uso total no período"
+      title="Evolução do uso"
       icon="show_chart"
       description={`Acumulado · ${brl(accumulated)}`}
-      removeButton={
+      menu={
         onHide ? (
-          <button
-            type="button"
-            aria-label="Ocultar este card"
-            title="Ocultar este card"
-            onClick={onHide}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-(--fg-tertiary) transition-all duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-primary)"
-          >
-            <Icon name="visibility_off" size={16} />
-          </button>
+          <WidgetMenu widgetLabel="Evolução do uso" onRemove={onHide} />
         ) : undefined
       }
       actions={
@@ -1091,7 +1122,7 @@ export function GastoTotalCard({ onHide }: { onHide?: () => void } = {}) {
             },
             {
               id: "meta",
-              label: metaIncluded ? "Meta" : "Meta · desligado na lateral",
+              label: metaIncluded ? "Meta" : "Meta · ative no filtro de destino",
               checked: showMeta,
               disabled: !metaIncluded,
               closeOnSelect: false,
