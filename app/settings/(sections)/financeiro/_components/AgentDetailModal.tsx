@@ -36,8 +36,8 @@ function seedFromId(id: string): number {
 
 /**
  * Modal "Ver detalhes" de um agente — quebra o gasto do período por tipo de
- * cobrança (disparos, leads, mensagens, tokens de IA). O total sempre confere
- * com a linha da tabela. O agente já chega com o total escalado pelo período.
+ * cobrança (disparos, leads, mensagens, tokens de IA). O agente já chega com o
+ * total escalado pelo período.
  */
 export function AgentDetailModal({
   agent,
@@ -156,17 +156,6 @@ export function AgentDetailModal({
               );
             })}
           </ul>
-        </div>
-
-        {/* Reconciliação */}
-        <div className="flex items-center justify-between gap-3 rounded-md bg-(--bg-muted) px-4 py-3">
-          <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
-            <Icon name="check_circle" size={15} className="text-(--accent-success)" />
-            Confere com a linha da tabela
-          </span>
-          <strong className="body-sm tabular-nums text-(--fg-primary)">
-            {brl(agent.total)}
-          </strong>
         </div>
       </div>
     </AwModal>
