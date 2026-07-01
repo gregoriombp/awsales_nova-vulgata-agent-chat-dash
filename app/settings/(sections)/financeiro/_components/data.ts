@@ -68,6 +68,14 @@ export const OVERVIEW_KPIS = {
 // Quando atingido, o montante acumulado é cobrado automaticamente.
 export const VARIABLE_SPENDING_LIMIT = 1500;
 
+// Modelo de cobrança do uso variável.
+//  "prepaid"  → conta com teto: mostra "Limite de uso antes da cobrança" + a
+//               barra de uso, e cobra automático ao atingir o limite.
+//  "postpaid" → conta com linha de crédito: sem teto ("Ilimitado"), cobrada na
+//               data acordada do ciclo.
+// Troque pra "postpaid" pra ver a variante pós-paga do card de consumo.
+export const BILLING_MODE: "prepaid" | "postpaid" = "prepaid";
+
 // Linha telefônica — custo fixo mensal que acompanha o plano (quando a
 // organização tem um número provisionado). Entra no detalhamento como um
 // item que abre dentro do plano fixo e soma ao total. 0 = "não tem".
@@ -1603,25 +1611,109 @@ export function voucherStatusVariant(status: VoucherStatus): AwPillVariant {
   }
 }
 
+/** Onde o cupom incide. */
+export type CouponScope = "Plano fixo" | "Tokens" | "Leads ativos" | "Disparos";
+export type CouponStatus = "Ativo" | "Encerrado" | "Agendado" | "Aplicado";
+
 export type CouponRow = {
   id: string;
   code: string;
   description: string;
+  /** O que o cupom desconta (plano fixo ou um serviço variável específico). */
+  scope: CouponScope;
+  /** Magnitude percentual (ex.: 20 → "−20%"). Ausente em cupom de valor fixo. */
+  percent?: number;
+  /** Termo em ciclos: 1 = uma única vez; N = recorrente por N meses;
+   *  0 = recorrente sem fim definido. */
+  cyclesTotal: number;
+  /** Ciclos já aplicados (>= cyclesTotal num cupom finito ⇒ encerrado). */
+  cyclesUsed: number;
+  status: CouponStatus;
+  /** Economia acumulada — soma do que já foi descontado em todos os ciclos. */
   discount: number;
-  application: string;
+  /** Fatura de origem / mais recente. */
   invoiceId: string;
+  /** Data da 1ª aplicação. */
   appliedAt: string;
 };
 
 export const COUPONS_APPLIED: CouponRow[] = [
   {
+    id: "c-plano-anual",
+    code: "PLANO20",
+    description: "Desconto anual no plano",
+    scope: "Plano fixo",
+    percent: 20,
+    cyclesTotal: 12,
+    cyclesUsed: 6,
+    status: "Ativo",
+    discount: 2997.0,
+    invoiceId: "INV-2026-05-PLN",
+    appliedAt: "01/01/2026",
+  },
+  {
+    id: "c-plano-4m",
+    code: "BEMVINDO4",
+    description: "Boas-vindas — 4 meses",
+    scope: "Plano fixo",
+    percent: 10,
+    cyclesTotal: 4,
+    cyclesUsed: 2,
+    status: "Ativo",
+    discount: 499.6,
+    invoiceId: "INV-2026-05-PLN",
+    appliedAt: "01/03/2026",
+  },
+  {
+    id: "c-tokens",
+    code: "TOKENS15",
+    description: "Desconto em tokens",
+    scope: "Tokens",
+    percent: 15,
+    cyclesTotal: 0,
+    cyclesUsed: 3,
+    status: "Ativo",
+    discount: 312.4,
+    invoiceId: "INV-2026-05-PLN",
+    appliedAt: "10/03/2026",
+  },
+  {
+    id: "c-leads",
+    code: "LEADS10",
+    description: "Desconto em leads ativos",
+    scope: "Leads ativos",
+    percent: 10,
+    cyclesTotal: 0,
+    cyclesUsed: 2,
+    status: "Ativo",
+    discount: 148.0,
+    invoiceId: "INV-2026-05-PLN",
+    appliedAt: "02/04/2026",
+  },
+  {
     id: "c-onboard",
     code: "ONBOARD",
     description: "Bônus onboarding",
+    scope: "Plano fixo",
+    cyclesTotal: 1,
+    cyclesUsed: 1,
+    status: "Aplicado",
     discount: 482.3,
-    application: "Uma única vez",
     invoiceId: "INV-2026-01-PLN",
     appliedAt: "11/01/2026",
+  },
+  {
+    id: "c-plano-anterior",
+    code: "ANUAL25",
+    description: "Plano fixo — ciclo anterior",
+    scope: "Plano fixo",
+    percent: 25,
+    cyclesTotal: 12,
+    cyclesUsed: 12,
+    status: "Encerrado",
+    discount: 5994.0,
+    invoiceId: "INV-2025-12-PLN",
+    appliedAt: "01/01/2025",
   },
 ];
 
@@ -1643,6 +1735,19 @@ export type AuditEvent = {
 };
 
 export const AUDIT_EVENTS: AuditEvent[] = [
+  {
+    // A própria Aswork (organização) como ator: atribui um crédito à conta do
+    // cliente. Avatar = símbolo da marca (ActorAvatar trata executor "Aswork"),
+    // ator = "Aswork", com o valor do crédito. Pedido do Genê/Greg (cmt-7437d212).
+    id: "a-0",
+    date: "11/05/2026",
+    time: "15:10",
+    executor: "Aswork",
+    actor: "Aswork",
+    type: "Crédito",
+    action: "atribuiu um crédito à conta",
+    meta: "Crédito de cortesia · R$ 500 · vigente até 31/07",
+  },
   {
     id: "a-1",
     date: "11/05/2026",

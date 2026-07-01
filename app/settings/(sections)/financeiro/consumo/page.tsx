@@ -56,10 +56,6 @@ function formatShort(d: Date): string {
   return `${MONTHS_PT[d.getMonth()]} ${String(d.getDate()).padStart(2, "0")}, ${d.getFullYear()}`;
 }
 
-function formatExpiry(br: string): string {
-  return formatShort(parseBR(br));
-}
-
 /* -----------------------------------------------------------------
  * Page — Saldo de créditos. Resumo (3 KPIs) → vouchers → cupons.
  * O consumo variável × limite mora na aba "Visão geral"; aqui o foco
@@ -116,12 +112,14 @@ function CreditsKpis() {
       <AwStatCard
         label="Economia acumulada"
         value={brl(CREDITS_KPIS.totalSaved)}
-        hint="Lifetime da conta · cupons + créditos já abatidos"
+        hint="Total economizado na conta com créditos e cupons já abatidos."
+        info="Economia total acumulada desde a criação da conta — soma de créditos, cupons e benefícios já aplicados para reduzir o plano, o uso variável ou serviços específicos, conforme a regra de cada um."
       />
       <AwStatCard
-        label="Desconto disponível"
+        label="Créditos disponíveis"
         value={brl(CREDITS_KPIS.availableDiscount)}
-        hint="Saldo de créditos ativos a abater"
+        hint="Saldo de créditos ativos ainda disponível para abatimento."
+        info="Saldo de créditos ativos que a conta ainda pode usar. Podem vir de bônus, compensações, promoções ou acordos comerciais, e são abatidos conforme a validade e a regra de cada crédito."
       />
     </div>
   );
@@ -130,8 +128,8 @@ function CreditsKpis() {
 function CreditInfoTooltip({ kind }: { kind: "voucher" | "coupon" }) {
   const text =
     kind === "voucher"
-      ? "Crédito concedido pela Aswork para abater custos variáveis e taxas de uso da plataforma até a validade — não muda o limite."
-      : "Cupom é um código promocional aplicado pela sua equipe de conta. Pode abater uma ou mais cobranças fixas do plano, conforme a regra do cupom.";
+      ? "Créditos são saldos concedidos à conta para reduzir valores elegíveis do uso variável — mensagens, tokens, disparos, telefone ou leads ativos. Podem vir de bônus, compensações, promoções ou acordos comerciais, e cada um tem suas próprias regras de aplicação, validade e serviços cobertos."
+      : "Cupons aplicam descontos a cobranças específicas da conta — podem reduzir valores fixos, como o plano ou a linha telefônica, ou abater serviços variáveis. Cada cupom segue sua própria regra de aplicação, período e elegibilidade.";
   return (
     <TooltipProvider delayDuration={120}>
       <Tooltip>
@@ -182,7 +180,8 @@ function VouchersBlock({
           <CreditInfoTooltip kind="voucher" />
         </h6>
         <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
-          Abatem do seu uso variável até a validade.
+          Abatem valores elegíveis do seu uso variável, conforme as regras e a
+          validade de cada crédito.
         </p>
       </header>
 
@@ -242,31 +241,6 @@ function voucherStatusHint(status: VoucherStatus): string {
   }
 }
 
-function VoucherInfoTip({ v }: { v: VoucherRow }) {
-  return (
-    <TooltipProvider delayDuration={120}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            aria-label={`Sobre ${v.description}`}
-            className="inline-flex text-(--fg-tertiary) hover:text-(--fg-secondary)"
-          >
-            <Icon name="info" size={14} />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent
-          side="top"
-          className="max-w-[260px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
-        >
-          Crédito da Aswork ({v.status.toLowerCase()}). Aplica em{" "}
-          {v.applicableTo}. Válido até {formatExpiry(v.expiresAt)}.
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
-
 function VoucherRowItem({
   v,
   onOpenVoucher,
@@ -275,6 +249,7 @@ function VoucherRowItem({
   onOpenVoucher: (id: string) => void;
 }) {
   const pct = v.total > 0 ? Math.round((v.consumed / v.total) * 100) : 0;
+  const remaining = Math.max(v.total - v.consumed, 0);
   const muted = v.status === "Esgotado" || v.status === "Vencido";
   const pending = v.status === "Pendente" && Boolean(v.effectiveAt);
   const year = parseBR(v.expiresAt).getFullYear();
@@ -331,13 +306,12 @@ function VoucherRowItem({
         </Tooltip>
       </TooltipProvider>
 
-      {/* título + subtítulo (coluna estreita pra descrição quebrar em 2 linhas) */}
+      {/* primeira coluna: título + subtítulo + "Ver detalhes" (pedido do Greg
+          cmt-ac828c36 — o link vem pra cá, deixando a linha em duas colunas:
+          identidade à esquerda, métricas à direita). */}
       <div className="flex w-[240px] shrink-0 flex-col gap-0.5">
-        <span className="flex items-center gap-1.5">
-          <span className="truncate body-md font-medium text-(--fg-primary)">
-            {v.description}
-          </span>
-          <VoucherInfoTip v={v} />
+        <span className="truncate body-md font-medium text-(--fg-primary)">
+          {v.description}
         </span>
         <span
           className="line-clamp-2 body-xs text-(--fg-tertiary)"
@@ -345,6 +319,18 @@ function VoucherRowItem({
         >
           {year} · {v.applicableTo}
         </span>
+        <button
+          type="button"
+          onClick={() => onOpenVoucher(v.id)}
+          className="group mt-1.5 inline-flex w-fit items-center gap-1 body-xs font-medium text-(--fg-secondary) transition-colors hover:text-(--fg-primary)"
+        >
+          Ver detalhes
+          <Icon
+            name="arrow_forward"
+            size={14}
+            className="text-(--fg-tertiary) transition-transform group-hover:translate-x-0.5"
+          />
+        </button>
       </div>
 
       {/* barra verde + legenda em duas linhas */}
@@ -361,13 +347,16 @@ function VoucherRowItem({
               <strong className="font-semibold text-(--fg-primary)">
                 {pct}%
               </strong>{" "}
-              <span className="text-(--fg-tertiary)">usados</span>
+              <span className="text-(--fg-tertiary)">usado</span>
             </span>
             <span className="body-xs text-(--fg-tertiary)">{dateLabel}</span>
           </span>
           <span className="flex shrink-0 flex-col items-end text-right leading-tight">
             <span className="body-sm font-semibold tabular-nums text-(--fg-primary)">
-              {brl(v.consumed)}
+              {brl(remaining)}{" "}
+              <span className="font-normal text-(--fg-tertiary)">
+                disponíveis
+              </span>
             </span>
             <span className="body-xs tabular-nums text-(--fg-tertiary)">
               de {brl(v.total)}
@@ -375,25 +364,140 @@ function VoucherRowItem({
           </span>
         </div>
       </div>
-
-      {/* ver detalhes */}
-      <button
-        type="button"
-        onClick={() => onOpenVoucher(v.id)}
-        className="group flex shrink-0 items-center gap-1 body-xs font-medium text-(--fg-secondary) transition-colors hover:text-(--fg-primary)"
-      >
-        Ver detalhes
-        <Icon
-          name="arrow_forward"
-          size={14}
-          className="text-(--fg-tertiary) transition-transform group-hover:translate-x-0.5"
-        />
-      </button>
     </li>
   );
 }
 
-/* ---------- cupons (impacto no plano fixo) ---------- */
+/* ---------- cupons (impacto no plano fixo / serviços) ---------- */
+
+/** Variante do AwPill por status do cupom. */
+function couponStatusVariant(status: CouponRow["status"]) {
+  switch (status) {
+    case "Ativo":
+      return "live" as const;
+    case "Aplicado":
+      return "info" as const;
+    case "Agendado":
+      return "draft" as const;
+    case "Encerrado":
+      return "neutral" as const;
+  }
+}
+
+/** Benefício do cupom: magnitude (−X% ou Bônus) + escopo como chip. */
+function CouponBenefit({ c }: { c: CouponRow }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <span className="font-medium tabular-nums text-(--fg-primary)">
+        {c.percent != null ? `−${c.percent}%` : "Bônus"}
+      </span>
+      <AwPill variant="neutral" dot={false}>
+        {c.scope}
+      </AwPill>
+    </span>
+  );
+}
+
+/** Período do cupom: uma única vez, recorrente, ou progresso de ciclos
+ *  ("Mês 6 de 12" com barrinha) pros multi-ciclo. */
+function CouponPeriod({ c }: { c: CouponRow }) {
+  if (c.cyclesTotal === 1) {
+    return <span className="body-xs text-(--fg-tertiary)">Uma única vez</span>;
+  }
+  if (c.cyclesTotal === 0) {
+    return <span className="body-xs text-(--fg-tertiary)">Recorrente</span>;
+  }
+  const used = Math.min(c.cyclesUsed, c.cyclesTotal);
+  const pct = Math.round((used / c.cyclesTotal) * 100);
+  const done = used >= c.cyclesTotal;
+  return (
+    <span className="flex w-[120px] flex-col gap-1">
+      <span className="body-xs tabular-nums text-(--fg-secondary)">
+        Mês {used} de {c.cyclesTotal}
+      </span>
+      <span className="h-1 w-full overflow-hidden rounded-full bg-(--bg-muted)">
+        <span
+          className="block h-full rounded-full"
+          style={{
+            width: `${pct}%`,
+            background: done ? "var(--fg-tertiary)" : "var(--aw-emerald-500)",
+          }}
+        />
+      </span>
+    </span>
+  );
+}
+
+/** Tabela de cupons — usada na lista ativa e no histórico (encerrados). */
+function CouponsTable({
+  rows,
+  onOpenInvoice,
+}: {
+  rows: CouponRow[];
+  onOpenInvoice: (id: string) => void;
+}) {
+  return (
+    <AwTable>
+      <thead>
+        <tr>
+          <th>Cupom</th>
+          <th>Benefício</th>
+          <th>Período</th>
+          <th>Status</th>
+          <th className="text-right">Economia</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((c) => {
+          const invoiceExists = INVOICE_HISTORY.some((r) => r.id === c.invoiceId);
+          return (
+            <tr key={c.id}>
+              <td>
+                <span className="flex flex-col">
+                  <span className="font-medium text-(--fg-primary)">{c.code}</span>
+                  <span className="body-xs text-(--fg-tertiary)">
+                    {c.description}
+                  </span>
+                </span>
+              </td>
+              <td>
+                <CouponBenefit c={c} />
+              </td>
+              <td>
+                <CouponPeriod c={c} />
+              </td>
+              <td>
+                <AwPill variant={couponStatusVariant(c.status)} dot={false}>
+                  {c.status}
+                </AwPill>
+              </td>
+              <td className="text-right">
+                <span className="flex flex-col items-end leading-tight">
+                  <span className="font-medium tabular-nums text-(--accent-success)">
+                    −{brl(c.discount)}
+                  </span>
+                  {invoiceExists ? (
+                    <button
+                      type="button"
+                      onClick={() => onOpenInvoice(c.invoiceId)}
+                      className="body-xs font-medium text-(--fg-tertiary) underline decoration-dotted underline-offset-2 hover:text-(--fg-primary) hover:no-underline"
+                    >
+                      {c.invoiceId}
+                    </button>
+                  ) : (
+                    <span className="body-xs tabular-nums text-(--fg-tertiary)">
+                      {c.invoiceId}
+                    </span>
+                  )}
+                </span>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </AwTable>
+  );
+}
 
 function CouponsBlock({
   coupons,
@@ -402,14 +506,10 @@ function CouponsBlock({
   coupons: CouponRow[];
   onOpenInvoice: (id: string) => void;
 }) {
-  const sorted = React.useMemo(
-    () =>
-      [...coupons].sort(
-        (a, b) =>
-          parseBR(b.appliedAt).getTime() - parseBR(a.appliedAt).getTime(),
-      ),
-    [coupons],
-  );
+  // Ativos/aplicados/agendados na lista principal; encerrados (multi-ciclo que
+  // já rodou todos os meses) recolhem no Histórico — mesmo padrão dos créditos.
+  const active = coupons.filter((c) => c.status !== "Encerrado");
+  const history = coupons.filter((c) => c.status === "Encerrado");
 
   return (
     <section className="flex flex-col gap-4">
@@ -419,69 +519,29 @@ function CouponsBlock({
           <CreditInfoTooltip kind="coupon" />
         </h6>
         <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
-          Abatem cobranças fixas do plano conforme a regra do cupom.
+          Aplicam descontos no plano fixo ou em serviços específicos (tokens,
+          leads, disparos), conforme a regra de cada cupom.
         </p>
       </header>
 
-      {sorted.length === 0 ? (
+      {active.length === 0 ? (
         <p className="m-0 border-t border-(--border-subtle) py-4 body-xs text-(--fg-tertiary)">
-          Nenhum cupom aplicado.
+          Nenhum cupom ativo.
         </p>
       ) : (
-        <AwTable>
-          <thead>
-            <tr>
-              <th>Código</th>
-              <th>Descrição</th>
-              <th>Aplicação</th>
-              <th>Fatura</th>
-              <th>Data</th>
-              <th className="text-right">Valor descontado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((c) => {
-              const invoiceExists = INVOICE_HISTORY.some(
-                (r) => r.id === c.invoiceId,
-              );
-              return (
-                <tr key={c.id}>
-                  <td className="font-medium text-(--fg-primary)">
-                    <span className="inline-flex items-center gap-2">
-                      {c.code}
-                      <AwPill variant="live" dot={false}>
-                        Aplicado
-                      </AwPill>
-                    </span>
-                  </td>
-                  <td className="text-(--fg-secondary)">{c.description}</td>
-                  <td className="text-(--fg-secondary)">{c.application}</td>
-                  <td>
-                    {invoiceExists ? (
-                      <button
-                        type="button"
-                        onClick={() => onOpenInvoice(c.invoiceId)}
-                        className="font-medium text-(--fg-secondary) underline decoration-dotted underline-offset-2 hover:text-(--fg-primary) hover:no-underline"
-                      >
-                        {c.invoiceId}
-                      </button>
-                    ) : (
-                      <span className="text-(--fg-tertiary)">
-                        {c.invoiceId}
-                      </span>
-                    )}
-                  </td>
-                  <td className="tabular-nums text-(--fg-secondary)">
-                    {formatShort(parseBR(c.appliedAt))}
-                  </td>
-                  <td className="text-right font-medium tabular-nums text-(--accent-success)">
-                    −{brl(c.discount)}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </AwTable>
+        <CouponsTable rows={active} onOpenInvoice={onOpenInvoice} />
+      )}
+
+      {history.length > 0 && (
+        <AwCollapsible
+          size="sm"
+          triggerClassName="font-medium"
+          trigger={`Histórico · ${history.length} encerrado${
+            history.length !== 1 ? "s" : ""
+          }`}
+        >
+          <CouponsTable rows={history} onOpenInvoice={onOpenInvoice} />
+        </AwCollapsible>
       )}
     </section>
   );

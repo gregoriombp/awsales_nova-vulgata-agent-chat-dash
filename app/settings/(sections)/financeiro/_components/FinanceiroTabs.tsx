@@ -23,7 +23,7 @@ export function FinanceiroTabs() {
 
   const tabs: Tab[] = [
     { value: `${BASE}/visao-geral`, label: "Visão geral" },
-    { value: `${BASE}/consumo`, label: "Créditos" },
+    { value: `${BASE}/consumo`, label: "Créditos e Cupons" },
     { value: `${BASE}/metodos-pagamento`, label: "Métodos de pagamento" },
     {
       value: `${BASE}/historico-faturas`,

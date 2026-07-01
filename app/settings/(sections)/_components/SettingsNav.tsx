@@ -147,7 +147,7 @@ export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
         matchPrefixes: ["/settings/financeiro"],
         subRoutes: {
           "visao-geral": "Visão geral",
-          consumo: "Créditos",
+          consumo: "Créditos e Cupons",
           "metodos-pagamento": "Métodos de pagamento",
           "historico-faturas": "Faturas",
           auditoria: "Atividade",
