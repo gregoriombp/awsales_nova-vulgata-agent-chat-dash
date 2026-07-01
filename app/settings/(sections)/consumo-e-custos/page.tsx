@@ -74,7 +74,7 @@ export default function AnalisesDetalhadasPage() {
   return (
     <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-10 px-10 pb-20 pt-12">
       <AwPageHeader
-        size="default"
+        size="display"
         divider={false}
         title="Análises detalhadas"
         description="Monte relatórios do seu consumo e dos seus custos. Escolha um tipo pra começar ou abra um relatório salvo — cada um vira um painel de gráficos que você organiza e guarda."

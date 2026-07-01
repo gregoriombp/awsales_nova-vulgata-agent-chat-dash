@@ -281,7 +281,7 @@ export default function ProfileSettingsPage() {
               </button>
               <div className="flex flex-col gap-2 pt-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="m-0 text-(--fg-primary)">{fullName}</h3>
+                  <h3 className="m-0 display-sm font-medium text-(--fg-primary)">{fullName}</h3>
                   <a
                     href="https://wa.me/5511987654321"
                     target="_blank"

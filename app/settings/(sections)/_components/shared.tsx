@@ -140,7 +140,7 @@ export function SettingsPageHeader({
     <header className="mb-10 flex items-start justify-between gap-6">
       <div className="min-w-0">
         <div className="flex items-center gap-1.5">
-          <h3 className="m-0 text-(--fg-primary)">{title}</h3>
+          <h3 className="m-0 display-sm font-medium text-(--fg-primary)">{title}</h3>
           {info && (
             <TooltipProvider delayDuration={120}>
               <Tooltip>
