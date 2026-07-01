@@ -17,7 +17,6 @@ import {
   brl,
   fmtUsdLabel,
   overviewSpendSeries,
-  selectionTarget,
   selectionLabel,
   selectionLimitEvents,
   DEFAULT_PERIOD,
@@ -202,7 +201,11 @@ export function VariableSpendBreakdown({
     [grouping, selection],
   );
   const cats = OVERVIEW_SPEND_CATEGORIES[grouping];
-  const total = selectionTarget(selection);
+  // Total = soma das categorias visíveis (a Visão geral é fixa no mês atual, sem
+  // escala de período). Deriva das categorias — e não do periodTotal, que é
+  // compartilhado com o explorador e ainda contabiliza o telefone — pra o número
+  // do topo bater com as fatias sem o telefone (cmt-6fdd2425).
+  const total = cats.reduce((s, c) => s + c.total, 0);
   // Marcadores de "Limite restaurado" que caem no recorte — um por ciclo. Nos
   // Últimos 90 dias aparecem os resets de ciclos anteriores também.
   const events = selectionLimitEvents(selection);
@@ -297,8 +300,8 @@ function Header({ onOpenReport }: { onOpenReport: () => void }) {
             <p className="m-0">
               Este painel mostra o uso variável registrado na sua conta durante
               o mês atual. Os valores representam o consumo dos agentes e
-              serviços da plataforma, como mensagens, tokens, disparos, telefone
-              e leads ativos.
+              serviços da plataforma, como mensagens, tokens, disparos e leads
+              ativos.
             </p>
             <p className="m-0">
               Esse total pode ser diferente do valor pago, cobrado ou faturado

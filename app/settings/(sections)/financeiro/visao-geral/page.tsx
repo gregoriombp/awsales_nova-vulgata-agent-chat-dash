@@ -282,7 +282,12 @@ function InvoiceDetailModal({
  * "Uso variável" do detalhamento (mesma fonte de dados). */
 
 function VariableUsageDetail() {
-  const total = SERVICE_BREAKDOWN.reduce((s, r) => s + r.total, 0);
+  // A linha telefônica é custo fixo do plano, não uso variável — fica de fora
+  // deste detalhamento pra a soma fechar com o "Uso variável" da fatura
+  // (cmt-6fdd2425). Filtro local: SERVICE_BREAKDOWN é compartilhado com o
+  // explorador, que mantém o telefone.
+  const rows = SERVICE_BREAKDOWN.filter((r) => r.id !== "linha");
+  const total = rows.reduce((s, r) => s + r.total, 0);
   return (
     <div className="rounded-xl bg-(--bg-surface) px-4 py-1">
       <AwCollapsible
@@ -295,7 +300,7 @@ function VariableUsageDetail() {
         }
       >
         <ul className="m-0 flex list-none flex-col gap-0 p-0 pb-2">
-          {SERVICE_BREAKDOWN.map((row) => (
+          {rows.map((row) => (
             <li
               key={row.id}
               className="flex items-center justify-between gap-3 border-t border-(--border-subtle) py-2 first:border-t-0"

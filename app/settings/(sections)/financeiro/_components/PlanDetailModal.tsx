@@ -6,7 +6,7 @@ import { AwButton } from "@/components/ui/AwButton";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwPlanIcon, type PlanKey } from "@/components/ui/AwPlanIcon";
 import { Icon } from "@/components/ui/Icon";
-import { brl, CURRENT_PLAN } from "./data";
+import { brl, CURRENT_PLAN, PLAN_PHONE_LINE } from "./data";
 
 /**
  * PlanDetailModal — detalhes do plano atual, aberto pelo link discreto no card
@@ -73,6 +73,13 @@ export function PlanDetailModal({
 
         <dl className="m-0 flex flex-col gap-0">
           <DetailRow label="Ciclo de cobrança" value={plan.billingCycle} />
+          {/* Linha telefônica: custo FIXO já embutido na mensalidade do plano —
+              listado aqui pra dar visibilidade ao valor. Não é uso variável, por
+              isso saiu do detalhamento de gasto variável. (cmt-6fdd2425) */}
+          <DetailRow
+            label="Linha telefônica"
+            value={`${brl(PLAN_PHONE_LINE)} / mês · inclusa`}
+          />
           <DetailRow label="Renova em" value={plan.nextChargeAt} />
           <DetailRow label="Cliente desde" value={plan.since} />
         </dl>

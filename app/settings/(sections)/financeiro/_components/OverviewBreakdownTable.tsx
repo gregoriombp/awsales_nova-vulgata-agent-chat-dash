@@ -6,6 +6,12 @@ import { Icon } from "@/components/ui/Icon";
 import { AwTable } from "@/components/ui/AwTable";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { AgentDetailModal } from "./AgentDetailModal";
 import {
   brl,
@@ -38,15 +44,16 @@ const ROW_HOVER =
   "[&_tbody_tr:hover_td:first-child]:!rounded-l-md " +
   "[&_tbody_tr:hover_td:last-child]:!rounded-r-md";
 
-const CYCLE_LABEL = "Ciclo vigente · 01–31 de maio";
+// "Este mês" em vez de "Ciclo vigente": o usuário precisa ler que o recorte é o
+// mês corrente com a data exata, não um jargão de ciclo. (cmt-e7234b9d)
+const CYCLE_LABEL = "Este mês · 01–31 de maio";
 
 /** Apoio curto por serviço — dá contexto sem virar jargão. */
 const SERVICE_DESC: Record<string, string> = {
   disparos: "Disparos de WhatsApp — marketing, utilidade e serviço",
   mensagens: "Mensagens transacionadas pelos agentes",
-  tokens: "Knowledge, Brain e Skills dos agentes",
+  tokens: "Brain, Skills, Knowledge e Cortex dos agentes",
   leads: "Contatos que viraram lead ativo no período",
-  telefone: "Linha telefônica provisionada",
 };
 
 const AGENT_STATUS_VARIANT: Record<AgentBreakdownRow["status"], AwPillVariant> = {
@@ -134,6 +141,7 @@ function ServiceTable({ ratio }: { ratio: number }) {
   const totalBrl = groups.reduce((s, g) => s + g.total, 0);
 
   return (
+    <TooltipProvider delayDuration={120}>
     <AwTable className={ROW_HOVER}>
       <thead>
         <tr>
@@ -186,6 +194,9 @@ function ServiceTable({ ratio }: { ratio: number }) {
                         <span className="truncate font-medium text-(--fg-primary)">
                           {g.label}
                         </span>
+                        {g.tooltip && (
+                          <InfoTip text={g.tooltip} label={`O que é ${g.label}`} />
+                        )}
                       </span>
                       {SERVICE_DESC[g.id] && (
                         <span className="truncate body-xs text-(--fg-tertiary)">
@@ -236,6 +247,32 @@ function ServiceTable({ ratio }: { ratio: number }) {
         </tr>
       </tfoot>
     </AwTable>
+    </TooltipProvider>
+  );
+}
+
+/** Ícone de info + tooltip — só nos itens que costumam gerar dúvida (Tokens e
+ *  seus sub-níveis). Para o clique de não propagar pro toggle da linha-pai. */
+function InfoTip({ text, label }: { text: string; label: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label={label}
+          onClick={(e) => e.stopPropagation()}
+          className="inline-flex shrink-0 text-(--fg-tertiary) transition-colors hover:text-(--fg-primary)"
+        >
+          <Icon name="info" size={14} />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent
+        side="top"
+        className="max-w-[320px] border-(--border-subtle) bg-(--bg-raised) text-pretty text-(--fg-secondary)"
+      >
+        {text}
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -259,8 +296,20 @@ function ChildRow({
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-(--bg-muted) text-(--fg-tertiary)">
             <Icon name={child.icon} size={16} fill={1} />
           </span>
-          <span className="truncate body-sm text-(--fg-secondary)">
-            {child.label}
+          <span className="flex min-w-0 flex-col">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="truncate body-sm text-(--fg-secondary)">
+                {child.label}
+              </span>
+              {child.tooltip && (
+                <InfoTip text={child.tooltip} label={`O que é ${child.label}`} />
+              )}
+            </span>
+            {child.desc && (
+              <span className="truncate body-xs text-(--fg-tertiary)">
+                {child.desc}
+              </span>
+            )}
           </span>
         </span>
       </td>

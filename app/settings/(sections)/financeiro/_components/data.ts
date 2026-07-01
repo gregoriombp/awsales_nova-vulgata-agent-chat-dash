@@ -47,6 +47,10 @@ export const BILLING_PROFILE = {
     "fiscal@awsales.com.br",
     "contabilidade@awsales.com.br",
   ],
+  /** E-mails de administradores da organização — sempre recebem as faturas e
+   *  NÃO podem ser removidos por esta tela (aparecem marcados e sem o X).
+   *  (cmt-7d73c125) */
+  adminRecipients: ["greg@awsales.io", "ana.azevedo@awsales.com.br"],
   address: {
     line1: "Av. Brigadeiro Faria Lima, 3477",
     line2: "12º andar · Itaim Bibi",
@@ -59,8 +63,11 @@ export const BILLING_PROFILE = {
 
 export const OVERVIEW_KPIS = {
   partialChargeAt: 5229.5,
-  accumulated: 891.63,
-  accumulatedPct: 17, // % até a próxima cobrança parcial
+  // Uso variável do ciclo SEM a linha telefônica (esta é custo fixo do plano,
+  // já embutido em CURRENT_PLAN.monthly) — antes 891,63 contava o telefone duas
+  // vezes no total da fatura. (cmt-6fdd2425)
+  accumulated: 852.63,
+  accumulatedPct: 16, // % até a próxima cobrança parcial
   monthSavings: 132.4, // economia com créditos / cupons
 };
 
@@ -446,22 +453,22 @@ export const OVERVIEW_SPEND_CATEGORIES: Record<
   SpendingGrouping,
   OverviewSpendCategory[]
 > = {
-  // service: totais batem com OVERVIEW_SERVICE_GROUPS (somam 891,63).
+  // service: totais batem com OVERVIEW_SERVICE_GROUPS (somam 852,63). Telefone
+  // saiu — é custo fixo do plano, não uso variável (cmt-6fdd2425).
   service: [
     { id: "leads", label: "Leads ativos", color: SPEND_RAMP[0], icon: "person_check", total: 96.0 },
     { id: "tokens", label: "Tokens", color: SPEND_RAMP[1], icon: "toll", total: 181.9 },
     { id: "mensagens", label: "Mensagens transacionadas", color: SPEND_RAMP[2], icon: "forum", total: 186.16 },
     { id: "disparos", label: "Disparos", color: SPEND_RAMP[3], icon: "send", total: 388.57 },
-    { id: "telefone", label: "Telefone", color: SPEND_RAMP[4], icon: "call", total: 39.0 },
   ],
-  // agent: top 5 do AGENT_BREAKDOWN + "Outros" = soma da cauda (348,76). Somam 891,63.
+  // agent: top 5 do AGENT_BREAKDOWN + "Outros" = soma da cauda (309,76). Somam 852,63.
   agent: [
     { id: "aria", label: "Aria", color: SPEND_RAMP[0], avatar: "/assets/agent_imgs/orbs/orb_model-a_01-1.png", total: 156.32 },
     { id: "atlas", label: "Atlas", color: SPEND_RAMP[1], avatar: "/assets/agent_imgs/orbs/orb_model-a_05-1.png", total: 124.9 },
     { id: "nova", label: "Nova", color: SPEND_RAMP[2], avatar: "/assets/agent_imgs/orbs/orb_model-a_08-1.png", total: 98.18 },
     { id: "stella", label: "Stella", color: SPEND_RAMP[3], avatar: "/assets/agent_imgs/orbs/orb_model-a_11-1.png", total: 87.45 },
     { id: "iris", label: "Íris", color: SPEND_RAMP[4], avatar: "/assets/agent_imgs/orbs/orb_model-a_02-1.png", total: 76.02 },
-    { id: "outros", label: "Outros", color: SPEND_REST_COLOR, icon: "groups", gradient: true, total: 348.76 },
+    { id: "outros", label: "Outros", color: SPEND_REST_COLOR, icon: "groups", gradient: true, total: 309.76 },
   ],
 };
 
@@ -699,6 +706,10 @@ export type OverviewServiceLeaf = {
   quantityFormat: "decimal" | "abbrev" | "lump";
   unitPriceLabel: string;
   total: number;
+  /** Apoio curto exibido abaixo do rótulo (só sub-níveis que pedem contexto). */
+  desc?: string;
+  /** Explicação longa no tooltip — só onde costuma gerar dúvida (ex.: Tokens). */
+  tooltip?: string;
 };
 export type OverviewServiceGroup = OverviewServiceLeaf & {
   /** Cor da fatia no gráfico — liga a linha da tabela à pilha. */
@@ -723,21 +734,35 @@ export const OVERVIEW_SERVICE_GROUPS: OverviewServiceGroup[] = [
   },
   {
     id: "tokens", label: "Tokens", icon: "toll", color: SPEND_RAMP[1],
-    quantity: 35_600_000, quantityFormat: "abbrev", unitPriceLabel: "Misto", total: 181.9,
+    quantity: 36_860_000, quantityFormat: "abbrev", unitPriceLabel: "Misto", total: 181.9,
+    tooltip:
+      "Tokens consumidos por agentes e recursos de inteligência da plataforma, incluindo conversas, skills, bases de conhecimento e análises do Cortex.",
+    // Taxonomia W2C + Cortex: separar o consumo de inteligência (análise,
+    // recomendação, otimização, predição) das camadas de conversa/skills/
+    // conhecimento. As 4 fatias somam o total do grupo (181,9) — Cortex é
+    // recortado do envelope de Tokens, não adicionado por cima.
     children: [
-      { id: "tok-s", label: "Tokens · Skills", icon: "extension", quantity: 10_100_000, quantityFormat: "abbrev", unitPriceLabel: "R$ 0,009 / 1K", total: 90.7 },
-      { id: "tok-b", label: "Tokens · Brain", icon: "neurology", quantity: 13_400_000, quantityFormat: "abbrev", unitPriceLabel: "R$ 0,005 / 1K", total: 67.0 },
-      { id: "tok-k", label: "Tokens · Knowledge", icon: "memory", quantity: 12_100_000, quantityFormat: "abbrev", unitPriceLabel: "R$ 0,002 / 1K", total: 24.2 },
+      { id: "tok-b", label: "Tokens · Brain", icon: "neurology", quantity: 11_780_000, quantityFormat: "abbrev", unitPriceLabel: "R$ 0,005 / 1K", total: 58.9,
+        desc: "Raciocínio e respostas dos agentes",
+        tooltip: "Tokens usados pelo agente para entender mensagens, raciocinar e gerar respostas durante a conversa." },
+      { id: "tok-s", label: "Tokens · Skills", icon: "extension", quantity: 8_780_000, quantityFormat: "abbrev", unitPriceLabel: "R$ 0,009 / 1K", total: 79.0,
+        desc: "Skills, tools, integrações e guardrails",
+        tooltip: "Tokens usados por skills, tools, integrações, automações e guardrails dos agentes." },
+      { id: "tok-k", label: "Tokens · Knowledge", icon: "memory", quantity: 10_600_000, quantityFormat: "abbrev", unitPriceLabel: "R$ 0,002 / 1K", total: 21.2,
+        desc: "Bases de conhecimento dos agentes",
+        tooltip: "Tokens usados na criação, processamento e consulta das bases de conhecimento que alimentam as respostas dos agentes." },
+      { id: "tok-c", label: "Tokens · Cortex", icon: "insights", quantity: 5_700_000, quantityFormat: "abbrev", unitPriceLabel: "R$ 0,004 / 1K", total: 22.8,
+        desc: "Análises, recomendações e otimizações",
+        tooltip: "Tokens usados pelo Cortex para analisar conversas, gerar recomendações e otimizar agentes, jornadas, AOPs e bases de conhecimento. Também podem incluir análises preditivas para melhorar a escolha de agentes e fluxos." },
     ],
   },
   {
     id: "leads", label: "Leads ativos", icon: "person_add", color: SPEND_RAMP[0],
     quantity: 48, quantityFormat: "decimal", unitPriceLabel: "R$ 2,00 / lead", total: 96.0,
   },
-  {
-    id: "telefone", label: "Telefone", icon: "call", color: SPEND_RAMP[4],
-    quantity: 1, quantityFormat: "decimal", unitPriceLabel: "R$ 39,00 / mês", total: 39.0,
-  },
+  // Telefone saiu do detalhamento de uso variável: é custo FIXO da assinatura
+  // (linha telefônica embutida na mensalidade do plano), não consumo variável.
+  // Passou a aparecer no modal "Detalhes do plano". (cmt-6fdd2425)
 ];
 
 export type ServiceCategory =
