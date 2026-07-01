@@ -20,6 +20,7 @@ import { AwModal } from "@/components/ui/AwModal";
 import { AwProgress } from "@/components/ui/AwProgress";
 import { AwSheet } from "@/components/ui/AwSheet";
 import { AwStatusDot } from "@/components/ui/AwStatusDot";
+import { AwTable } from "@/components/ui/AwTable";
 import { AwTabs } from "@/components/ui/AwTabs";
 import { useToast } from "@/components/ui/AwToast";
 import { Icon } from "@/components/ui/Icon";
@@ -575,20 +576,16 @@ const REQUEST_KIND_META: Record<DataRequestKind, { icon: string }> = {
 
 const REQUEST_STATUS_META: Record<DataRequestStatus, { badgeClass: string }> = {
   "Em análise": {
-    badgeClass:
-      "border-(--aw-amber-300) bg-(--aw-amber-100) text-(--aw-amber-800)",
+    badgeClass: "bg-(--aw-amber-100) text-(--aw-amber-800)",
   },
   Concluída: {
-    badgeClass:
-      "border-(--aw-emerald-300) bg-(--aw-emerald-100) text-(--aw-emerald-800)",
+    badgeClass: "bg-(--aw-emerald-100) text-(--aw-emerald-800)",
   },
   Recusada: {
-    badgeClass:
-      "border-(--border-subtle) bg-(--bg-muted) text-(--fg-secondary)",
+    badgeClass: "bg-(--bg-muted) text-(--fg-secondary)",
   },
   "Prazo vencido": {
-    badgeClass:
-      "border-(--aw-red-300) bg-(--aw-red-100) text-(--aw-red-800)",
+    badgeClass: "bg-(--aw-red-100) text-(--aw-red-800)",
   },
 };
 
@@ -1874,16 +1871,26 @@ function SolicitacoesTab({
           </div>
         </AwCard>
       ) : (
-        <ul className="m-0 flex list-none flex-col border-t border-(--border-subtle)">
-          {requests.map((req, i) => (
-            <RequestRow
-              key={req.id}
-              req={req}
-              isLast={i === requests.length - 1}
-              onProcess={() => setProcessing(req)}
-            />
-          ))}
-        </ul>
+        <AwTable>
+          <thead>
+            <tr>
+              <th>Titular</th>
+              <th>Tipo</th>
+              <th>Prazo</th>
+              <th>Status</th>
+              <th className="w-32" aria-hidden="true" />
+            </tr>
+          </thead>
+          <tbody>
+            {requests.map((req) => (
+              <RequestRow
+                key={req.id}
+                req={req}
+                onProcess={() => setProcessing(req)}
+              />
+            ))}
+          </tbody>
+        </AwTable>
       )}
 
       <RegisterRequestSheet
@@ -1904,57 +1911,60 @@ function SolicitacoesTab({
 
 function RequestRow({
   req,
-  isLast,
   onProcess,
 }: {
   req: DataRequest;
-  isLast: boolean;
   onProcess: () => void;
 }) {
   const status = effectiveStatus(req);
   const open = status === "Em análise" || status === "Prazo vencido";
   return (
-    <li
-      className={
-        "flex items-center gap-4 py-4" +
-        (isLast ? "" : " border-b border-(--border-subtle)")
-      }
-    >
-      <AwAvatar
-        size="lg"
-        src={req.requesterAvatar}
-        alt={req.requester}
-        initials={getInitials(req.requester)}
-      />
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="m-0 body-sm font-medium text-(--fg-primary)">
-            {req.requester}
-          </p>
-          <span className="font-mono body-xs text-(--fg-tertiary)">
-            {req.protocol}
+    <tr>
+      <td>
+        <span className="inline-flex items-center gap-3">
+          <AwAvatar
+            size="sm"
+            src={req.requesterAvatar}
+            alt={req.requester}
+            initials={getInitials(req.requester)}
+          />
+          <span className="flex min-w-0 flex-col">
+            <span className="truncate body-sm font-medium text-(--fg-primary)">
+              {req.requester}
+            </span>
+            <span className="font-mono body-xs text-(--fg-tertiary)">
+              {req.protocol}
+            </span>
           </span>
-        </div>
-        <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
-          Aberta em {req.openedAt} · prazo até {req.dueAt}
-        </p>
-        {open && <DeadlineCountdown dueAt={req.dueAt} />}
-      </div>
-      <div className="w-28 shrink-0">
+        </span>
+      </td>
+      <td>
         <RequestKindBadge kind={req.kind} />
-      </div>
-      <RequestStatusBadge status={status} />
-      {open && (
-        <AwButton
-          size="sm"
-          variant="secondary"
-          iconRight="arrow_forward"
-          onClick={onProcess}
-        >
-          Processar
-        </AwButton>
-      )}
-    </li>
+      </td>
+      <td>
+        <span className="flex flex-col">
+          <span className="body-xs text-(--fg-secondary)">
+            Aberta em {req.openedAt} · até {req.dueAt}
+          </span>
+          {open && <DeadlineCountdown dueAt={req.dueAt} />}
+        </span>
+      </td>
+      <td>
+        <RequestStatusBadge status={status} />
+      </td>
+      <td className="text-right">
+        {open && (
+          <AwButton
+            size="sm"
+            variant="secondary"
+            iconRight="arrow_forward"
+            onClick={onProcess}
+          >
+            Processar
+          </AwButton>
+        )}
+      </td>
+    </tr>
   );
 }
 
@@ -1994,7 +2004,7 @@ function DeadlineCountdown({ dueAt }: { dueAt: string }) {
 function RequestKindBadge({ kind }: { kind: DataRequestKind }) {
   const meta = REQUEST_KIND_META[kind];
   return (
-    <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-(--border-subtle) bg-(--bg-muted) px-2.5 py-0.5 body-xs font-medium text-(--fg-secondary)">
+    <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-(--bg-muted) px-2.5 py-0.5 body-xs font-medium text-(--fg-secondary)">
       <Icon name={meta.icon} size={13} />
       {kind}
     </span>
@@ -2006,7 +2016,7 @@ function RequestStatusBadge({ status }: { status: DataRequestStatus }) {
   return (
     <span
       className={
-        "inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 body-xs font-medium " +
+        "inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 body-xs font-medium " +
         meta.badgeClass
       }
     >
@@ -2475,18 +2485,25 @@ function ExportacoesTab({
           </div>
         </AwCard>
       ) : (
-        <AwCard className="p-0!">
-          <ul className="m-0 flex list-none flex-col">
-            {exports.map((file, i) => (
+        <AwTable>
+          <thead>
+            <tr>
+              <th>Arquivo</th>
+              <th>Gerado</th>
+              <th>Status</th>
+              <th className="w-28" aria-hidden="true" />
+            </tr>
+          </thead>
+          <tbody>
+            {exports.map((file) => (
               <ExportRow
                 key={file.id}
                 file={file}
-                isLast={i === exports.length - 1}
                 onCancel={() => cancelGenerating(file.id)}
               />
             ))}
-          </ul>
-        </AwCard>
+          </tbody>
+        </AwTable>
       )}
 
       <p className="m-0 inline-flex items-center gap-2 px-1 body-xs text-(--fg-tertiary)">
@@ -2508,96 +2525,89 @@ function ExportacoesTab({
 
 function ExportRow({
   file,
-  isLast,
   onCancel,
 }: {
   file: ExportFile;
-  isLast: boolean;
   onCancel: () => void;
 }) {
-  const rowClass =
-    "flex items-center gap-4 px-6 py-4" +
-    (isLast ? "" : " border-b border-(--border-subtle)");
-
   if (file.status === "generating") {
     return (
-      <li className={rowClass}>
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--aw-amber-100) text-(--aw-amber-700)">
-          <Icon name="hourglass_top" size={20} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <p className="m-0 truncate body-sm font-medium text-(--fg-primary)">
+      <tr>
+        <td>
+          <span className="inline-flex items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--aw-amber-100) text-(--aw-amber-700)">
+              <Icon name="hourglass_top" size={18} />
+            </span>
+            <span className="truncate body-sm font-medium text-(--fg-primary)">
               {file.name}
-            </p>
-            <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-(--aw-amber-300) bg-(--aw-amber-100) px-2 py-0.5 body-xs font-medium text-(--aw-amber-800)">
+            </span>
+          </span>
+        </td>
+        <td className="body-xs text-(--fg-tertiary)">
+          Estimativa {file.eta} · {file.size}
+        </td>
+        <td>
+          <span className="inline-flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-(--aw-amber-100) px-2 py-0.5 body-xs font-medium text-(--aw-amber-800)">
               <AwStatusDot variant="attention" size="xs" pulse />
               Gerando
             </span>
-          </div>
-          <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
-            Estimativa {file.eta} · {file.size}
-          </p>
-        </div>
-        {/* Progresso compacto à direita: a barra fica inline com a ação, em
-            vez de empilhar e esticar a altura da linha. */}
-        <div className="flex shrink-0 items-center gap-3">
-          <div className="hidden w-28 sm:block">
-            <AwProgress value={file.progress ?? 0} variant="warning" />
-          </div>
-          <span className="w-9 shrink-0 text-right tabular-nums body-xs text-(--fg-secondary)">
-            {file.progress ?? 0}%
+            <span className="hidden w-20 sm:block">
+              <AwProgress value={file.progress ?? 0} variant="warning" />
+            </span>
+            <span className="w-9 shrink-0 text-right tabular-nums body-xs text-(--fg-secondary)">
+              {file.progress ?? 0}%
+            </span>
           </span>
+        </td>
+        <td className="text-right">
           <AwButton size="sm" variant="ghost" onClick={onCancel}>
             Cancelar
           </AwButton>
-        </div>
-      </li>
+        </td>
+      </tr>
     );
   }
 
   const expired = file.status === "expired";
   return (
-    <li className={rowClass}>
-      <AwFileIcon type="spreadsheet" size="md" className="shrink-0" />
-      <div className="min-w-0 flex-1">
-        <p className="m-0 truncate body-sm font-medium text-(--fg-primary)">
-          {file.name}
-        </p>
-        <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
-          Gerado em {file.generatedAt} · {file.size}
-        </p>
-        {file.hash && <HashLine hash={file.hash} />}
-      </div>
-      {expired ? (
-        <span className="inline-flex shrink-0 items-center gap-1.5 body-xs text-(--fg-tertiary)">
-          <Icon name="link_off" size={14} />
-          Link expirado
-        </span>
-      ) : (
-        <div className="flex shrink-0 items-center gap-3">
-          <span className="inline-flex flex-col items-end gap-0.5 text-right">
-            <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
-              <Icon
-                name="schedule"
-                size={14}
-                className="text-(--fg-tertiary)"
-              />
-              Link expira em {file.expiresInDays}{" "}
-              {file.expiresInDays === 1 ? "dia" : "dias"}
+    <tr>
+      <td>
+        <span className="inline-flex items-center gap-3">
+          <AwFileIcon type="spreadsheet" size="sm" className="shrink-0" />
+          <span className="flex min-w-0 flex-col">
+            <span className="truncate body-sm font-medium text-(--fg-primary)">
+              {file.name}
             </span>
-            {file.availableUntil && (
-              <span className="body-xs text-(--fg-tertiary)">
-                Disponível até {file.availableUntil}
-              </span>
-            )}
+            {file.hash && <HashLine hash={file.hash} />}
           </span>
+        </span>
+      </td>
+      <td className="body-xs text-(--fg-tertiary)">
+        Gerado em {file.generatedAt} · {file.size}
+      </td>
+      <td>
+        {expired ? (
+          <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
+            <Icon name="link_off" size={14} />
+            Link expirado
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
+            <Icon name="schedule" size={14} className="text-(--fg-tertiary)" />
+            Expira em {file.expiresInDays}{" "}
+            {file.expiresInDays === 1 ? "dia" : "dias"}
+          </span>
+        )}
+      </td>
+      <td className="text-right">
+        {!expired && (
           <AwButton size="sm" variant="ghost" iconLeft="download">
             Baixar
           </AwButton>
-        </div>
-      )}
-    </li>
+        )}
+      </td>
+    </tr>
   );
 }
 
