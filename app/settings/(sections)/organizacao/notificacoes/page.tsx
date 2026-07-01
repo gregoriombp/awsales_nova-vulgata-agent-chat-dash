@@ -533,10 +533,6 @@ function MandatoryRow({
 
         {/* Quem recebe — pilha de avatares dos administradores, à direita */}
         <div className="flex shrink-0 flex-col items-end gap-1">
-          <span className="inline-flex items-center gap-1 body-xs text-(--fg-tertiary)">
-            <Icon name="key" size={12} className="text-(--fg-tertiary)" />
-            Administradores
-          </span>
           <div className="flex items-center gap-1.5">
             {showsAdminStack && (
               <AwAvatarGroup aria-label="Administradores que recebem esta notificação">
