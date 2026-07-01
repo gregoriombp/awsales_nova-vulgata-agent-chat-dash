@@ -1,6 +1,12 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Icon } from "./Icon"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 /**
  * AwStatCard — KPI / stat tile.
@@ -28,13 +34,15 @@ export type AwStatCardProps = React.HTMLAttributes<HTMLDivElement> & {
   value: React.ReactNode
   /** Optional one-line hint below the value. */
   hint?: React.ReactNode
+  /** Optional explanatory tooltip shown as an (i) icon next to the label. */
+  info?: React.ReactNode
   /** Variant — `ai` paints the soft mesh used elsewhere in the DS. */
   variant?: AwStatCardVariant
 }
 
 export const AwStatCard = React.forwardRef<HTMLDivElement, AwStatCardProps>(
   function AwStatCard(
-    { icon, label, value, hint, variant = "default", className, ...rest },
+    { icon, label, value, hint, info, variant = "default", className, ...rest },
     ref,
   ) {
     return (
@@ -51,6 +59,27 @@ export const AwStatCard = React.forwardRef<HTMLDivElement, AwStatCardProps>(
         <div className="flex items-center gap-2 text-(length:--body-xs-size) font-medium text-fg-secondary">
           {icon && <Icon name={icon} size={16} />}
           <span>{label}</span>
+          {info && (
+            <TooltipProvider delayDuration={120}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    aria-label={`Sobre ${label}`}
+                    className="inline-flex text-(--fg-tertiary) hover:text-(--fg-primary)"
+                  >
+                    <Icon name="info" size={14} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="top"
+                  className="max-w-[280px] border-(--border-subtle) bg-(--bg-raised) font-normal text-(--fg-secondary)"
+                >
+                  {info}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
         <div className="text-(length:--h3-size) font-semibold leading-none tracking-heading-tighter text-fg-primary">
           {value}
