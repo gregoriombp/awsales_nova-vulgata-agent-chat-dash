@@ -8,10 +8,16 @@ import { AwLogo } from "@/components/ui/AwLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwDropdownMenu, type AwDropdownItem } from "@/components/ui/AwDropdownMenu";
-import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
+import { AwPill } from "@/components/ui/AwPill";
 import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
 import { AgentDetailModal } from "../../financeiro/_components/AgentDetailModal";
+import {
+  AGENT_STATUS_VARIANT,
+  OutlierBadge,
+  RowInfoTip,
+  ShareBarCell,
+} from "../../financeiro/_components/BreakdownCells";
 import {
   brl,
   type AgentBreakdownRow,
@@ -38,6 +44,17 @@ import { WidgetShell, type WidgetChrome } from "./WidgetBoard";
  * ------------------------------------------------------------------------- */
 
 const TH = "aw-eyebrow font-medium text-(--fg-tertiary)";
+
+// Info por item — o MESMO texto de apoio da tabela do Financeiro (dados
+// complementares, cmt-55aa536b), pra as duas contarem a mesma história.
+const GROUP_INFO: Record<string, string> = {
+  tokens:
+    "Tokens somam Brain (raciocínio), Skills (habilidades), Knowledge (conhecimento) e Cortex dos agentes — cobrados por volume processado.",
+  meta: "Disparos de WhatsApp — marketing, utilidade e serviço. Parte fica com a Aswork (spread) e parte é repassada ao Meta.",
+  msgs: "Mensagens transacionadas pelos agentes nas conversas do período.",
+  leads: "Contatos que viraram lead ativo no período — cobrança por lead.",
+  tel: "Linha telefônica de um parceiro da Aswork — valor fixo por linha.",
+};
 // Hover ocupa a LINHA INTEIRA, não a célula de uma coluna: o realce global
 // arredonda CADA td (fica "esquisito", como uma pílula por coluna). Aqui a faixa
 // de hover vira uma só — sem raio por célula, arredondando apenas as pontas da
@@ -46,12 +63,8 @@ const ROW_HOVER =
   "[&_tbody_tr:hover_td]:!rounded-none " +
   "[&_tbody_tr:hover_td:first-child]:!rounded-l-md " +
   "[&_tbody_tr:hover_td:last-child]:!rounded-r-md";
-const AGENT_STATUS_VARIANT: Record<NonNullable<ExplorerRow["status"]>, AwPillVariant> = {
-  Ativo: "live",
-  Pausado: "neutral",
-  Treinando: "warning",
-};
-
+// Formato único das duas tabelas (BreakdownCells.usdLabel usa BRL→USD; aqui o
+// USD já vem pronto do model, então só formata igual).
 function fmtUsd(value: number): string {
   return `US$ ${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
@@ -458,6 +471,9 @@ export function DetalhamentoWidget({ dragHandle, menu }: WidgetChrome) {
                           <span className="flex min-w-0 flex-col">
                             <span className="inline-flex items-center gap-2">
                               <span className="truncate font-medium text-(--fg-primary)">{row.label}</span>
+                              {GROUP_INFO[row.id] && (
+                                <RowInfoTip text={GROUP_INFO[row.id]} label={`O que é ${row.label}`} />
+                              )}
                               {isOutlier(row.total, allTotals) && <OutlierBadge />}
                             </span>
                             {row.sub && <span className="truncate body-xs text-(--fg-tertiary)">{row.sub}</span>}
@@ -685,26 +701,8 @@ function ProviderTag({ provider }: { provider: ProviderId | "mixed" }) {
 }
 
 function ShareBar({ share, provider }: { share: number; provider: ProviderId | "mixed" }) {
-  return (
-    <span className="flex items-center gap-3">
-      <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-(--bg-muted)">
-        <span
-          className="block h-full rounded-full transition-[width] duration-aw-base ease-aw-out"
-          style={{ width: `${Math.max(2, share)}%`, background: barColor(provider) }}
-        />
-      </span>
-      <span className="w-9 shrink-0 text-right body-xs tabular-nums text-(--fg-tertiary)">{share.toFixed(0)}%</span>
-    </span>
-  );
-}
-
-function OutlierBadge() {
-  return (
-    <AwPill variant="warning" dot={false}>
-      <Icon name="warning" size={11} />
-      Acima do esperado
-    </AwPill>
-  );
+  // Régua compartilhada com a tabela do Financeiro (BreakdownCells).
+  return <ShareBarCell share={share} color={barColor(provider)} />;
 }
 
 function providerFilterLabel(provider: ProviderId | "mixed"): string {

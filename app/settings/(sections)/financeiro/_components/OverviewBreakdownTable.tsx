@@ -5,17 +5,18 @@ import { cn } from "@/lib/utils";
 import { Icon } from "@/components/ui/Icon";
 import { AwTable } from "@/components/ui/AwTable";
 import { AwAvatar } from "@/components/ui/AwAvatar";
-import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { AwPill } from "@/components/ui/AwPill";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { AgentDetailModal } from "./AgentDetailModal";
 import {
+  AGENT_STATUS_VARIANT,
+  OutlierBadge,
+  RowInfoTip,
+  ShareBarCell,
+  usdLabel,
+} from "./BreakdownCells";
+import {
   brl,
-  usd,
   formatQuantity,
   agentType,
   selectionRatio,
@@ -56,25 +57,12 @@ const SERVICE_DESC: Record<string, string> = {
   leads: "Contatos que viraram lead ativo no período",
 };
 
-const AGENT_STATUS_VARIANT: Record<AgentBreakdownRow["status"], AwPillVariant> = {
-  Ativo: "live",
-  Pausado: "neutral",
-  Treinando: "warning",
-};
-
 const AGENT_CHART_CATEGORIES = OVERVIEW_SPEND_CATEGORIES.agent.filter(
   (c) => c.id !== "outros",
 );
 const AGENT_CHART_COLOR_BY_ID = new Map(
   AGENT_CHART_CATEGORIES.map((c) => [c.id, c.color]),
 );
-
-function usdLabel(brlValue: number): string {
-  return `US$ ${usd(brlValue).toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-}
 
 /** Outlier = gasto ≥ 2× a mediana (sinaliza "Acima do esperado"). */
 function isOutlier(value: number, all: number[]): boolean {
@@ -195,7 +183,7 @@ function ServiceTable({ ratio }: { ratio: number }) {
                           {g.label}
                         </span>
                         {g.tooltip && (
-                          <InfoTip text={g.tooltip} label={`O que é ${g.label}`} />
+                          <RowInfoTip text={g.tooltip} label={`O que é ${g.label}`} />
                         )}
                       </span>
                       {SERVICE_DESC[g.id] && (
@@ -219,7 +207,7 @@ function ServiceTable({ ratio }: { ratio: number }) {
                   {usdLabel(g.total)}
                 </td>
                 <td>
-                  <ShareBar share={share} color={g.color} />
+                  <ShareBarCell share={share} color={g.color} />
                 </td>
                 <td aria-hidden="true" />
               </tr>
@@ -251,31 +239,6 @@ function ServiceTable({ ratio }: { ratio: number }) {
   );
 }
 
-/** Ícone de info + tooltip — só nos itens que costumam gerar dúvida (Tokens e
- *  seus sub-níveis). Para o clique de não propagar pro toggle da linha-pai. */
-function InfoTip({ text, label }: { text: string; label: string }) {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          aria-label={label}
-          onClick={(e) => e.stopPropagation()}
-          className="inline-flex shrink-0 text-(--fg-tertiary) transition-colors hover:text-(--fg-primary)"
-        >
-          <Icon name="info" size={14} />
-        </button>
-      </TooltipTrigger>
-      <TooltipContent
-        side="top"
-        className="max-w-[320px] border-(--border-subtle) bg-(--bg-raised) text-pretty text-(--fg-secondary)"
-      >
-        {text}
-      </TooltipContent>
-    </Tooltip>
-  );
-}
-
 function ChildRow({
   child,
   group,
@@ -302,7 +265,7 @@ function ChildRow({
                 {child.label}
               </span>
               {child.tooltip && (
-                <InfoTip text={child.tooltip} label={`O que é ${child.label}`} />
+                <RowInfoTip text={child.tooltip} label={`O que é ${child.label}`} />
               )}
             </span>
             {child.desc && (
@@ -324,7 +287,7 @@ function ChildRow({
         {usdLabel(child.total)}
       </td>
       <td>
-        <ShareBar share={share} color={group.color} muted />
+        <ShareBarCell share={share} color={group.color} muted />
       </td>
       <td aria-hidden="true" />
     </tr>
@@ -448,42 +411,5 @@ function AgentAvatarWithChartDot({
         }}
       />
     </span>
-  );
-}
-
-function ShareBar({
-  share,
-  color,
-  muted = false,
-}: {
-  share: number;
-  color: string;
-  muted?: boolean;
-}) {
-  return (
-    <span className="flex items-center gap-3">
-      <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-(--bg-muted)">
-        <span
-          className="block h-full rounded-full transition-[width] duration-aw-base ease-aw-out"
-          style={{
-            width: `${Math.max(2, share)}%`,
-            background: color,
-            opacity: muted ? 0.55 : 1,
-          }}
-        />
-      </span>
-      <span className="w-9 shrink-0 text-right body-xs tabular-nums text-(--fg-tertiary)">
-        {share.toFixed(0)}%
-      </span>
-    </span>
-  );
-}
-
-function OutlierBadge() {
-  return (
-    <AwPill variant="warning" dot={false}>
-      <Icon name="warning" size={11} />
-      Acima do esperado
-    </AwPill>
   );
 }
