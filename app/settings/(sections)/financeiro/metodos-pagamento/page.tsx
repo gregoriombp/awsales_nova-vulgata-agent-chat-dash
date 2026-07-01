@@ -470,7 +470,9 @@ function AddCardTile({ onClick }: { onClick: () => void }) {
 const VISIBLE_RECIPIENTS = 5;
 
 function BillingInfoSection() {
-  const { legalName, taxId, stateRegistration, address } = BILLING_PROFILE;
+  const { legalName, taxId, stateRegistration, address, adminRecipients } =
+    BILLING_PROFILE;
+  const isAdmin = (email: string) => adminRecipients.includes(email);
   const [recipients, setRecipients] = React.useState<string[]>(
     BILLING_PROFILE.billingRecipients,
   );
@@ -492,6 +494,8 @@ function BillingInfoSection() {
   const hiddenCount = recipients.length - visible.length;
 
   const removeRecipient = (target: string) => {
+    // Admins não podem ser removidos por esta tela (cmt-7d73c125).
+    if (isAdmin(target)) return;
     setRecipients((prev) =>
       prev.length > 1 ? prev.filter((e) => e !== target) : prev,
     );
@@ -508,23 +512,14 @@ function BillingInfoSection() {
 
   return (
     <section className="flex flex-col gap-5 border-t border-(--border-subtle) pt-8">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h6 className="m-0 mb-1 text-(--fg-primary)">
-            Informações de faturamento
-          </h6>
-          <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
-            Dados que vão na nota fiscal e nas cobranças. Vêm do contrato —
-            aqui você edita só os e-mails de faturamento.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setContactOpen(true)}
-          className="body-xs font-medium text-(--fg-secondary) underline decoration-dotted underline-offset-2 hover:text-(--fg-primary) hover:no-underline"
-        >
-          Dados incorretos? Solicitar alteração
-        </button>
+      <header>
+        <h6 className="m-0 mb-1 text-(--fg-primary)">
+          Informações de faturamento
+        </h6>
+        <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
+          Dados que vão na nota fiscal e nas cobranças. Vêm do contrato —
+          aqui você edita só os e-mails de faturamento.
+        </p>
       </header>
 
       <dl className="m-0 grid grid-cols-3 gap-x-10 gap-y-5">
@@ -536,25 +531,42 @@ function BillingInfoSection() {
           </dt>
           <dd className="m-0">
             <ul className="m-0 flex list-none flex-col p-0">
-              {visible.map((email) => (
-                <li
-                  key={email}
-                  className="group -mx-1.5 flex items-center gap-2 rounded-sm px-1.5 py-1 transition-colors duration-aw-fast hover:bg-(--bg-hover)"
-                >
-                  <span className="min-w-0 flex-1 truncate body-sm text-(--fg-primary)">
-                    {email}
-                  </span>
-                  <button
-                    type="button"
-                    aria-label={`Remover ${email} dos destinatários`}
-                    disabled={recipients.length === 1}
-                    onClick={() => removeRecipient(email)}
-                    className="flex h-5 w-5 shrink-0 items-center justify-center rounded-xs text-(--fg-tertiary) opacity-0 transition-opacity duration-aw-fast hover:bg-(--bg-muted) hover:text-(--fg-primary) focus-visible:opacity-100 group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-0"
+              {visible.map((email) => {
+                const admin = isAdmin(email);
+                return (
+                  <li
+                    key={email}
+                    className="group -mx-1.5 flex items-center gap-2 rounded-sm px-1.5 py-1 transition-colors duration-aw-fast hover:bg-(--bg-hover)"
                   >
-                    <Icon name="close" size={14} />
-                  </button>
-                </li>
-              ))}
+                    <span className="min-w-0 flex-1 truncate body-sm text-(--fg-primary)">
+                      {email}
+                    </span>
+                    {admin ? (
+                      // Admin da organização: sempre recebe as faturas, não pode
+                      // ser removido por esta tela — marcado e sem o X. (cmt-7d73c125)
+                      <span
+                        title="Administrador da organização — recebe sempre as faturas e não pode ser removido aqui."
+                        className="inline-flex shrink-0"
+                      >
+                        <AwPill variant="neutral" dot={false}>
+                          <Icon name="shield_person" size={11} weight={600} />
+                          Admin
+                        </AwPill>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        aria-label={`Remover ${email} dos destinatários`}
+                        disabled={recipients.length === 1}
+                        onClick={() => removeRecipient(email)}
+                        className="flex h-5 w-5 shrink-0 items-center justify-center rounded-xs text-(--fg-tertiary) opacity-0 transition-opacity duration-aw-fast hover:bg-(--bg-muted) hover:text-(--fg-primary) focus-visible:opacity-100 group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-0"
+                      >
+                        <Icon name="close" size={14} />
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
             {addingEmail ? (
               <input
@@ -587,14 +599,14 @@ function BillingInfoSection() {
                     {showAll ? "Ver menos" : `Ver mais (+${hiddenCount})`}
                   </button>
                 )}
-                <button
-                  type="button"
+                <AwButton
+                  variant="ghost"
+                  size="sm"
+                  iconLeft="add"
                   onClick={() => setAddingEmail(true)}
-                  className="inline-flex items-center gap-1 body-xs font-medium text-(--fg-secondary) hover:text-(--fg-primary)"
                 >
-                  <Icon name="add" size={14} />
                   Adicionar e-mail
-                </button>
+                </AwButton>
               </div>
             )}
           </dd>
@@ -611,6 +623,30 @@ function BillingInfoSection() {
           </dd>
         </div>
       </dl>
+
+      {/* Ação de alteração cadastral — saiu do canto do cabeçalho (onde parecia
+          ser sobre os e-mails) pra um bloco flat, claro e visível logo abaixo dos
+          dados fiscais que ela de fato altera. (cmt-6394c198) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-(--border-subtle) pt-4">
+        <p className="m-0 inline-flex max-w-[560px] items-start gap-2 body-xs text-(--fg-secondary) text-pretty">
+          <Icon
+            name="info"
+            size={14}
+            className="mt-px shrink-0 text-(--fg-tertiary)"
+          />
+          Razão social, CNPJ, inscrição estadual e endereço vêm do seu cadastro no
+          contrato e são somente leitura. Para corrigir esses dados, solicite a
+          alteração.
+        </p>
+        <AwButton
+          variant="secondary"
+          size="sm"
+          iconLeft="edit_note"
+          onClick={() => setContactOpen(true)}
+        >
+          Solicitar alteração cadastral
+        </AwButton>
+      </div>
 
       <AwContactChannelModal
         open={contactOpen}
