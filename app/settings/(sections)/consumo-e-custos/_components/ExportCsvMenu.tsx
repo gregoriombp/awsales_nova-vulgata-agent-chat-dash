@@ -254,6 +254,12 @@ export function ExportCsvMenu() {
           <p className="m-0 body-xs text-(--fg-tertiary)">
             Escopo, período, granularidade e colunas. Respeita o filtro ativo.
           </p>
+          <p className="m-0 body-xs text-(--fg-tertiary)">
+            Valores pela{" "}
+            <strong className="font-medium text-(--fg-secondary)">data de uso</strong>{" "}
+            — o dia em que o consumo aconteceu. Pra exportar pelo que foi
+            cobrado em cada fatura, use a aba Por ciclos.
+          </p>
         </div>
 
         {/* período do export */}

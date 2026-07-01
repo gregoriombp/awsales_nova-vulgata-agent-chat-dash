@@ -174,7 +174,9 @@ function AdjustmentsDetail() {
   );
 }
 
-function InfoTip({ text }: { text: string }) {
+/** Ícone "info" com tooltip — o padrão da casa pra nota curta num título ou
+ *  rótulo (KPIs, cabeçalhos de gráfico). Exportado pra os widgets reusarem. */
+export function InfoTip({ text }: { text: string }) {
   return (
     <TooltipProvider delayDuration={120}>
       <Tooltip>

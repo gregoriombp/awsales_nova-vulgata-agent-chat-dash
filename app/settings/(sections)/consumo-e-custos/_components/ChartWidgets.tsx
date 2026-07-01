@@ -48,6 +48,7 @@ import {
 import { useConsumo, type SeriesTotal } from "./ConsumoContext";
 import { catProviderOf, categoryPayerSplit, PROVIDERS } from "./explorer-model";
 import { SegmentedToggle } from "./controls";
+import { InfoTip } from "./KpiCards";
 import { WidgetShell, WidgetMenu, type WidgetChrome } from "./WidgetBoard";
 
 /* ----------------------------------------------------------------------------
@@ -190,8 +191,12 @@ export function ConsumoChartWidget({
   dragHandle,
   menu,
 }: WidgetChrome) {
-  const { chartModel, chartIds, chartPeriod, grouping, accumulated, metaIncluded } =
+  const { chartModel, chartIds, chartPeriod, grouping, accumulated, metaIncluded, surface, reportKind } =
     useConsumo();
+  // Nota "bate com o Analytics" só vale na visão por DATA DE USO — nunca no
+  // recorte de fatura/ciclo, onde os valores seguem a data de pagamento
+  // (pedido do Greg: cmt-4571977b).
+  const isUsageDateView = surface !== "cycle" && reportKind !== "invoice";
   const [viz, setViz] = React.useState<ConsumoViz>("bar");
   const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
 
@@ -329,9 +334,14 @@ export function ConsumoChartWidget({
 
   return (
     <WidgetShell
-      title="Uso por dia"
+      title={
+        <span className="inline-flex min-w-0 items-center gap-1.5">
+          <span className="truncate">Uso por dia</span>
+          <InfoTip text="Este gráfico segue a data de uso — o dia em que o consumo aconteceu, não o dia da cobrança ou do pagamento." />
+        </span>
+      }
       icon="bar_chart"
-      description={`${grouping === "service" ? "Por serviço" : "Por agente"} · acumulado ${brl(accumulated)}`}
+      description={`${grouping === "service" ? "Por serviço" : "Por agente"} · acumulado ${brl(accumulated)}${isUsageDateView ? " · o mesmo valor do Analytics" : ""}`}
       dragHandle={dragHandle}
       menu={menu}
       actions={

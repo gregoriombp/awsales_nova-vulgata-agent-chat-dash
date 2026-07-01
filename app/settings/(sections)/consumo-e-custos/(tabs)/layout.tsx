@@ -14,6 +14,11 @@ export default function ConsumoCustosTabsLayout({
 }) {
   return (
     <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-12">
+      {/* PLANO FUTURO (cmt-e496ed5c, decisão do Greg): quando houver fatura não
+          paga, um alerta global em vermelho deve subir em TODAS as telas do app
+          ("campanhas desativadas por problema de pagamento — regularize"). A base
+          já existe: PaymentPendingBanner do financeiro (3 severidades). Entra
+          como passe dedicado depois que as telas do financeiro concluírem. */}
       <header>
         <h3 className="m-0 mb-2 display-sm font-medium text-(--fg-primary)">
           Consumo e custos
