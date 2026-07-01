@@ -666,11 +666,20 @@ function ProviderTag({ provider }: { provider: ProviderId | "mixed" }) {
       </span>
     );
   }
-  // Só sobra "mixed" (meta/aswork retornaram acima).
+  // Só sobra "mixed": pagamento dividido entre Meta e Aswork (ex.: disparos —
+  // o spread fica com a Aswork, o resto vai pro Meta). Mostra os DOIS selos,
+  // não um "Misto" genérico (cmt-947c67f8).
   return (
     <span className="inline-flex items-center gap-2 body-sm text-(--fg-secondary)">
-      <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full" style={{ background: barColor(provider) }} />
-      Misto
+      <span className="inline-flex shrink-0 items-center">
+        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-(--bg-raised) ring-1 ring-(--border-subtle)">
+          <AwBrandLogo brand="meta" size={12} markOnly />
+        </span>
+        <span className="-ml-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-(--bg-raised) ring-1 ring-(--border-subtle)">
+          <AwLogo variant="mark" height={11} className="text-(--fg-primary)" />
+        </span>
+      </span>
+      Meta e Aswork
     </span>
   );
 }
@@ -699,7 +708,7 @@ function OutlierBadge() {
 }
 
 function providerFilterLabel(provider: ProviderId | "mixed"): string {
-  return provider === "meta" ? "Meta" : provider === "aswork" ? "Aswork" : "Misto";
+  return provider === "meta" ? "Meta" : provider === "aswork" ? "Aswork" : "Meta e Aswork";
 }
 
 /* ----------------------------------------------------------------------------

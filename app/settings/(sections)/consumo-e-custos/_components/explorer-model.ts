@@ -160,6 +160,10 @@ export type ExplorerRow = {
 };
 
 function providerForRows(rowIds: string[]): ProviderId | "mixed" {
+  // Linhas com split de pagador (disparos: parte fica com a Aswork, parte vai
+  // pro Meta) tornam o conjunto MISTO por definição — a linha-mãe "Meta" mostra
+  // os dois pagadores, não só o Meta (cmt-947c67f8).
+  if (rowIds.some((id) => META_ASWORK_SHARE[id] !== undefined)) return "mixed";
   const set = new Set(rowIds.map(providerOf));
   return set.size === 1 ? [...set][0] : "mixed";
 }
