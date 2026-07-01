@@ -1012,6 +1012,19 @@ export function agentDepartment(id: string): AgentDepartment {
   return AGENT_DEPARTMENT_BY_ID[id] ?? "operacoes";
 }
 
+/* ---------- compromisso anual (acordo personalizado) ----------
+ * Alguns clientes fecham um uso anual negociado (cmt-63540355). O gráfico só
+ * aparece pra quem TEM o acordo — o cliente mock tem; pra quem não tem, os
+ * devs desligam via `active` (protótipo, sem backend). */
+export const ANNUAL_COMMITMENT = {
+  active: true,
+  label: "Acordo anual 2026",
+  totalBRL: 300_000,
+  honoredBRL: 187_450,
+  startedAt: "01/01/2026",
+  endsAt: "31/12/2026",
+} as const;
+
 // Detalhamento do gasto de um agente, por tipo de cobrança (modal "Ver
 // detalhes"). Os tokens seguem o canon atual — Knowledge / Brain / Skills, sem
 // quebra input/output. A quantidade exibida é derivada do valor alocado ÷ taxa,

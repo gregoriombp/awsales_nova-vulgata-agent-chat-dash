@@ -81,6 +81,7 @@ export const BOARD_DEFAULT_ORDER = [
   "provedor",
   "canal",
   "tipo-agente",
+  "compromisso",
   "detalhamento",
 ];
 
@@ -91,6 +92,7 @@ export const BOARD_DEFAULT_SPANS: Record<string, Span> = {
   provedor: 1,
   canal: 1,
   "tipo-agente": 1,
+  compromisso: 1,
   detalhamento: 2,
 };
 
@@ -133,7 +135,7 @@ export const REPORT_TYPES: ReportTypeDef[] = [
     // board e do "Adicionar gráfico" deste tipo, não apenas ocultos.
     hidden: ["canal", "tipo-agente"],
     excluded: ["usado-cobrado", "provedor"],
-    order: ["consumo", "composicao", "detalhamento", "canal", "tipo-agente"],
+    order: ["consumo", "composicao", "compromisso", "detalhamento", "canal", "tipo-agente"],
   },
   {
     type: "faturas",
@@ -143,7 +145,7 @@ export const REPORT_TYPES: ReportTypeDef[] = [
     desc: "Abra uma fatura e veja, item a item, o que entrou naquele ciclo de cobrança.",
     accentVar: "var(--aw-emerald-500)",
     grouping: "service",
-    hidden: ["canal", "tipo-agente"],
+    hidden: ["canal", "tipo-agente", "compromisso"],
     order: BOARD_DEFAULT_ORDER,
   },
   {
@@ -157,8 +159,8 @@ export const REPORT_TYPES: ReportTypeDef[] = [
     // Foco em "quem pegou meu dinheiro": começa pelo card laranja (provedor de
     // pagamento) + Usado × cobrado. Sem os gráficos de consumo/variáveis nem a
     // tabela de detalhamento — isso é assunto do "Uso de variáveis".
-    hidden: ["consumo", "composicao", "detalhamento"],
-    order: ["provedor", "usado-cobrado", "canal", "tipo-agente", "consumo", "composicao", "detalhamento"],
+    hidden: ["consumo", "composicao", "detalhamento", "compromisso"],
+    order: ["provedor", "usado-cobrado", "canal", "tipo-agente", "consumo", "composicao", "compromisso", "detalhamento"],
   },
 ];
 

@@ -49,6 +49,10 @@ import { useConsumo, type SeriesTotal } from "./ConsumoContext";
 import { catProviderOf, categoryPayerSplit, PROVIDERS } from "./explorer-model";
 import { SegmentedToggle } from "./controls";
 import { InfoTip } from "./KpiCards";
+import { bucketRows, type ChartGranularity } from "./chart-utils";
+import { GranularityToggle } from "./GranularityToggle";
+import { LimitEventMarkers } from "../../financeiro/_components/LimitEventMarkers";
+import { selectionLimitEvents } from "../../financeiro/_components/data";
 import { WidgetShell, WidgetMenu, type WidgetChrome } from "./WidgetBoard";
 
 /* ----------------------------------------------------------------------------
@@ -206,6 +210,9 @@ export function ConsumoChartWidget({
   // (pedido do Greg: cmt-4571977b).
   const isUsageDateView = surface !== "cycle" && reportKind !== "invoice";
   const [viz, setViz] = React.useState<ConsumoViz>("bar");
+  // Controle temporal LOCAL (cmt-60c4ab93): agrega este card por dia/semana/mês
+  // sem mexer no período geral da topbar.
+  const [granularity, setGranularity] = React.useState<ChartGranularity>("day");
   const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
 
   const categories = React.useMemo(() => {
@@ -237,19 +244,18 @@ export function ConsumoChartWidget({
   const config = React.useMemo(() => buildConfig(categories), [categories]);
   const totalDays = chartModel.data.length;
 
-  const chartData = React.useMemo(
-    () =>
-      chartModel.data.map((day, i) => {
-        const row: Record<string, number | string> = {
-          day: dayLabel(i, totalDays, chartPeriod, selection.kind === "custom" ? selection.from : null),
-        };
-        chartModel.categories.forEach((cat, c) => {
-          row[cat.id] = day[c] ?? 0;
-        });
-        return row;
-      }),
-    [chartModel, chartPeriod, totalDays],
-  );
+  const chartData = React.useMemo(() => {
+    const daily = chartModel.data.map((day, i) => {
+      const row: Record<string, number | string> = {
+        day: dayLabel(i, totalDays, chartPeriod, selection.kind === "custom" ? selection.from : null),
+      };
+      chartModel.categories.forEach((cat, c) => {
+        row[cat.id] = day[c] ?? 0;
+      });
+      return row;
+    });
+    return bucketRows(daily, chartModel.categories.map((c) => c.id), granularity);
+  }, [chartModel, chartPeriod, totalDays, selection, granularity]);
 
   // "Outros" é o resto agregado, ampliado só pra dominar a leitura da pilha — não
   // é um valor real. Quando ele está na pilha, o total do dia (soma das barras
@@ -353,18 +359,27 @@ export function ConsumoChartWidget({
       dragHandle={dragHandle}
       menu={menu}
       actions={
-        <VizToggle
-          value={viz}
-          onChange={setViz}
-          options={[
-            { value: "bar", icon: "bar_chart", label: "Barras" },
-            { value: "area", icon: "area_chart", label: "Área" },
-            { value: "line", icon: "show_chart", label: "Linha" },
-          ]}
-        />
+        <span className="flex items-center gap-1.5">
+          <GranularityToggle value={granularity} onChange={setGranularity} />
+          <VizToggle
+            value={viz}
+            onChange={setViz}
+            options={[
+              { value: "bar", icon: "bar_chart", label: "Barras" },
+              { value: "area", icon: "area_chart", label: "Área" },
+              { value: "line", icon: "show_chart", label: "Linha" },
+            ]}
+          />
+        </span>
       }
     >
       <ChartLegend categories={categories} grouping={grouping} othersLabels={chartModel.othersLabels} />
+      <div className="relative">
+        {/* "Limite restaurado" — mesma história e componente do Financeiro
+            (cmt-fa87fa50); só na agregação por dia, onde a posição bate. */}
+        {granularity === "day" && (
+          <LimitEventMarkers events={selectionLimitEvents(selection)} />
+        )}
       <ChartContainer
         key={viz}
         config={config}
@@ -435,6 +450,7 @@ export function ConsumoChartWidget({
           </LineChart>
         )}
       </ChartContainer>
+      </div>
     </WidgetShell>
   );
 }
@@ -826,7 +842,7 @@ function ShareBars({
 
 /** Série usado×cobrado, escalada pro período + drill (scopeFactor). Respeita o
  *  filtro de pagador: com Meta desligado, a parte do Meta zera. */
-function useUsadoSeries() {
+function useUsadoSeries(granularity: ChartGranularity = "day") {
   const { selection, chartPeriod, customDays, scopeFactor, metaIncluded } = useConsumo();
   const bars =
     selection.kind === "custom"
@@ -838,16 +854,15 @@ function useUsadoSeries() {
       : reconScaleForPeriod(selection.id)) * scopeFactor;
 
   const series = React.useMemo(() => getUsedChargedSeries(bars, scale), [bars, scale]);
-  const data = React.useMemo(
-    () =>
-      series.map((d, i) => ({
-        day: dayLabel(i, bars, chartPeriod, selection.kind === "custom" ? selection.from : null),
-        wc: d.wc,
-        meta: metaIncluded ? d.meta : 0,
-        charged: d.charged,
-      })),
-    [series, bars, chartPeriod, metaIncluded],
-  );
+  const data = React.useMemo(() => {
+    const daily = series.map((d, i) => ({
+      day: dayLabel(i, bars, chartPeriod, selection.kind === "custom" ? selection.from : null),
+      wc: d.wc,
+      meta: metaIncluded ? d.meta : 0,
+      charged: d.charged,
+    }));
+    return bucketRows(daily, ["wc", "meta", "charged"], granularity);
+  }, [series, bars, chartPeriod, metaIncluded, selection, granularity]);
   return {
     data,
     metaIncluded,
@@ -861,7 +876,8 @@ export function UsadoCobradoWidget({
   dragHandle,
   menu,
 }: WidgetChrome) {
-  const { data, wcTotal, metaTotal, metaIncluded } = useUsadoSeries();
+  const [granularity, setGranularity] = React.useState<ChartGranularity>("day");
+  const { data, wcTotal, metaTotal, metaIncluded } = useUsadoSeries(granularity);
   const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
 
   // Aswork sólido (azul) + Meta roxo tracejado (só aqui é tracejado, e é aprox.).
@@ -881,6 +897,7 @@ export function UsadoCobradoWidget({
       }
       dragHandle={dragHandle}
       menu={menu}
+      actions={<GranularityToggle value={granularity} onChange={setGranularity} />}
       contentClassName="flex min-h-0 flex-col"
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pb-1">
@@ -1037,6 +1054,7 @@ type GastoLineKey = "total" | "aswork" | "meta";
 
 export function GastoTotalCard({ onHide }: { onHide?: () => void } = {}) {
   const { payerDaily, chartPeriod, metaIncluded, accumulated, selection } = useConsumo();
+  const [granularity, setGranularity] = React.useState<ChartGranularity>("day");
   // Linha em foco no hover. As demais somem suavemente; a focada ganha um
   // "fio condutor": um segmento claro (grayscale + alpha) que percorre a curva
   // em loop e CLAREIA a própria cor da série por baixo (mix-blend overlay) —
@@ -1066,16 +1084,17 @@ export function GastoTotalCard({ onHide }: { onHide?: () => void } = {}) {
   // do overlay tem dataKey próprio (sem colidir com a key da Area base no
   // React, que o Recharts deriva do dataKey).
   const data = React.useMemo(() => {
-    const base = payerDaily.map((d, i) => ({
+    const daily = payerDaily.map((d, i) => ({
       day: dayLabel(i, payerDaily.length, chartPeriod, selection.kind === "custom" ? selection.from : null),
       aswork: d.aswork,
       meta: d.meta,
       total: Math.round((d.aswork + d.meta) * 100) / 100,
     }));
+    const base = bucketRows(daily, ["aswork", "meta", "total"], granularity);
     if (!activeSeries) return base;
     const key = activeSeries as "total" | "aswork" | "meta";
     return base.map((d) => ({ ...d, __overlay: d[key] }));
-  }, [payerDaily, chartPeriod, activeSeries]);
+  }, [payerDaily, chartPeriod, selection, granularity, activeSeries]);
 
   const config: ChartConfig = {
     total: { label: "Total", color: "var(--fg-primary)" },
@@ -1099,6 +1118,8 @@ export function GastoTotalCard({ onHide }: { onHide?: () => void } = {}) {
         ) : undefined
       }
       actions={
+        <>
+        <GranularityToggle value={granularity} onChange={setGranularity} />
         <AwDropdownMenu
           align="end"
           aria-label="Linhas visíveis no gráfico"
@@ -1148,6 +1169,7 @@ export function GastoTotalCard({ onHide }: { onHide?: () => void } = {}) {
             },
           ]}
         />
+        </>
       }
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pb-1">

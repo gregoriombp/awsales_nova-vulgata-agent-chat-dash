@@ -27,6 +27,7 @@ import {
 import { DetalhamentoWidget } from "./ExplorerTable";
 import { ChannelWidget } from "./ChannelWidget";
 import { AgentTypeWidget } from "./AgentTypeWidget";
+import { CommitmentWidget } from "./CommitmentWidget";
 import { DraggableBoard, type BoardWidget, type Span, type WidgetChrome } from "./WidgetBoard";
 import { useReportsUI } from "./SavedReports";
 
@@ -87,6 +88,7 @@ export function ExplorerMain() {
         { id: "provedor", span: 1 as const, label: "Valor atribuído ao provedor", icon: "account_balance", render: (c: WidgetChrome) => <ProvedorWidget {...c} /> },
         { id: "canal", span: 1 as const, label: "Gasto por canal", icon: "hub", render: (c: WidgetChrome) => <ChannelWidget {...c} /> },
         { id: "tipo-agente", span: 1 as const, label: "Gasto por tipo de agente", icon: "diversity_3", render: (c: WidgetChrome) => <AgentTypeWidget {...c} /> },
+        { id: "compromisso", span: 1 as const, label: "Compromisso anual", icon: "handshake", render: (c: WidgetChrome) => <CommitmentWidget {...c} /> },
         { id: "detalhamento", span: 2 as const, label: "Detalhamento", icon: "table_rows", render: (c: WidgetChrome) => <DetalhamentoWidget {...c} /> },
         // Widgets fora do TIPO ativo somem de verdade: nem board, nem AddWidget
         // (cmt-b0869104 + cmt-44007d84 — ex.: "Uso de variáveis" não oferece
