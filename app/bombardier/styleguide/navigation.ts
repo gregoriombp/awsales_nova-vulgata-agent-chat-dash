@@ -158,6 +158,19 @@ export const navigation: NavSection[] = [
       { name: "Chat bubbles", href: "/bombardier/styleguide/components/chat" },
       { name: "Chrome", href: "/bombardier/styleguide/components/chrome" },
       { name: "Consumption bar", href: "/bombardier/styleguide/components/aw-consumption-bar" },
+      {
+        name: "Consumo variável card",
+        href: "/bombardier/styleguide/components/aw-consumo-variavel-card",
+        aliases: [
+          "AwConsumoVariavelCard",
+          "uso variável",
+          "pós-pago",
+          "postpaid",
+          "prepaid",
+          "ilimitado",
+          "limite de uso",
+        ],
+      },
       { name: "Cost breakdown", href: "/bombardier/styleguide/components/aw-cost-breakdown" },
       { name: "Dot tunnel", href: "/bombardier/styleguide/components/aw-dot-tunnel" },
       {
