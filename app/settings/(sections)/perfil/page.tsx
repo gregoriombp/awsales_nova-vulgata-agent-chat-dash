@@ -2,18 +2,18 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { AwAvatar } from "@/components/ui/AwAvatar";
+import { useRouter } from "next/navigation";
+import { AwAvatar, AwAvatarGroup } from "@/components/ui/AwAvatar";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
-import { AwField, AwInput } from "@/components/ui/AwInput";
+import { AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
-import { AwPill } from "@/components/ui/AwPill";
-import { AwSelect } from "@/components/ui/AwSelect";
 import { AwShortcutTile } from "@/components/ui/AwShortcutTile";
 import { AwTabs } from "@/components/ui/AwTabs";
 import { Icon } from "@/components/ui/Icon";
 import { SectionHeading } from "../_components/shared";
+import { ONBOARDING_ORG } from "@/app/primeiro-acesso/_data";
 import {
   COVER_BACKGROUNDS,
   GROUPS,
@@ -73,35 +73,15 @@ const INITIAL_PROFILE = {
   memberSince: "12 jan. 2026",
 };
 
-const TIMEZONES = [
-  { value: "America/Sao_Paulo", label: "(GMT−3) Brasília — São Paulo" },
-  { value: "America/Fortaleza", label: "(GMT−3) Fortaleza" },
-  { value: "America/Recife", label: "(GMT−3) Recife" },
-  { value: "America/Manaus", label: "(GMT−4) Manaus" },
-  { value: "America/Cuiaba", label: "(GMT−4) Cuiabá" },
-  { value: "America/Porto_Velho", label: "(GMT−4) Porto Velho" },
-  { value: "America/Rio_Branco", label: "(GMT−5) Rio Branco" },
-  { value: "America/Noronha", label: "(GMT−2) Fernando de Noronha" },
-  { value: "UTC", label: "(GMT+0) UTC" },
-];
-
-function tzLabel(value: string) {
-  return TIMEZONES.find((t) => t.value === value)?.label ?? value;
-}
-
 export default function ProfileSettingsPage() {
-  const [fullName, setFullName] = useState(INITIAL_PROFILE.fullName);
+  const router = useRouter();
+  const [fullName] = useState(INITIAL_PROFILE.fullName);
   const [email] = useState(INITIAL_PROFILE.email);
-  const [phone, setPhone] = useState(INITIAL_PROFILE.phone);
   const [role] = useState(INITIAL_PROFILE.role);
-  const [timezone, setTimezone] = useState(INITIAL_PROFILE.timezone);
-  const [editOpen, setEditOpen] = useState(false);
-  const editNameEmpty = fullName.trim() === "";
-  const editDirty =
-    fullName.trim() !== INITIAL_PROFILE.fullName ||
-    phone !== INITIAL_PROFILE.phone ||
-    timezone !== INITIAL_PROFILE.timezone;
-  const editCanSave = editDirty && !editNameEmpty;
+  // "Editar perfil" leva pro editor dedicado (página Dados pessoais), passando
+  // por uma confirmação de saída — não é mais um modal de edição inline.
+  // (cmt-77c6faab)
+  const [leaveEditOpen, setLeaveEditOpen] = useState(false);
   const [cover, setCover] = useState(DEFAULT_COVER);
   const [coverPosY, setCoverPosY] = useState(50);
   const [savedPosY, setSavedPosY] = useState(50);
@@ -152,7 +132,7 @@ export default function ProfileSettingsPage() {
         <div className="relative mx-auto w-full max-w-[1440px] px-10 pt-8">
           <div
             className={[
-              "group/cover relative h-[280px] w-full overflow-hidden rounded-t-lg",
+              "group/cover relative h-[280px] w-full overflow-hidden rounded-lg",
               repositioning ? "cursor-ns-resize select-none" : "",
             ].join(" ")}
             onMouseDown={repositioning ? handleRepoDragStart : undefined}
@@ -286,9 +266,9 @@ export default function ProfileSettingsPage() {
                     href="https://wa.me/5511987654321"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 rounded-full bg-(--aw-gray-100) px-2 py-0.5 text-2xs font-medium text-(--fg-secondary) transition-colors duration-aw-fast hover:bg-(--aw-gray-150) hover:text-(--fg-primary)"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-(--aw-gray-100) py-0.5 pl-0.5 pr-2.5 text-2xs font-medium text-(--fg-secondary) transition-colors duration-aw-fast hover:bg-(--aw-gray-150) hover:text-(--fg-primary)"
                   >
-                    <WhatsAppIcon size={12} />
+                    <WhatsAppIcon size={18} />
                     <span>+55 11 98765-4321</span>
                   </a>
                 </div>
@@ -297,7 +277,7 @@ export default function ProfileSettingsPage() {
             </div>
             <div className="flex shrink-0 items-center gap-2 pt-1">
               {!repositioning && (
-                <AwButton size="sm" variant="secondary" iconLeft="edit" onClick={() => setEditOpen(true)}>
+                <AwButton size="sm" variant="secondary" iconLeft="edit" onClick={() => setLeaveEditOpen(true)}>
                   Editar perfil
                 </AwButton>
               )}
@@ -312,6 +292,7 @@ export default function ProfileSettingsPage() {
           <aside className="flex flex-col gap-6 self-start">
             <InfoCard title="Perfil público" rows={publicRows} />
             <TeamMembershipCard groups={profileGroups} />
+            <OrganizationsCard />
           </aside>
 
           {/* Coluna direita — atalhos + notificações */}
@@ -337,121 +318,39 @@ export default function ProfileSettingsPage() {
         </div>
       </div>
 
+      {/* "Editar perfil" não edita inline — confirma e leva pro editor completo
+          na página Dados pessoais. (cmt-77c6faab) */}
       <AwModal
-        open={editOpen}
-        onClose={() => setEditOpen(false)}
-        title="Editar perfil"
+        open={leaveEditOpen}
+        onClose={() => setLeaveEditOpen(false)}
+        title="Editar seus dados pessoais?"
         footer={
           <>
             <AwButton
               size="sm"
               variant="ghost"
-              onClick={() => setEditOpen(false)}
+              onClick={() => setLeaveEditOpen(false)}
             >
               Cancelar
             </AwButton>
             <AwButton
               size="sm"
               variant="primary"
-              disabled={!editCanSave}
-              onClick={() => setEditOpen(false)}
+              iconRight="arrow_forward"
+              onClick={() => {
+                setLeaveEditOpen(false);
+                router.push("/settings/perfil/dados-pessoais");
+              }}
             >
-              Salvar alterações
+              Ir para Dados pessoais
             </AwButton>
           </>
         }
       >
-        <div className="flex items-center gap-4 pb-5">
-          <AwAvatar
-            size="lg"
-            src="/assets/users/greg.jpg"
-            alt={fullName}
-            initials="GP"
-          />
-          <div className="flex-1">
-            <p className="m-0 body-sm font-medium text-(--fg-primary)">
-              Foto de perfil
-            </p>
-            <p className="m-0 body-xs text-(--fg-secondary)">
-              PNG ou JPG, mínimo 200×200 px.
-            </p>
-          </div>
-          <AwButton
-            size="sm"
-            variant="secondary"
-            iconLeft="upload"
-            onClick={() => setPhotoOpen(true)}
-          >
-            Alterar foto
-          </AwButton>
-        </div>
-        <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
-          <AwField
-            label="Nome completo *"
-            htmlFor="profile-name"
-            error={editNameEmpty ? "Informe o seu nome para salvar." : undefined}
-          >
-            <AwInput
-              id="profile-name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              invalid={editNameEmpty}
-              autoComplete="name"
-              aria-required="true"
-            />
-          </AwField>
-          <AwField
-            label="E-mail"
-            htmlFor="profile-email"
-            helper="Gerenciado pela organização."
-          >
-            <AwInput id="profile-email" value={email} disabled />
-          </AwField>
-          <AwField
-            label="Telefone"
-            htmlFor="profile-phone"
-            helper="Usado para notificações por WhatsApp e contato de cobrança."
-          >
-            <AwInput
-              id="profile-phone"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              type="tel"
-              autoComplete="tel"
-              placeholder="+55 (11) 00000-0000"
-            />
-          </AwField>
-          <AwField
-            label="Função"
-            htmlFor="profile-role"
-            helper="A função é definida pela organização. Fale com um administrador pra alterar."
-          >
-            <AwInput id="profile-role" value={role} disabled />
-          </AwField>
-          <AwField label="Fuso horário">
-            <AwDropdownMenu
-              trigger={
-                <AwSelect className="w-full">{tzLabel(timezone)}</AwSelect>
-              }
-              items={TIMEZONES.map((tz) => ({
-                id: tz.value,
-                label: tz.label,
-                onSelect: () => setTimezone(tz.value),
-              }))}
-            />
-          </AwField>
-          <AwField label="Membro desde" htmlFor="profile-member-since">
-            <AwInput
-              id="profile-member-since"
-              value={INITIAL_PROFILE.memberSince}
-              disabled
-            />
-          </AwField>
-        </div>
-        <p className="mt-5 flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
-          <Icon name="lock" size={14} />
-          E-mail, função e data de entrada são definidos pela organização. Para
-          alterá-los, fale com um administrador.
+        <p className="m-0 body-sm text-(--fg-secondary) text-pretty">
+          A edição do seu perfil acontece na página Dados pessoais, o editor
+          completo. Você vai sair desta tela para abri-lo — dá pra voltar quando
+          quiser.
         </p>
       </AwModal>
 
@@ -579,8 +478,19 @@ function PhotoEditModal({
  * Brand icons for social rows
  * ----------------------------------------------------------------- */
 
-function WhatsAppIcon({ size = 16 }: { size?: number } = {}) {
-  return <AwBrandLogo brand="whatsapp" markOnly size={size} className="shrink-0" aria-hidden />;
+function WhatsAppIcon({ size = 20 }: { size?: number } = {}) {
+  // Badge redondo com a área verde da marca (#25D366), não mais só o glyph: o
+  // tile do AwBrandLogo pinta o verde e leva o mark full-bleed; borderRadius 50%
+  // deixa redondo. Maior e mais reconhecível. (cmt-bfd17e86 / cmt-57c32fb0)
+  return (
+    <AwBrandLogo
+      brand="whatsapp"
+      size={size}
+      className="shrink-0"
+      style={{ borderRadius: "50%" }}
+      aria-hidden
+    />
+  );
 }
 
 /* -----------------------------------------------------------------
@@ -653,45 +563,125 @@ function TeamMembershipCard({ groups }: { groups: typeof GROUPS }) {
 
       <div className="flex flex-col gap-1 px-2 pb-3">
         {groups.length > 0 ? (
-          groups.map((group) => (
-            <Link
-              key={group.id}
-              href="/settings/equipe-permissoes/grupos"
-              className="group flex items-start gap-3 rounded-lg px-2 py-2.5 hover:bg-(--bg-hover)"
-            >
-              <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-(--bg-raised) text-(--fg-secondary) group-hover:text-(--fg-primary)">
-                <Icon name={group.icon} size={17} />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="flex items-center justify-between gap-2">
-                  <span className="truncate body-sm font-medium text-(--fg-primary)">
+          groups.map((group) => {
+            const memberAvatars = group.members
+              .map((id) => MEMBERS.find((m) => m.id === id))
+              .filter((m): m is (typeof MEMBERS)[number] => Boolean(m));
+            return (
+              <Link
+                key={group.id}
+                href="/settings/equipe-permissoes/grupos"
+                className="group flex items-center gap-3 rounded-lg px-2 py-2.5 hover:bg-(--bg-hover)"
+              >
+                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-(--bg-raised) text-(--fg-secondary) group-hover:text-(--fg-primary)">
+                  <Icon name={group.icon} size={18} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate body-sm font-medium text-(--fg-primary)">
                     {group.name}
                   </span>
-                  <AwPill variant="neutral" dot={false} className="shrink-0">
-                    {group.memberCount} membros
-                  </AwPill>
-                </span>
-                <span className="mt-0.5 line-clamp-2 block body-xs text-(--fg-secondary)">
-                  {group.description}
-                </span>
-                <span className="mt-1 flex flex-wrap gap-1">
-                  {group.roles.map((groupRole) => (
-                    <span
-                      key={groupRole}
-                      className="rounded-sm bg-(--bg-subtle) px-1.5 py-0.5 text-2xs font-medium text-(--fg-tertiary)"
-                    >
-                      {groupRole}
+                  <span className="mt-1 flex items-center gap-2">
+                    {memberAvatars.length > 0 && (
+                      <AwAvatarGroup aria-label={`Membros de ${group.name}`}>
+                        {memberAvatars.slice(0, 5).map((m) => (
+                          <AwAvatar
+                            key={m.id}
+                            size="sm"
+                            src={m.avatar}
+                            alt={m.name}
+                            initials={m.initials}
+                            className="h-6! w-6! ring-2 ring-(--aw-gray-100)"
+                          />
+                        ))}
+                      </AwAvatarGroup>
+                    )}
+                    <span className="body-xs text-(--fg-tertiary)">
+                      {group.memberCount} membros
                     </span>
-                  ))}
+                  </span>
                 </span>
-              </span>
-            </Link>
-          ))
+                <Icon
+                  name="chevron_right"
+                  size={16}
+                  className="shrink-0 self-center text-(--fg-tertiary) transition-transform group-hover:translate-x-0.5"
+                />
+              </Link>
+            );
+          })
         ) : (
           <div className="rounded-lg px-2 py-3 body-sm text-(--fg-secondary)">
             Nenhuma equipe vinculada ao seu perfil.
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * OrganizationsCard — organizações que o usuário administra, com a
+ * fotinha (logo) de cada uma. Fyntra usa o logo real; as outras caem
+ * num monograma no tile escuro. (cmt-ef8da20c)
+ * ----------------------------------------------------------------- */
+
+const ADMINISTERED_ORGS: {
+  id: string;
+  name: string;
+  subtitle: string;
+  logo?: string;
+  initials: string;
+}[] = [
+  {
+    id: "fyntra",
+    name: ONBOARDING_ORG.name,
+    subtitle: "Administrada por você",
+    logo: ONBOARDING_ORG.logo,
+    initials: "FT",
+  },
+  { id: "aswork-labs", name: "Aswork Labs", subtitle: "Workspace", initials: "AL" },
+  { id: "cliente-demo", name: "Cliente Demo", subtitle: "Organização", initials: "CD" },
+];
+
+function OrganizationsCard() {
+  return (
+    <div
+      className="overflow-hidden rounded-lg"
+      style={{ background: "var(--aw-gray-100)" }}
+    >
+      <div className="px-4 pb-2 pt-3.5">
+        <h6 className="m-0 text-(--fg-primary)">Organizações</h6>
+        <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
+          Organizações que você administra.
+        </p>
+      </div>
+      <div className="flex flex-col gap-1 px-2 pb-3">
+        {ADMINISTERED_ORGS.map((org) => (
+          <div
+            key={org.id}
+            className="flex items-center gap-3 rounded-lg px-2 py-2"
+          >
+            {org.logo ? (
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-(--bg-raised)">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={org.logo}
+                  alt={org.name}
+                  className="h-full w-full object-cover"
+                />
+              </span>
+            ) : (
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-inverse) body-xs font-semibold text-(--fg-on-inverse)">
+                {org.initials}
+              </span>
+            )}
+            <div className="min-w-0">
+              <p className="m-0 truncate body-sm font-medium text-(--fg-primary)">
+                {org.name}
+              </p>
+              <p className="m-0 body-xs text-(--fg-tertiary)">{org.subtitle}</p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
