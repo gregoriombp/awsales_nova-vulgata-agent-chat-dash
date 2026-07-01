@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { Icon } from "@/components/ui/Icon";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwModal } from "@/components/ui/AwModal";
-import { AwSegmented } from "@/components/ui/AwSegmented";
+import { AwTabs } from "@/components/ui/AwTabs";
 import {
   Tooltip,
   TooltipContent,
@@ -411,12 +411,11 @@ function Controls({
   return (
     <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <AwSegmented<SpendingGrouping>
-          ariaLabel="Agrupar gasto por"
-          size="sm"
+        <AwTabs
+          aria-label="Agrupar gasto por"
           value={grouping}
-          onChange={onGrouping}
-          options={[
+          onChange={(v) => onGrouping(v as SpendingGrouping)}
+          items={[
             { value: "service", label: "Serviço" },
             { value: "agent", label: "Agente" },
           ]}
