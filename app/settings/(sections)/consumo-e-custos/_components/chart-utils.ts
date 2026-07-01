@@ -86,3 +86,51 @@ export function bucketRows<T extends Record<string, unknown>>(
   });
   return out;
 }
+
+/* ----------------------------------------------------------------------------
+ * Recorte por instância de widget (Notion: "ao adicionar um novo gráfico, o
+ * usuário configura por tipo de uso e tipo de cobrança"). O matcher roda nas
+ * categorias da lente Serviço; na lente Agente o recorte não se aplica.
+ * ------------------------------------------------------------------------- */
+
+import { catProviderOf } from "./explorer-model";
+import type { WidgetInstanceConfig } from "./report-types";
+
+export function categoryMatchesConfig(
+  catId: string,
+  grouping: "service" | "agent",
+  cfg: WidgetInstanceConfig | undefined,
+): boolean {
+  if (!cfg || grouping !== "service") return true;
+  const uso = cfg.uso ?? "all";
+  const cobranca = cfg.cobranca ?? "all";
+  if (uso !== "all") {
+    const hit =
+      uso === "disparos"
+        ? catId.startsWith("disparos")
+        : uso === "tokens"
+          ? catId === "tokens" || catId.startsWith("tok-")
+          : catId === uso;
+    if (!hit) return false;
+  }
+  if (cobranca !== "all" && catProviderOf(catId, "service") !== cobranca) return false;
+  return true;
+}
+
+const USO_LABEL: Record<NonNullable<WidgetInstanceConfig["uso"]>, string> = {
+  all: "",
+  disparos: "Disparos",
+  mensagens: "Mensagens",
+  leads: "Leads",
+  tokens: "Tokens",
+};
+
+/** Rótulo curto do recorte configurado ("Disparos · só Meta") ou null. */
+export function widgetConfigLabel(cfg: WidgetInstanceConfig | undefined): string | null {
+  if (!cfg) return null;
+  const parts: string[] = [];
+  if (cfg.uso && cfg.uso !== "all") parts.push(USO_LABEL[cfg.uso]);
+  if (cfg.cobranca && cfg.cobranca !== "all")
+    parts.push(cfg.cobranca === "aswork" ? "só Aswork" : "só Meta");
+  return parts.length ? parts.join(" · ") : null;
+}

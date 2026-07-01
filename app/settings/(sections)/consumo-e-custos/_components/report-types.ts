@@ -26,6 +26,14 @@ export type StoredSelection =
   | { kind: "preset"; id: SpendingPeriod }
   | { kind: "custom"; from: string; to: string };
 
+/** Recorte por INSTÂNCIA de widget ao adicionar um gráfico (Notion): tipo de
+ *  USO estreita as categorias de serviço; tipo de COBRANÇA estreita o pagador.
+ *  Só vale na lente Serviço — na lente Agente o recorte é ignorado. */
+export type WidgetInstanceConfig = {
+  uso?: "all" | "disparos" | "mensagens" | "leads" | "tokens";
+  cobranca?: "all" | "aswork" | "meta";
+};
+
 /** Snapshot completo do explorador: filtros + drill + layout do board. */
 export type ExplorerSnapshot = {
   grouping: SpendingGrouping;
@@ -41,6 +49,8 @@ export type ExplorerSnapshot = {
   channels?: SpendChannel[];
   /** Filtro rápido de disparos (ausente = todos). */
   disparos?: "all" | "mkt" | "util" | "none";
+  /** Recorte por instância de widget (ex.: consumo → só Disparos·Aswork). */
+  widgetConfigs?: Record<string, WidgetInstanceConfig>;
   /** Recorte técnico (default: exploração de custos). */
   kind?: ReportKind;
   /** Fatura recortada, quando kind === "invoice". */

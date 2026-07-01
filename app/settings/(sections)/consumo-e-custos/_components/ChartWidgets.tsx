@@ -49,7 +49,7 @@ import { useConsumo, type SeriesTotal } from "./ConsumoContext";
 import { catProviderOf, categoryPayerSplit, PROVIDERS } from "./explorer-model";
 import { SegmentedToggle } from "./controls";
 import { InfoTip } from "./KpiCards";
-import { bucketRows, type ChartGranularity } from "./chart-utils";
+import { bucketRows, categoryMatchesConfig, widgetConfigLabel, type ChartGranularity } from "./chart-utils";
 import { GranularityToggle } from "./GranularityToggle";
 import { LimitEventMarkers } from "../../financeiro/_components/LimitEventMarkers";
 import { selectionLimitEvents } from "../../financeiro/_components/data";
@@ -203,8 +203,9 @@ export function ConsumoChartWidget({
   dragHandle,
   menu,
 }: WidgetChrome) {
-  const { chartModel, chartIds, chartPeriod, grouping, accumulated, metaIncluded, surface, reportKind, selection } =
+  const { chartModel, chartIds, chartPeriod, grouping, accumulated, metaIncluded, surface, reportKind, selection, widgetConfigs } =
     useConsumo();
+  const instanceCfg = widgetConfigs["consumo"];
   // Nota "bate com o Analytics" só vale na visão por DATA DE USO — nunca no
   // recorte de fatura/ciclo, onde os valores seguem a data de pagamento
   // (pedido do Greg: cmt-4571977b).
@@ -216,7 +217,9 @@ export function ConsumoChartWidget({
   const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
 
   const categories = React.useMemo(() => {
-    const filtered = chartModel.categories.filter((c) => chartIds.has(c.id));
+    const filtered = chartModel.categories.filter(
+      (c) => chartIds.has(c.id) && categoryMatchesConfig(c.id, grouping, instanceCfg),
+    );
     const totals = filtered.map((c) => {
       const idx = chartModel.categories.indexOf(c);
       return {
@@ -240,7 +243,7 @@ export function ConsumoChartWidget({
         if (b.id === "__others__") return -1;
         return (totalById.get(b.id) ?? 0) - (totalById.get(a.id) ?? 0);
       });
-  }, [chartModel, chartIds, grouping]);
+  }, [chartModel, chartIds, grouping, instanceCfg]);
   const config = React.useMemo(() => buildConfig(categories), [categories]);
   const totalDays = chartModel.data.length;
 
@@ -355,7 +358,7 @@ export function ConsumoChartWidget({
         </span>
       }
       icon="bar_chart"
-      description={`${grouping === "service" ? "Por serviço" : "Por agente"} · acumulado ${brl(accumulated)}${isUsageDateView ? " · o mesmo valor do Analytics" : ""}`}
+      description={`${grouping === "service" ? "Por serviço" : "Por agente"} · acumulado ${brl(accumulated)}${widgetConfigLabel(instanceCfg) ? ` · recorte: ${widgetConfigLabel(instanceCfg)}` : ""}${isUsageDateView ? " · o mesmo valor do Analytics" : ""}`}
       dragHandle={dragHandle}
       menu={menu}
       actions={
@@ -463,7 +466,12 @@ export function ComposicaoWidget({
   dragHandle,
   menu,
 }: WidgetChrome) {
-  const { seriesTotals, grouping, accumulated } = useConsumo();
+  const { seriesTotals, grouping, accumulated, widgetConfigs } = useConsumo();
+  const instanceCfg = widgetConfigs["composicao"];
+  const scopedTotals = React.useMemo(
+    () => seriesTotals.filter((s) => categoryMatchesConfig(s.cat.id, grouping, instanceCfg)),
+    [seriesTotals, grouping, instanceCfg],
+  );
   const [viz, setViz] = React.useState<ComposicaoViz>("donut");
   const [activeSlice, setActiveSlice] = React.useState<string | null>(null);
 
@@ -471,14 +479,14 @@ export function ComposicaoWidget({
   // escuro, clareando conforme a participação cai.
   const colored = React.useMemo(() => {
     const colorByRank = chartColorByRank(
-      seriesTotals.map((s) => ({ id: s.cat.id, total: s.total })),
+      scopedTotals.map((s) => ({ id: s.cat.id, total: s.total })),
       grouping,
     );
-    return seriesTotals.map((s) => ({
+    return scopedTotals.map((s) => ({
       ...s,
       cat: { ...s.cat, colorVar: colorByRank.get(s.cat.id) ?? s.cat.colorVar },
     }));
-  }, [seriesTotals, grouping]);
+  }, [scopedTotals, grouping]);
 
   const data = React.useMemo(
     () =>

@@ -52,6 +52,7 @@ export function ExplorerMain() {
     userHiddenWidgets,
     toggleWidgetHidden,
     restoreAllWidgets,
+    setWidgetConfig,
   } = useConsumo();
   // No detalhamento de um custo específico (drill ativo) os 4 KPIs de topo
   // (subtotal/créditos/ajustes/total) deixam de fazer sentido — somem.
@@ -146,7 +147,12 @@ export function ExplorerMain() {
             editing={editing}
             hidden={hiddenWidgets}
             onRemove={toggleWidgetHidden}
-            onAdd={toggleWidgetHidden}
+            onAdd={(id, config) => {
+              // Recorte escolhido no modal (tipo de uso/cobrança) fica na
+              // instância; sem recorte, limpa um config antigo do mesmo id.
+              setWidgetConfig(id, config ?? null);
+              toggleWidgetHidden(id);
+            }}
             onEdit={startEdit}
           />
         </div>

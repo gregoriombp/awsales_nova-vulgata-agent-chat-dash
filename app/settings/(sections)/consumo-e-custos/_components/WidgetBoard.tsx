@@ -7,6 +7,7 @@ import { AwCard } from "@/components/ui/AwCard";
 import { AwDropdownMenu, type AwDropdownItem } from "@/components/ui/AwDropdownMenu";
 import { Icon } from "@/components/ui/Icon";
 import { AddWidgetCard, type AddableWidget } from "./AddWidgetCard";
+import type { WidgetInstanceConfig } from "./report-types";
 
 /* ----------------------------------------------------------------------------
  * Board de widgets arrastáveis.
@@ -198,8 +199,9 @@ export function DraggableBoard({
   /** Remove um widget da visualização atual (item "Remover" do menu do card). */
   onRemove?: (id: string) => void;
   /** Re-exibe um widget escondido — alimenta o card "Adicionar gráfico" no fim
-   *  do board. Quando passado, o card-placeholder é sempre renderizado. */
-  onAdd?: (id: string) => void;
+   *  do board. Quando passado, o card-placeholder é sempre renderizado. O
+   *  `config` chega quando o gráfico foi adicionado com recorte (uso/cobrança). */
+  onAdd?: (id: string, config?: WidgetInstanceConfig) => void;
   /** Entra no modo de reorganização (arraste) — item "Reorganizar painel". */
   onEdit?: () => void;
 }) {
@@ -224,7 +226,13 @@ export function DraggableBoard({
     ? order
         .map((id) => byId.get(id))
         .filter((w): w is BoardWidget => Boolean(w) && Boolean(hidden?.has((w as BoardWidget).id)))
-        .map((w) => ({ id: w.id, label: w.label ?? w.id, icon: w.icon ?? "insert_chart" }))
+        .map((w) => ({
+          id: w.id,
+          label: w.label ?? w.id,
+          icon: w.icon ?? "insert_chart",
+          // Gráficos de categoria aceitam recorte ao adicionar (Notion).
+          configurable: w.id === "consumo" || w.id === "composicao",
+        }))
     : [];
 
   const items = ordered.map((w) => (

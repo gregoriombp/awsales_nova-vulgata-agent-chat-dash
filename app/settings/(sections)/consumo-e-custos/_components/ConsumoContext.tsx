@@ -49,10 +49,11 @@ import {
   type ReportType,
   type SavedReport,
   type StoredSelection,
+  type WidgetInstanceConfig,
 } from "./report-types";
 
 // Re-exporta a taxonomia pra quem já importava daqui (SavedReports, etc.).
-export type { ExplorerSnapshot, ReportKind, ReportType, SavedReport } from "./report-types";
+export type { ExplorerSnapshot, ReportKind, ReportType, SavedReport, WidgetInstanceConfig } from "./report-types";
 export { BOARD_DEFAULT_ORDER, BOARD_DEFAULT_SPANS };
 
 /* ----------------------------------------------------------------------------
@@ -258,6 +259,10 @@ type ConsumoContextValue = {
   resetBoard: () => void;
   isBoardCustomized: boolean;
 
+  /* recorte por instância de widget (adicionar gráfico com tipo de uso/cobrança) */
+  widgetConfigs: Record<string, WidgetInstanceConfig>;
+  setWidgetConfig: (id: string, cfg: WidgetInstanceConfig | null) => void;
+
   /* widgets removidos da visualização atual */
   hiddenWidgets: Set<string>;
   /** Widgets que o TIPO ativo não oferece (fora do board e do AddWidget). */
@@ -360,6 +365,17 @@ export function ConsumoProvider({
   // Filtro rápido de disparos (todos | só marketing | só utilidade | sem).
   const [disparosFilter, setDisparosFilter] = React.useState<DisparosFilter>("all");
 
+  // Recorte por instância de widget (Adicionar gráfico → tipo de uso/cobrança).
+  const [widgetConfigs, setWidgetConfigs] = React.useState<Record<string, WidgetInstanceConfig>>({});
+  const setWidgetConfig = React.useCallback((id: string, cfg: WidgetInstanceConfig | null) => {
+    setWidgetConfigs((prev) => {
+      const next = { ...prev };
+      if (cfg && (cfg.uso !== "all" || cfg.cobranca !== "all")) next[id] = cfg;
+      else delete next[id];
+      return next;
+    });
+  }, []);
+
   // Widgets removidos da visualização atual (faz parte do snapshot do relatório).
   const [hidden, setHidden] = React.useState<Set<string>>(() => new Set());
   // Linha de base de ocultos: o que o PRESET do tipo já esconde de propósito.
@@ -461,11 +477,12 @@ export function ConsumoProvider({
       hidden: [...hidden],
       channels: [...channels],
       disparos: disparosFilter,
+      widgetConfigs: Object.keys(widgetConfigs).length ? widgetConfigs : undefined,
       kind: reportKind,
       invoiceId: invoiceId ?? undefined,
       reportType: reportType ?? undefined,
     }),
-    [grouping, selection, payers, search, drill, order, spans, hidden, channels, disparosFilter, reportKind, invoiceId, reportType],
+    [grouping, selection, payers, search, drill, order, spans, hidden, channels, disparosFilter, widgetConfigs, reportKind, invoiceId, reportType],
   );
 
   const applySnapshot = React.useCallback(
@@ -480,6 +497,7 @@ export function ConsumoProvider({
       setHidden(new Set(snap.hidden ?? []));
       setChannels(new Set(snap.channels?.length ? snap.channels : ALL_CHANNELS));
       setDisparosFilter(snap.disparos ?? "all");
+      setWidgetConfigs(snap.widgetConfigs ?? {});
       setReportKind(snap.kind ?? "exploration");
       setInvoiceId(snap.invoiceId ?? null);
       setReportType(snap.reportType ?? null);
@@ -1194,6 +1212,8 @@ export function ConsumoProvider({
     togglePayer,
     selectPayers,
     metaIncluded,
+    widgetConfigs,
+    setWidgetConfig,
     hiddenWidgets: hidden,
     excludedWidgets,
     userHiddenWidgets,
