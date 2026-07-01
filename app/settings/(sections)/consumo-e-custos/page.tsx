@@ -344,7 +344,7 @@ function ReportsTable({
                     </button>
                   }
                   items={[
-                    { id: "view", label: "Visualizar", icon: "visibility", onSelect: () => onOpen(r.id) },
+                    { id: "view", label: "Abrir", icon: "arrow_forward", onSelect: () => onOpen(r.id) },
                     {
                       id: "newtab",
                       label: "Abrir em nova guia",
@@ -440,7 +440,7 @@ function EmptyReports({ searching, onCreate }: { searching: boolean; onCreate: (
       ) : (
         <>
           <p className="m-0 body-sm text-(--fg-secondary)">
-            Você ainda não salvou nenhum relatório.
+            Monte seu primeiro relatório para começar.
           </p>
           <AwButton variant="secondary" iconLeft="add" onClick={onCreate}>
             Criar novo relatório

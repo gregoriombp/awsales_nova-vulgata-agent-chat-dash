@@ -35,13 +35,13 @@ export function HighlightCards() {
         description="Abatidos no período"
         value={`− ${brl(summary.credits)}`}
         valueClassName="text-(--accent-success)"
-        tooltip="Total de créditos e cupons aplicados no período selecionado. Esse valor reduz o total a ser cobrado ou faturado, conforme as regras de validade, elegibilidade e aplicação de cada crédito ou cupom."
+        tooltip="Créditos e cupons aplicados no período — reduzem o total."
       />
       <HighlightCard
         label="Ajustes"
         description="Correções aplicadas no período"
         value={signedBrl(summary.adjustments)}
-        tooltip="Ajustes são correções financeiras aplicadas pela Aswork para aumentar ou reduzir o valor do período. Eles podem ocorrer por estornos, compensações, erros operacionais, falhas de provedor, cobranças indevidas ou outras correções comerciais. Ajustes negativos reduzem o total; ajustes positivos aumentam o total."
+        tooltip="Correções da Aswork que somam (+) ou abatem (−) do total no período."
         footer={
           summary.adjustments !== 0 ? <AdjustmentsDetail /> : undefined
         }
@@ -51,7 +51,7 @@ export function HighlightCards() {
         description="Valor após créditos, cupons e ajustes"
         value={brl(summary.total)}
         emphasized
-        tooltip="Valor final do período após aplicar créditos, cupons e ajustes sobre o uso variável. Esse é o valor que será cobrado, faturado ou considerado na fatura do cliente, conforme o ciclo e as regras de cobrança da conta."
+        tooltip="O que sobra após créditos, cupons e ajustes sobre o uso."
       />
     </div>
   );

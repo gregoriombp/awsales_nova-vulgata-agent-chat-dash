@@ -208,7 +208,7 @@ type ConsumoContextValue = {
     colorVar: string;
     active: boolean;
   }[];
-  /** Fração do total visível sobre o total cheio — escala o "Uso do período". */
+  /** Fração do total visível sobre o total cheio — escala o "Custo Aswork × Meta por dia". */
   scopeFactor: number;
 
   /* filtro de pagador (Aswork/Meta) — independente da lente */
