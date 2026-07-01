@@ -39,6 +39,14 @@ const ALL_TYPES: AuditEventType[] = [
   "Crédito",
 ];
 
+/** Subcategorias do filtro de tipo — "quebrado em subcategorias" como no
+ *  protótipo do Genê (cmt-445e1f6a): eventos de billing/dinheiro ficam em
+ *  "Financeiro"; o resto (instrumento de pagamento, etc.) em "Outros". */
+const TYPE_GROUPS: { label: string; types: AuditEventType[] }[] = [
+  { label: "Financeiro", types: ["Plano", "Fatura", "Crédito", "Cupom"] },
+  { label: "Outros", types: ["Cartão"] },
+];
+
 /** Identidade visual por tipo de evento. Cupom e crédito ganham ícone e cor
  *  próprios para saltarem aos olhos no histórico; o resto fica neutro. */
 const TYPE_META: Record<
@@ -104,7 +112,7 @@ function ActorAvatar({
       <AwAvatar
         size={size}
         aria-label="Aswork"
-        className="bg-(--bg-inverse)! text-(--fg-on-inverse)"
+        className="bg-(--bg-inverse)! text-(--fg-on-inverse)!"
       >
         <AwLogo
           variant="mark"
@@ -125,10 +133,12 @@ function ActorAvatar({
   );
 }
 
-function executorRole(executor: AuditExecutor): string {
+function executorRole(executor: AuditExecutor, actor: string): string {
   switch (executor) {
     case "Aswork":
-      return "Gerente de conta";
+      // A própria organização como ator (ex.: "Aswork atribuiu um crédito")
+      // não é um gerente de conta — é a Aswork agindo enquanto organização.
+      return actor === "Aswork" ? "Organização" : "Gerente de conta";
     case "Cliente":
       return "Usuário";
   }
@@ -572,20 +582,31 @@ function TypeFilterMenu({
           <Icon name="expand_more" size={16} />
         </button>
       }
-      items={options.map((t) => {
-        const meta = TYPE_META[t];
-        return {
-          id: t,
-          label: (
-            <span className="inline-flex items-center gap-2">
-              <Icon name={meta.icon} size={15} className={meta.accentClass} />
-              <span>{t}</span>
-            </span>
-          ),
-          checked: selected.includes(t),
-          closeOnSelect: false,
-          onSelect: () => onToggle(t),
-        };
+      items={TYPE_GROUPS.flatMap((group, gi): AwDropdownItem[] => {
+        const groupTypes = group.types.filter((t) => options.includes(t));
+        if (groupTypes.length === 0) return [];
+        const head: AwDropdownItem[] = [];
+        // Separador entre grupos (não antes do primeiro).
+        if (gi > 0) head.push({ id: `sep-${group.label}`, separator: true });
+        head.push({ id: `hdr-${group.label}`, isLabel: true, label: group.label });
+        return [
+          ...head,
+          ...groupTypes.map<AwDropdownItem>((t) => {
+            const meta = TYPE_META[t];
+            return {
+              id: t,
+              label: (
+                <span className="inline-flex items-center gap-2">
+                  <Icon name={meta.icon} size={15} className={meta.accentClass} />
+                  <span>{t}</span>
+                </span>
+              ),
+              checked: selected.includes(t),
+              closeOnSelect: false,
+              onSelect: () => onToggle(t),
+            };
+          }),
+        ];
       })}
     />
   );
@@ -709,7 +730,7 @@ function EventRow({
                 </span>{" "}
                 {event.action}
               </span>
-              <AwPill variant={typeVariant(event.type)}>
+              <AwPill variant={typeVariant(event.type)} dot={false}>
                 <Icon name={meta.icon} size={12} className={meta.accentClass} />
                 {event.type}
               </AwPill>
@@ -730,7 +751,7 @@ function EventRow({
             {event.date} · {event.time}
           </span>
           <span className="body-xs text-(--fg-tertiary)">
-            {executorRole(event.executor)}
+            {executorRole(event.executor, event.actor)}
           </span>
         </div>
 
