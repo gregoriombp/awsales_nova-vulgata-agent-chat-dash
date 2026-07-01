@@ -2,7 +2,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Icon, type IconProps } from "./Icon"
 
-export type AwPageHeaderSize = "hero" | "default" | "compact"
+export type AwPageHeaderSize = "hero" | "display" | "default" | "compact"
 
 type IconConfig = {
   name: string
@@ -34,24 +34,29 @@ export type AwPageHeaderProps = Omit<
 
 const ICON_SIZE: Record<AwPageHeaderSize, number> = {
   hero: 48,
+  display: 44,
   default: 28,
   compact: 22,
 }
 
 const ICON_WEIGHT: Record<AwPageHeaderSize, IconProps["weight"]> = {
   hero: 300,
+  display: 300,
   default: 400,
   compact: 400,
 }
 
 const TITLE_CLASS: Record<AwPageHeaderSize, string> = {
   hero: "text-(length:--h1-size) leading-[1.1] tracking-[-0.04em]",
+  // Matches the settings page-title recipe (display-sm scale, medium weight).
+  display: "display-sm font-medium",
   default: "text-(length:--h3-size) font-semibold leading-tight tracking-heading-tighter",
   compact: "text-(length:--h5-size) font-semibold leading-tight tracking-heading",
 }
 
 const TITLE_GAP: Record<AwPageHeaderSize, string> = {
   hero: "gap-3",
+  display: "gap-3",
   default: "gap-2.5",
   compact: "gap-2",
 }
