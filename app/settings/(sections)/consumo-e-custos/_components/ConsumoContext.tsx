@@ -61,6 +61,12 @@ export type PeriodSelection =
   | { kind: "preset"; id: SpendingPeriod }
   | { kind: "custom"; from: Date; to: Date };
 
+/** Superfície que está montando o provider. O explorador (default) é a única
+ *  que persiste board/relatórios e consome deep-links; "overview" (dashboard
+ *  fixo da Visão geral) e "cycle" (aba Por ciclos) são instâncias ANINHADAS,
+ *  100% em memória — nunca leem nem escrevem o localStorage do explorador. */
+export type ConsumoSurface = "explorer" | "overview" | "cycle";
+
 export type DrillNode = { label: string; categoryIds: string[]; kind?: "agent-compare" };
 /** Agente comparado (X-Ray) — pra a pill de "visão filtrada" na topbar. */
 export type ComparedAgent = { id: string; label: string; avatar?: string };
@@ -162,6 +168,8 @@ export function formatRangeShort(from: Date, to: Date): string {
 }
 
 type ConsumoContextValue = {
+  /** Superfície dona desta instância (explorador, visão geral ou ciclos). */
+  surface: ConsumoSurface;
   grouping: SpendingGrouping;
   setGrouping: (g: SpendingGrouping) => void;
   selection: PeriodSelection;
@@ -265,9 +273,21 @@ type ConsumoContextValue = {
 
 const ConsumoContext = React.createContext<ConsumoContextValue | null>(null);
 
-export function ConsumoProvider({ children }: { children: React.ReactNode }) {
+export function ConsumoProvider({
+  children,
+  surface = "explorer",
+  initialSelection,
+}: {
+  children: React.ReactNode;
+  surface?: ConsumoSurface;
+  /** Período inicial da instância (ex.: o range do ciclo na aba Por ciclos). */
+  initialSelection?: PeriodSelection;
+}) {
+  const isExplorer = surface === "explorer";
   const [grouping, setGroupingState] = React.useState<SpendingGrouping>("service");
-  const [selection, setSelection] = React.useState<PeriodSelection>({ kind: "preset", id: "this-month" });
+  const [selection, setSelection] = React.useState<PeriodSelection>(
+    initialSelection ?? { kind: "preset", id: "this-month" },
+  );
   const [drill, setDrill] = React.useState<DrillNode[]>([]);
   const [search, setSearch] = React.useState("");
   // Pagador ativo (Aswork/Meta). Ambos ligados por padrão; nunca esvazia.
@@ -324,13 +344,15 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Layout do board (ordem + larguras) — agora mora no provider pra entrar no
-  // snapshot dos relatórios. Os widgets/Toolbar consomem daqui.
+  // snapshot dos relatórios. Os widgets/Toolbar consomem daqui. Superfícies
+  // fixas (overview/cycle) usam chave null: layout só em memória, sem herdar
+  // nem sujar a customização do explorador.
   const { order, setOrder, reset: resetOrder, isCustomized: orderCustom } = useBoardOrder(
-    BOARD_ORDER_KEY,
+    isExplorer ? BOARD_ORDER_KEY : null,
     BOARD_DEFAULT_ORDER,
   );
   const { spans, toggleSpan, setSpans, reset: resetSpans, isCustomized: spansCustom } = useBoardSpans(
-    BOARD_SPANS_KEY,
+    isExplorer ? BOARD_SPANS_KEY : null,
     BOARD_DEFAULT_SPANS,
   );
   const isBoardCustomized = orderCustom || spansCustom;
@@ -347,22 +369,30 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
   // pra detectar mudanças não salvas. `baselineHidden` (acima) cobre o banner.
   const [draftBaseline, setDraftBaseline] = React.useState<ExplorerSnapshot | null>(null);
 
-  const persistReports = React.useCallback((next: SavedReport[], activeId: string | null) => {
-    try {
-      window.localStorage.setItem(REPORTS_KEY, JSON.stringify({ reports: next, activeReportId: activeId }));
-    } catch {
-      /* localStorage indisponível */
-    }
-  }, []);
+  const persistReports = React.useCallback(
+    (next: SavedReport[], activeId: string | null) => {
+      if (!isExplorer) return; // superfícies fixas nunca escrevem os relatórios
+      try {
+        window.localStorage.setItem(REPORTS_KEY, JSON.stringify({ reports: next, activeReportId: activeId }));
+      } catch {
+        /* localStorage indisponível */
+      }
+    },
+    [isExplorer],
+  );
 
-  const persistDraft = React.useCallback((snap: ExplorerSnapshot | null) => {
-    try {
-      if (snap) window.localStorage.setItem(DRAFT_KEY, JSON.stringify(snap));
-      else window.localStorage.removeItem(DRAFT_KEY);
-    } catch {
-      /* localStorage indisponível */
-    }
-  }, []);
+  const persistDraft = React.useCallback(
+    (snap: ExplorerSnapshot | null) => {
+      if (!isExplorer) return;
+      try {
+        if (snap) window.localStorage.setItem(DRAFT_KEY, JSON.stringify(snap));
+        else window.localStorage.removeItem(DRAFT_KEY);
+      } catch {
+        /* localStorage indisponível */
+      }
+    },
+    [isExplorer],
+  );
 
   // Descarta o rascunho pendente (ex.: ao sair sem salvar pelo "Voltar").
   const clearDraft = React.useCallback(() => {
@@ -406,10 +436,13 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
   );
 
   // Hidrata os relatórios e, se havia um ativo, reabre o explorador nele.
+  // Só no explorador: as superfícies fixas (overview/cycle) não consomem
+  // deep-link, rascunho nem relatório ativo — abrem sempre no estado próprio.
   const reportsHydrated = React.useRef(false);
   React.useEffect(() => {
     if (reportsHydrated.current) return;
     reportsHydrated.current = true;
+    if (!isExplorer) return;
     try {
       const raw = window.localStorage.getItem(REPORTS_KEY);
       // Primeiro acesso: semeia os relatórios-exemplo da página inicial.
@@ -1011,6 +1044,7 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
   const selectInvoice = React.useCallback((id: string) => setInvoiceId(id), []);
 
   const value: ConsumoContextValue = {
+    surface,
     grouping,
     setGrouping,
     selection,

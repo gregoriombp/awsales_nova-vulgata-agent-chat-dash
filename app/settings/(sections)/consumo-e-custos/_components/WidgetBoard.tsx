@@ -37,24 +37,28 @@ export type BoardWidget = {
   render: (chrome: WidgetChrome) => React.ReactNode;
 };
 
-export function useBoardOrder(storageKey: string, defaultOrder: string[]) {
+/** `storageKey: null` = board só em memória (superfícies fixas, ex. Visão
+ *  geral) — nada é lido nem escrito no localStorage do explorador. */
+export function useBoardOrder(storageKey: string | null, defaultOrder: string[]) {
   const [order, setOrderState] = React.useState<string[]>(defaultOrder);
   const [hydrated, setHydrated] = React.useState(false);
 
   // Lê o layout salvo só depois de montar, pra não dar mismatch de hidratação.
   React.useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(storageKey);
-      if (raw) {
-        const saved = JSON.parse(raw) as string[];
-        // Reconcilia com o default: mantém a ordem salva, descarta ids que não
-        // existem mais e acrescenta widgets novos no fim.
-        const valid = saved.filter((id) => defaultOrder.includes(id));
-        const missing = defaultOrder.filter((id) => !valid.includes(id));
-        setOrderState([...valid, ...missing]);
+    if (storageKey) {
+      try {
+        const raw = window.localStorage.getItem(storageKey);
+        if (raw) {
+          const saved = JSON.parse(raw) as string[];
+          // Reconcilia com o default: mantém a ordem salva, descarta ids que não
+          // existem mais e acrescenta widgets novos no fim.
+          const valid = saved.filter((id) => defaultOrder.includes(id));
+          const missing = defaultOrder.filter((id) => !valid.includes(id));
+          setOrderState([...valid, ...missing]);
+        }
+      } catch {
+        /* localStorage indisponível — segue com o default */
       }
-    } catch {
-      /* localStorage indisponível — segue com o default */
     }
     setHydrated(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -63,6 +67,7 @@ export function useBoardOrder(storageKey: string, defaultOrder: string[]) {
   const setOrder = React.useCallback(
     (next: string[]) => {
       setOrderState(next);
+      if (!storageKey) return;
       try {
         window.localStorage.setItem(storageKey, JSON.stringify(next));
       } catch {
@@ -74,6 +79,7 @@ export function useBoardOrder(storageKey: string, defaultOrder: string[]) {
 
   const reset = React.useCallback(() => {
     setOrderState(defaultOrder);
+    if (!storageKey) return;
     try {
       window.localStorage.removeItem(storageKey);
     } catch {
@@ -91,26 +97,28 @@ export function useBoardOrder(storageKey: string, defaultOrder: string[]) {
 /** Largura (span) de cada widget, persistida por navegador — mesmo padrão da
  * ordem. O resize troca 1↔2 colunas; cada widget guarda sua escolha. */
 export function useBoardSpans(
-  storageKey: string,
+  storageKey: string | null,
   defaultSpans: Record<string, Span>,
 ) {
   const [spans, setSpansState] = React.useState<Record<string, Span>>(defaultSpans);
   const [hydrated, setHydrated] = React.useState(false);
 
   React.useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(storageKey);
-      if (raw) {
-        const saved = JSON.parse(raw) as Record<string, Span>;
-        // Mantém só ids conhecidos e completa o que faltar com o default.
-        const next: Record<string, Span> = { ...defaultSpans };
-        for (const id of Object.keys(defaultSpans)) {
-          if (saved[id] === 1 || saved[id] === 2) next[id] = saved[id];
+    if (storageKey) {
+      try {
+        const raw = window.localStorage.getItem(storageKey);
+        if (raw) {
+          const saved = JSON.parse(raw) as Record<string, Span>;
+          // Mantém só ids conhecidos e completa o que faltar com o default.
+          const next: Record<string, Span> = { ...defaultSpans };
+          for (const id of Object.keys(defaultSpans)) {
+            if (saved[id] === 1 || saved[id] === 2) next[id] = saved[id];
+          }
+          setSpansState(next);
         }
-        setSpansState(next);
+      } catch {
+        /* localStorage indisponível — segue com o default */
       }
-    } catch {
-      /* localStorage indisponível — segue com o default */
     }
     setHydrated(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -119,6 +127,7 @@ export function useBoardSpans(
   const persist = React.useCallback(
     (next: Record<string, Span>) => {
       setSpansState(next);
+      if (!storageKey) return;
       try {
         window.localStorage.setItem(storageKey, JSON.stringify(next));
       } catch {
@@ -133,10 +142,12 @@ export function useBoardSpans(
       setSpansState((prev) => {
         const current = prev[id] ?? defaultSpans[id] ?? 1;
         const next = { ...prev, [id]: (current === 2 ? 1 : 2) as Span };
-        try {
-          window.localStorage.setItem(storageKey, JSON.stringify(next));
-        } catch {
-          /* ignore */
+        if (storageKey) {
+          try {
+            window.localStorage.setItem(storageKey, JSON.stringify(next));
+          } catch {
+            /* ignore */
+          }
         }
         return next;
       });
@@ -147,6 +158,7 @@ export function useBoardSpans(
 
   const reset = React.useCallback(() => {
     setSpansState(defaultSpans);
+    if (!storageKey) return;
     try {
       window.localStorage.removeItem(storageKey);
     } catch {
