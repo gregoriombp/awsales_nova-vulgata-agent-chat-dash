@@ -156,10 +156,18 @@ export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
       // Casa única do detalhamento de auditoria financeira (também acessível
       // pelo atalho "Consumo e custos →" da Visão geral). Fica fora do prefixo
       // /settings/financeiro de propósito — não acende junto com o Financeiro.
+      // Tem ConsumoCustosTabs in-page (layout do route group) → item único,
+      // sub-rotas só pro breadcrumb.
       {
         href: "/settings/consumo-e-custos",
         label: "Consumo e custos",
         icon: "monitoring",
+        matchPrefixes: ["/settings/consumo-e-custos"],
+        subRoutes: {
+          ciclos: "Por ciclos",
+          analises: "Análises",
+          explorar: "Explorar custos",
+        },
       },
       { href: "/settings/zona-de-perigo", label: "Zona de perigo", icon: "warning" },
     ],

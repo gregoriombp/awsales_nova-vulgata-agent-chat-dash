@@ -38,7 +38,7 @@ export default function AwReportPromoPage() {
                   art="blocks"
                   title="Consumo e custos"
                   description="Concilie o que foi usado com o que foi cobrado, item a item, e acompanhe a evolução do consumo variável ao longo do período."
-                  href="/settings/consumo-e-custos"
+                  href="/settings/consumo-e-custos/analises"
                 />
               </div>
             </Stage>
@@ -55,7 +55,7 @@ export default function AwReportPromoPage() {
                   art="arcs"
                   title="Consumo e custos"
                   description="Concilie o que foi usado com o que foi cobrado, item a item, e acompanhe a evolução do consumo variável ao longo do período."
-                  href="/settings/consumo-e-custos"
+                  href="/settings/consumo-e-custos/analises"
                 />
               </div>
             </Stage>
@@ -71,7 +71,7 @@ export default function AwReportPromoPage() {
                 <AwReportPromo
                   art="arcs"
                   title="Relatório de desempenho"
-                  href="/settings/consumo-e-custos"
+                  href="/settings/consumo-e-custos/analises"
                   ctaLabel="Abrir relatório"
                 />
               </div>

@@ -8,17 +8,17 @@ import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
-import { AwTrendDelta } from "@/components/ui/AwTrendDelta";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwLogo } from "@/components/ui/AwLogo";
 import { Icon } from "@/components/ui/Icon";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { brl, INVOICE_HISTORY } from "../../financeiro/_components/data";
+import { INVOICE_HISTORY } from "../../financeiro/_components/data";
 import { useConsumo, type ComparedAgent } from "./ConsumoContext";
 import { type ProviderId } from "./explorer-model";
 import { PeriodPicker, ScopeFilterDropdown } from "./controls";
 import { ExportCsvMenu } from "./ExportCsvMenu";
 import { HighlightCards } from "./KpiCards";
+import { SpendHeadline } from "./SpendHeadline";
 import {
   ComposicaoWidget,
   ConsumoChartWidget,
@@ -212,7 +212,7 @@ function Toolbar({
  * period picker) na mesma linha da busca/período. A lente "Dividir por" voltou
  * pro trilho esquerdo (ficava estranha lado a lado com a pill de agentes).
  * ------------------------------------------------------------------------- */
-function ScopeFilters() {
+export function ScopeFilters() {
   const { payers, selectPayers } = useConsumo();
   // 2-way: os dois pagadores → "all"; senão → "aswork". A opção "só Meta" saiu
   // (pedido do Greg) — sempre há Aswork no recorte; Meta só acompanha junto.
@@ -539,27 +539,3 @@ function Breadcrumb() {
   );
 }
 
-function SpendHeadline() {
-  const { accumulated, trend, periodLabel, reportType } = useConsumo();
-  // O frame do título muda por tipo: cobranças é dinheiro que saiu, não consumo.
-  const headline =
-    reportType === "cobrancas"
-      ? "Cobrado no período"
-      : reportType === "faturas"
-        ? "Total nesta fatura"
-        : "Uso no período";
-  return (
-    <header className="mt-4 flex flex-col gap-1.5">
-      <span className="body-sm text-(--fg-secondary)">{headline}</span>
-      <div className="flex items-baseline gap-3">
-        <span className="display-sm font-semibold tabular-nums tracking-heading-tighter text-(--fg-primary)">
-          {brl(accumulated)}
-        </span>
-        <AwTrendDelta value={trend} tone="neutral" />
-      </div>
-      <span className="body-xs text-(--fg-tertiary)">
-        {periodLabel} · comparado ao período anterior
-      </span>
-    </header>
-  );
-}

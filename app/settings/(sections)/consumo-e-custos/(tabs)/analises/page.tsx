@@ -7,24 +7,24 @@ import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwInput } from "@/components/ui/AwInput";
-import { AwPageHeader } from "@/components/ui/AwPageHeader";
 import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
-import { useConsumo } from "./_components/ConsumoContext";
-import { useReportsUI } from "./_components/SavedReports";
+import { useConsumo } from "../../_components/ConsumoContext";
+import { useReportsUI } from "../../_components/SavedReports";
 import {
   REPORT_TYPES,
   reportTypeDef,
   type ReportTypeDef,
   type SavedReport,
-} from "./_components/report-types";
+} from "../../_components/report-types";
 
 /* ----------------------------------------------------------------------------
- * "Análises detalhadas" — página inicial do espaço de consumo e custos.
+ * "Análises" — relatórios detalhados do espaço de consumo e custos.
  *
- * Antes essa rota abria direto o explorador. Agora ela é o ponto de entrada:
- * três tipos de relatório pra começar e a lista de relatórios salvos. Criar (ou
- * abrir) um relatório leva pro explorador (`/explorar`) no recorte certo.
+ * Aba da área (o chrome — cabeçalho + abas — vem do layout do route group
+ * `(tabs)`): três tipos de relatório pra começar e a lista de relatórios
+ * salvos. Criar (ou abrir) um relatório leva pro explorador (`/explorar`) no
+ * recorte certo.
  * ------------------------------------------------------------------------- */
 
 const EXPLORER_PATH = "/settings/consumo-e-custos/explorar";
@@ -72,19 +72,22 @@ export default function AnalisesDetalhadasPage() {
   }, [reports, query, sort]);
 
   return (
-    <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-10 px-10 pb-20 pt-12">
-      <AwPageHeader
-        size="display"
-        divider={false}
-        title="Análises detalhadas"
-        description="Monte relatórios do seu consumo e dos seus custos. Escolha um tipo pra começar ou abra um relatório salvo — cada um vira um painel de gráficos que você organiza e guarda."
-      />
-
+    <div className="flex w-full flex-col gap-10">
       {/* Os três tipos de relatório */}
-      <section aria-label="Tipos de relatório" className="grid grid-cols-3 gap-5">
-        {REPORT_TYPES.map((t) => (
-          <ReportTypeCard key={t.type} def={t} onSelect={() => beginReport(t.type)} />
-        ))}
+      <section aria-label="Tipos de relatório" className="flex flex-col gap-5">
+        <div>
+          <h4 className="m-0 text-(--fg-primary)">Análises detalhadas</h4>
+          <p className="m-0 mt-1 max-w-[640px] body-xs text-(--fg-tertiary)">
+            Monte relatórios do seu consumo e dos seus custos. Escolha um tipo
+            pra começar ou abra um relatório salvo — cada um vira um painel de
+            gráficos que você organiza e guarda.
+          </p>
+        </div>
+        <div className="grid grid-cols-3 gap-5">
+          {REPORT_TYPES.map((t) => (
+            <ReportTypeCard key={t.type} def={t} onSelect={() => beginReport(t.type)} />
+          ))}
+        </div>
       </section>
 
       {/* Relatórios salvos */}

@@ -41,10 +41,10 @@ export function ExplorerRail() {
   }, [isReportDirty]);
 
   // Sai de fato: descarta o rascunho (não fica "pendente" pra reabrir sozinho) e
-  // volta pra a página inicial "Análises detalhadas".
+  // volta pra aba "Análises" (a casa dos relatórios).
   const leave = React.useCallback(() => {
     if (isDraft) clearDraft();
-    router.push("/settings/consumo-e-custos");
+    router.push("/settings/consumo-e-custos/analises");
   }, [isDraft, clearDraft, router]);
 
   // "Voltar": com mudanças não salvas, abre o modal de confirmação; sem mudanças,
