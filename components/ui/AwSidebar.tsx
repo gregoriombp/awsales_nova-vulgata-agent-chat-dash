@@ -31,8 +31,18 @@ const ORGANIZATIONS: AwNavRailOrgOption[] = [
     subtitle: "Organização",
     icon: "/assets/icon_artificial_concord_organization.png",
   },
-  { id: "org-2", name: "Aswork Labs", subtitle: "Workspace" },
-  { id: "org-3", name: "Cliente Demo", subtitle: "Organização" },
+  {
+    id: "org-2",
+    name: "Aswork Labs",
+    subtitle: "Workspace",
+    icon: "/assets/orgs/aswork-labs.png",
+  },
+  {
+    id: "org-3",
+    name: "Artificial Concord Labs",
+    subtitle: "Organização",
+    icon: "/assets/orgs/artificial-concord-labs.png",
+  },
 ];
 
 const USERS: AwNavRailUserOption[] = [
