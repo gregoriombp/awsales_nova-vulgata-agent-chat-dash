@@ -27,7 +27,6 @@ import {
   type SpendingGrouping,
 } from "./data";
 import { OverviewBreakdownTable } from "./OverviewBreakdownTable";
-import { PeriodPicker } from "./PeriodPicker";
 
 /* ----------------------------------------------------------------------------
  * Detalhamento — gasto variável por dia (recorte simbólico da Visão geral).
@@ -190,10 +189,11 @@ export function VariableSpendBreakdown({
   onOpenReport: () => void;
 }) {
   const [grouping, setGrouping] = React.useState<SpendingGrouping>("service");
-  // Período selecionado (preset ou range custom) — re-escopa gráfico, tabela e
-  // total ao mesmo tempo.
-  const [selection, setSelection] =
-    React.useState<PeriodSelection>(DEFAULT_PERIOD);
+  // Recorte fixo no mês atual. A Visão geral é uma leitura rápida do uso
+  // variável do ciclo vigente — a exploração por outros períodos (presets,
+  // datas, range custom) vive no Relatório completo, pra não confundir o macro
+  // com a conciliação. (Decisão de UX: sem controle de tempo aqui.)
+  const selection: PeriodSelection = DEFAULT_PERIOD;
   // Categoria em foco (hover na legenda) — isola a série no gráfico.
   const [activeCat, setActiveCat] = React.useState<string | null>(null);
 
@@ -222,7 +222,7 @@ export function VariableSpendBreakdown({
   return (
     <TooltipProvider delayDuration={80}>
       <section className="flex flex-col gap-(--space-6)">
-        <Header />
+        <Header onOpenReport={onOpenReport} />
 
         <Controls
           grouping={grouping}
@@ -232,7 +232,6 @@ export function VariableSpendBreakdown({
           onHover={setActiveCat}
           total={total}
           selection={selection}
-          onSelectPeriod={setSelection}
           onOpenReport={onOpenReport}
         />
 
@@ -246,6 +245,26 @@ export function VariableSpendBreakdown({
         />
 
         <OverviewBreakdownTable grouping={grouping} selection={selection} />
+
+        {/* Observação discreta (pedido do Greg / UX): sinalizar — sem gritar —
+            que o Meta/WhatsApp fica fora desta leitura e que o consolidado vive
+            no relatório completo. */}
+        <p className="m-0 flex items-start gap-1.5 body-xs text-(--fg-tertiary) text-pretty">
+          <Icon name="info" size={13} className="mt-px shrink-0" />
+          <span>
+            Esta visão mostra o consumo da plataforma no mês atual e não inclui
+            cobranças avulsas do Meta. Para o total consolidado — com
+            faturas, créditos e valores efetivamente pagos —{" "}
+            <button
+              type="button"
+              onClick={onOpenReport}
+              className="font-medium text-(--fg-secondary) underline-offset-2 hover:text-(--fg-primary) hover:underline"
+            >
+              abra o Relatório completo
+            </button>
+            .
+          </span>
+        </p>
       </section>
     </TooltipProvider>
   );
@@ -253,41 +272,117 @@ export function VariableSpendBreakdown({
 
 /* ---------- cabeçalho ---------- */
 
-function Header() {
+function Header({ onOpenReport }: { onOpenReport: () => void }) {
   return (
     <div className="min-w-0">
-      <h3 className="m-0 text-(length:--h5-size) font-semibold tracking-heading-tight text-(--fg-primary)">
-        Detalhamento
+      <h3 className="m-0 flex items-center gap-1.5 text-(length:--h5-size) font-semibold tracking-heading-tight text-(--fg-primary)">
+        Detalhamento de uso variável
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              aria-label="O que entra no uso variável"
+              className="inline-flex text-(--fg-tertiary) hover:text-(--fg-primary)"
+            >
+              <Icon name="info" size={15} />
+            </button>
+          </TooltipTrigger>
+          {/* Fonte padrão do tooltip do DS (text-sm / fg-primary / border-default
+              vêm do TooltipContent) — aqui só a largura e o respiro entre
+              parágrafos. "Relatório completo" vira hyperlink. (cmt-08a0582f) */}
+          <TooltipContent
+            side="top"
+            className="flex max-w-[380px] flex-col gap-2"
+          >
+            <p className="m-0">
+              Este painel mostra o uso variável registrado na sua conta durante
+              o mês atual. Os valores representam o consumo dos agentes e
+              serviços da plataforma, como mensagens, tokens, disparos, telefone
+              e leads ativos.
+            </p>
+            <p className="m-0">
+              Esse total pode ser diferente do valor pago, cobrado ou faturado
+              no mesmo período. Isso pode acontecer por diferenças entre uso e
+              cobrança, consumo de créditos, limites restaurados após pagamento,
+              cobranças feitas em momentos diferentes do ciclo ou atrasos de
+              processamento do provedor de pagamentos.
+            </p>
+            <p className="m-0">
+              Esta visão não inclui cobranças avulsas realizadas pelo Meta. Para
+              consultar o total consolidado, incluindo custos do Meta, faturas,
+              pagamentos, créditos, diferenças financeiras ou períodos
+              anteriores, acesse o{" "}
+              <button
+                type="button"
+                onClick={onOpenReport}
+                className="font-medium text-(--fg-primary) underline underline-offset-2 hover:text-(--fg-secondary)"
+              >
+                Relatório completo
+              </button>
+              .
+            </p>
+          </TooltipContent>
+        </Tooltip>
       </h3>
-      <p className="m-0 mt-1 max-w-xl body-sm text-(--fg-secondary) text-pretty">
-        Gasto variável por dia no ciclo, agrupado por serviço ou por agente. A
-        tabela acompanha o gráfico.
+      <p className="m-0 mt-1 max-w-4xl body-sm text-(--fg-secondary) text-pretty">
+        Acompanhe o uso variável da sua conta no mês atual, agrupado por serviço
+        ou por agente. Esses valores representam consumo da plataforma — não
+        necessariamente cobranças, pagamentos ou faturas.
       </p>
     </div>
   );
 }
 
 function ReportControls({
-  selection,
-  onSelectPeriod,
   onOpenReport,
 }: {
-  selection: PeriodSelection;
-  onSelectPeriod: (sel: PeriodSelection) => void;
   onOpenReport: () => void;
 }) {
   return (
     <div className="flex flex-wrap items-center justify-end gap-2">
-      <PeriodPicker value={selection} onChange={onSelectPeriod} />
-      <AwButton
-        variant="secondary"
-        size="sm"
-        iconLeft="arrow_outward"
-        className="shrink-0"
-        onClick={onOpenReport}
-      >
-        Relatório completo
-      </AwButton>
+      {/* Indicador de escopo (estático, não é um filtro): a Visão geral é
+          fixada no mês atual. Trocar de período acontece no Relatório completo,
+          pra onde o tooltip e o botão ao lado levam. */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="inline-flex h-8 shrink-0 cursor-default items-center gap-1.5 rounded-full border border-(--border-subtle) bg-(--bg-muted) px-3 body-sm font-medium text-(--fg-secondary)">
+            <Icon
+              name="calendar_month"
+              size={15}
+              className="text-(--fg-tertiary)"
+            />
+            Este mês
+          </span>
+        </TooltipTrigger>
+        <TooltipContent
+          side="top"
+          className="max-w-[280px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+        >
+          Esta visão mostra apenas o mês atual. Para consultar outros meses,
+          datas específicas ou períodos personalizados, abra o Relatório
+          completo.
+        </TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <AwButton
+            variant="secondary"
+            size="sm"
+            iconLeft="arrow_outward"
+            className="shrink-0"
+            onClick={onOpenReport}
+          >
+            Relatório completo
+          </AwButton>
+        </TooltipTrigger>
+        <TooltipContent
+          side="top"
+          className="max-w-[280px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+        >
+          Análises completas de uso, cobranças, faturas, pagamentos, créditos,
+          custos do Meta e períodos personalizados.
+        </TooltipContent>
+      </Tooltip>
     </div>
   );
 }
@@ -302,7 +397,6 @@ function Controls({
   onHover,
   total,
   selection,
-  onSelectPeriod,
   onOpenReport,
 }: {
   grouping: SpendingGrouping;
@@ -312,7 +406,6 @@ function Controls({
   onHover: (id: string | null) => void;
   total: number;
   selection: PeriodSelection;
-  onSelectPeriod: (sel: PeriodSelection) => void;
   onOpenReport: () => void;
 }) {
   return (
@@ -361,15 +454,23 @@ function Controls({
       </div>
 
       <div className="flex flex-col items-end gap-2.5">
-        <ReportControls
-          selection={selection}
-          onSelectPeriod={onSelectPeriod}
-          onOpenReport={onOpenReport}
-        />
+        <ReportControls onOpenReport={onOpenReport} />
         <div className="text-right">
-          <p className="m-0 text-(length:--h5-size) font-semibold leading-none tracking-heading-tight tabular-nums text-(--fg-primary)">
-            {brl(total)}
-          </p>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <p className="m-0 inline-block cursor-default text-(length:--h5-size) font-semibold leading-none tracking-heading-tight tabular-nums text-(--fg-primary)">
+                {brl(total)}
+              </p>
+            </TooltipTrigger>
+            <TooltipContent
+              side="top"
+              className="max-w-[280px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+            >
+              Total de uso variável no mês atual. Representa consumo da
+              plataforma e pode diferir do que foi cobrado, pago ou faturado.
+              Não inclui cobranças avulsas do Meta/WhatsApp.
+            </TooltipContent>
+          </Tooltip>
           <p className="m-0 mt-1 body-xs tabular-nums text-(--fg-tertiary)">
             ≈ {fmtUsdLabel(total)} · {selectionLabel(selection)}
           </p>

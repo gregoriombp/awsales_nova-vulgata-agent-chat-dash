@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwCollapsible } from "@/components/ui/AwCollapsible";
+import { AwConsumoVariavelCard } from "@/components/ui/AwConsumoVariavelCard";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwReportPromo } from "@/components/ui/AwReportPromo";
 import { AwInvoiceForecastCard } from "@/components/ui/AwInvoiceForecastCard";
@@ -27,6 +28,7 @@ import {
   ReportExitModal,
 } from "../_components/VariableSpendBreakdown";
 import {
+  BILLING_MODE,
   brl,
   CURRENT_INVOICE,
   CURRENT_PLAN,
@@ -336,145 +338,25 @@ function UsageAndPlan() {
 }
 
 function ConsumoVariavelCard() {
-  const used = OVERVIEW_KPIS.accumulated; // total de variáveis usado no ciclo
-  const limit = VARIABLE_SPENDING_LIMIT;
-  const discount = OVERVIEW_KPIS.monthSavings; // créditos + cupons já aplicados
-  const remaining = Math.max(limit - used, 0);
+  // Conta pós-paga (linha de crédito): sem teto de uso variável — mostra a
+  // variante "Ilimitado" no lugar do limite + barra.
+  if (BILLING_MODE === "postpaid") {
+    return (
+      <AwConsumoVariavelCard
+        mode="postpaid"
+        discount={OVERVIEW_KPIS.monthSavings}
+        nextChargeAt={CURRENT_PLAN.nextChargeAt}
+      />
+    );
+  }
 
   return (
-    <AwCard className="flex flex-col gap-4 border-(--aw-gray-25) px-6! py-4!">
-      <div className="flex items-baseline justify-between gap-3">
-        <h6 className="m-0 flex items-center gap-1.5 body-lg font-medium text-(--fg-primary)">
-          Limite de uso antes da cobrança
-          <TooltipProvider delayDuration={120}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  aria-label="O que é uso variável"
-                  className="inline-flex text-(--fg-tertiary) hover:text-(--fg-primary)"
-                >
-                  <Icon name="info" size={15} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent
-                side="top"
-                className="max-w-[280px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
-              >Quando sua conta atingir este limite, uma nova cobrança será feita automaticamente pelo método de pagamento cadastrado. Se a cobrança não for aprovada ou confirmada — como em casos de cartão recusado, boleto vencido ou Pix expirado — seus agentes podem ser pausados por segurança até que o pagamento seja regularizado.
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </h6>
-        <span className="body-sm tabular-nums text-(--fg-secondary)">
-          <strong className="font-medium text-(--fg-primary)">
-            {brl(used)}
-          </strong>{" "}
-          de {brl(limit)}
-        </span>
-      </div>
-
-      {/* Barra de uso única: o trilho é o limite do ciclo, a parte preenchida é
-          o total usado. O trecho final em verde é o desconto (créditos/cupons)
-          já abatido — o desconto fica visível no próprio gráfico, sem somar
-          outra barra (pedido do Greg). */}
-      <UsageBar used={used} discount={discount} limit={limit} />
-
-      {/* Embaixo da barra: "Restam..." à esquerda e o desconto como tag (ícone
-          de cupom) à direita — claro e visível, sem sobrecarregar o card. */}
-      <div className="flex items-center justify-between gap-3">
-        <p className="m-0 body-xs tabular-nums text-(--fg-tertiary)">
-          Restam {brl(remaining)} antes da próxima cobrança.
-        </p>
-        <span className="inline-flex shrink-0 items-center gap-1 body-xs">
-          <Icon
-            name="local_offer"
-            size={13}
-            className="text-(--accent-success)"
-          />
-          <strong className="font-medium tabular-nums text-(--accent-success)">
-            {brl(discount)}
-          </strong>
-          <span className="text-(--fg-tertiary)">em créditos</span>
-        </span>
-      </div>
-    </AwCard>
-  );
-}
-
-/**
- * Barra de uso única. O trilho é o limite do ciclo; a parte preenchida é o
- * total usado, dividida em dois trechos contíguos: o líquido (neutro) e, logo
- * depois, o desconto já aplicado em verde — assim o abatimento de créditos e
- * cupons aparece dentro do próprio gráfico. Tudo por token.
- */
-function UsageBar({
-  used,
-  discount,
-  limit,
-}: {
-  used: number;
-  discount: number;
-  limit: number;
-}) {
-  const scaleMax = Math.max(limit, used);
-  // O desconto é um trecho da parte usada (nunca maior que ela).
-  const disc = Math.min(discount, used);
-  const net = Math.max(used - disc, 0);
-  const netPct = scaleMax > 0 ? (net / scaleMax) * 100 : 0;
-  const discPct = scaleMax > 0 ? (disc / scaleMax) * 100 : 0;
-
-  return (
-    // Tooltip por trecho da barra (pedido do Greg): o verde sólido é o uso
-    // variável consumido; o trecho hachurado é o bônus já abatido.
-    <TooltipProvider delayDuration={120}>
-      <div
-        className="flex h-2.5 w-full overflow-hidden rounded-full bg-(--bg-muted)"
-        role="img"
-        aria-label={`Usado ${brl(used)} de ${brl(limit)}, dos quais ${brl(discount)} em créditos e cupons já aplicados.`}
-      >
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div
-              className="h-full cursor-default bg-(--accent-success) transition-[width] duration-500 ease-out"
-              style={{ width: `${netPct}%` }}
-            />
-          </TooltipTrigger>
-          <TooltipContent
-            side="top"
-            className="max-w-[260px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
-          >
-            <strong className="font-medium text-(--fg-primary)">
-              Uso variável consumido
-            </strong>{" "}
-            · {brl(net)}. É o que conta pra próxima cobrança.
-          </TooltipContent>
-        </Tooltip>
-        {/* Trecho do desconto: faixa clara hachurada (créditos/cupons já abatidos),
-            como no mid-fi — destaca o abatimento sem competir com o uso líquido. */}
-        {disc > 0 && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div
-                className="h-full cursor-default transition-[width] duration-500 ease-out"
-                style={{
-                  width: `${discPct}%`,
-                  backgroundColor: "var(--aw-emerald-150)",
-                  backgroundImage:
-                    "repeating-linear-gradient(45deg, var(--aw-emerald-400) 0, var(--aw-emerald-400) 1.5px, transparent 1.5px, transparent 5px)",
-                }}
-              />
-            </TooltipTrigger>
-            <TooltipContent
-              side="top"
-              className="max-w-[260px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
-            >
-              <strong className="font-medium text-(--fg-primary)">Bônus</strong>{" "}
-              · {brl(disc)} em créditos e cupons já abatidos.
-            </TooltipContent>
-          </Tooltip>
-        )}
-      </div>
-    </TooltipProvider>
+    <AwConsumoVariavelCard
+      mode="prepaid"
+      used={OVERVIEW_KPIS.accumulated}
+      limit={VARIABLE_SPENDING_LIMIT}
+      discount={OVERVIEW_KPIS.monthSavings}
+    />
   );
 }
 
