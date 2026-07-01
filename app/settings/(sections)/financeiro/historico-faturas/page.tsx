@@ -24,8 +24,13 @@ import {
   INVOICE_HISTORY,
   invoiceStatusLabel,
   PAYMENT_METHODS,
+  type CardPaymentMethod,
   type InvoiceHistoryRow,
 } from "../_components/data";
+import {
+  AddPaymentMethodModal,
+  type NewPaymentMethod,
+} from "../_components/AddPaymentMethodModal";
 
 type InvoiceStatus = InvoiceHistoryRow["status"];
 
@@ -578,15 +583,11 @@ function RegularizePaymentModal({
               ? "Boleto gerado"
               : "Confirmar cobrança";
 
-  // No Pix a confirmação é automática (o QR detecta o pagamento), então o CTA
-  // não "confirma" nada — é só o usuário sinalizando que já pagou. Cartão é uma
-  // cobrança ativa de verdade; boleto encerra o passo.
+  // No Pix a confirmação é automática (o QR detecta o pagamento), então essa
+  // etapa NÃO tem CTA de avançar — o usuário só aguarda. Cartão é uma cobrança
+  // ativa de verdade; boleto encerra o passo.
   const checkoutCta =
-    selectedMethod?.id === "boleto"
-      ? "Concluir"
-      : selectedMethod?.id === "pix"
-        ? "Já fiz o pagamento"
-        : "Confirmar pagamento";
+    selectedMethod?.id === "boleto" ? "Concluir" : "Confirmar pagamento";
 
   const footer =
     phase === "select" ? (
@@ -627,7 +628,9 @@ function RegularizePaymentModal({
         </AwButton>
       </>
     ) : phase === "checkout" ? (
-      <>
+      selectedMethod?.id === "pix" ? (
+        // Pix aguarda a confirmação automática do pagamento — sem CTA de
+        // "já paguei"; só o caminho de volta. O modal pode ser fechado no X.
         <AwButton
           size="sm"
           variant="ghost"
@@ -636,15 +639,26 @@ function RegularizePaymentModal({
         >
           Voltar
         </AwButton>
-        <AwButton
-          size="sm"
-          variant="primary"
-          iconLeft="check"
-          onClick={() => setPhase("success")}
-        >
-          {checkoutCta}
-        </AwButton>
-      </>
+      ) : (
+        <>
+          <AwButton
+            size="sm"
+            variant="ghost"
+            iconLeft="arrow_back"
+            onClick={() => setPhase("method")}
+          >
+            Voltar
+          </AwButton>
+          <AwButton
+            size="sm"
+            variant="primary"
+            iconLeft="check"
+            onClick={() => setPhase("success")}
+          >
+            {checkoutCta}
+          </AwButton>
+        </>
+      )
     ) : (
       <AwButton size="sm" variant="primary" onClick={close}>
         Concluir
@@ -911,37 +925,123 @@ function PixCheckout({ total }: { total: number }) {
 }
 
 function CardCheckout({ total }: { total: number }) {
-  const defaultCard = PAYMENT_METHODS.find(
-    (m) => m.kind === "card" && m.isDefault,
+  // Cartões já salvos na conta — o usuário escolhe em qual lançar a cobrança,
+  // ou adiciona um novo pelo MESMO modal padrão (sem fluxo paralelo).
+  const initialCards = React.useMemo(
+    () =>
+      PAYMENT_METHODS.filter(
+        (m): m is CardPaymentMethod => m.kind === "card",
+      ),
+    [],
   );
-  const cardLabel =
-    defaultCard && defaultCard.kind === "card"
-      ? `${defaultCard.brand} •••• ${defaultCard.last4}`
-      : "cartão padrão";
+  const [cards, setCards] = React.useState<CardPaymentMethod[]>(initialCards);
+  const [selectedId, setSelectedId] = React.useState<string>(
+    () => initialCards.find((c) => c.isDefault)?.id ?? initialCards[0]?.id ?? "",
+  );
+  const [addOpen, setAddOpen] = React.useState(false);
+
+  // Boleto e Pix são únicos: o modal padrão trava os que a conta já tem.
+  const takenKinds = PAYMENT_METHODS.filter(
+    (m) => m.kind === "boleto" || m.kind === "pix",
+  ).map((m) => m.kind);
+
+  // Adicionar pelo modal padrão: aqui o foco é cartão — entra na lista e já fica
+  // selecionado pra cobrança.
+  const handleAdd = (method: NewPaymentMethod) => {
+    if (method.kind !== "card") return;
+    const id = `pm-new-${method.last4}-${cards.length}`;
+    setCards((prev) => [
+      ...prev,
+      {
+        kind: "card",
+        id,
+        brand: method.brand,
+        last4: method.last4,
+        expiresAt: method.expiresAt,
+        isDefault: false,
+      },
+    ]);
+    setSelectedId(id);
+  };
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-3 rounded-xl border border-(--border-subtle) p-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-primary)">
-          <Icon name="credit_card" size={20} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="m-0 body-sm font-medium text-(--fg-primary)">
-            {cardLabel}
-          </p>
-          <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
-            Cobrança imediata neste cartão.
-          </p>
-        </div>
-        <span className="shrink-0 body-sm font-medium tabular-nums text-(--fg-primary)">
-          {brl(total)}
-        </span>
+      <div
+        role="radiogroup"
+        aria-label="Cartão para a cobrança"
+        className="flex flex-col gap-2"
+      >
+        {cards.map((c) => {
+          const selected = c.id === selectedId;
+          return (
+            <button
+              key={c.id}
+              type="button"
+              role="radio"
+              aria-checked={selected}
+              onClick={() => setSelectedId(c.id)}
+              className={
+                "flex items-center gap-3 rounded-xl border p-3 text-left transition-colors duration-aw-fast " +
+                (selected
+                  ? "border-(--border-strong) bg-(--bg-hover)"
+                  : "border-(--border-subtle) hover:border-(--border-default) hover:bg-(--bg-hover)")
+              }
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-primary)">
+                <Icon name="credit_card" size={20} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="m-0 flex items-center gap-2 body-sm font-medium text-(--fg-primary)">
+                  {c.brand} •••• {c.last4}
+                  {c.isDefault && (
+                    <span className="rounded-full bg-(--bg-muted) px-1.5 py-0.5 body-xs font-normal text-(--fg-tertiary)">
+                      Padrão
+                    </span>
+                  )}
+                </p>
+                <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
+                  Expira em {c.expiresAt}
+                </p>
+              </div>
+              <span
+                aria-hidden="true"
+                className={
+                  "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors duration-aw-fast " +
+                  (selected
+                    ? "border-(--fg-primary) bg-(--fg-primary)"
+                    : "border-(--border-default)")
+                }
+              >
+                {selected && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-(--bg-raised)" />
+                )}
+              </span>
+            </button>
+          );
+        })}
+
+        <button
+          type="button"
+          onClick={() => setAddOpen(true)}
+          className="flex items-center gap-2 rounded-xl border border-dashed border-(--border-default) p-3 text-left body-sm font-medium text-(--fg-secondary) transition-colors duration-aw-fast hover:border-(--border-strong) hover:bg-(--bg-hover)"
+        >
+          <Icon name="add" size={18} className="shrink-0" />
+          Adicionar novo cartão
+        </button>
       </div>
+
       <p className="m-0 body-xs text-(--fg-secondary)">
         Confirme para lançar a cobrança de{" "}
         <strong className="font-medium text-(--fg-primary)">{brl(total)}</strong>{" "}
-        agora. Você recebe o comprovante por e-mail.
+        no cartão selecionado. Você recebe o comprovante por e-mail.
       </p>
+
+      <AddPaymentMethodModal
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        onAdd={handleAdd}
+        takenKinds={takenKinds}
+      />
     </div>
   );
 }
