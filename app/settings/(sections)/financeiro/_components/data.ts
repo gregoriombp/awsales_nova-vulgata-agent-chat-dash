@@ -759,6 +759,11 @@ export const OVERVIEW_SERVICE_GROUPS: OverviewServiceGroup[] = [
   {
     id: "leads", label: "Leads ativos", icon: "person_add", color: SPEND_RAMP[0],
     quantity: 48, quantityFormat: "decimal", unitPriceLabel: "R$ 2,00 / lead", total: 96.0,
+    // Tooltip única cobrindo os dois recortes do detalhamento: "Leads ativos" só
+    // aparece como linha própria no agrupamento por Serviço — por Agente o custo
+    // é diluído em cada agente, então não há âncora separada pra alternar. (cmt-c59366d2)
+    tooltip:
+      "Leads ativos são contatos elegíveis para cobrança no período. Em “Serviço”, o valor é o total de leads ativos da organização multiplicado pelo valor unitário contratado por lead. Em “Agente”, esse custo é distribuído entre os agentes conforme o volume de mensagens transacionadas com cada lead — se um lead conversou com vários agentes, o valor é dividido proporcionalmente entre eles.",
   },
   // Telefone saiu do detalhamento de uso variável: é custo FIXO da assinatura
   // (linha telefônica embutida na mensalidade do plano), não consumo variável.
