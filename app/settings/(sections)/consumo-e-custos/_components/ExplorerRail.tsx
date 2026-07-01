@@ -3,7 +3,9 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
+import { AwModal } from "@/components/ui/AwModal";
 import { Icon } from "@/components/ui/Icon";
 import { useConsumo } from "./ConsumoContext";
 import { useReportsUI } from "./SavedReports";
@@ -21,8 +23,13 @@ export function ExplorerRail() {
   const router = useRouter();
   const { isReportDirty, isDraft, clearDraft } = useConsumo();
   const [collapsed, setCollapsed] = React.useState(false);
+  // Confirmação de saída com mudanças não salvas — modal da interface (AwModal),
+  // no lugar do confirm() nativo do navegador.
+  const [confirmLeave, setConfirmLeave] = React.useState(false);
 
-  // Mudanças não salvas (rascunho ou relatório): avisa antes de refresh/fechar.
+  // Mudanças não salvas (rascunho ou relatório): avisa antes de refresh/fechar a
+  // aba. Esse é o único caso em que o aviso PRECISA ser nativo — o navegador não
+  // deixa customizar o beforeunload. A saída pelo "Voltar" usa o modal abaixo.
   React.useEffect(() => {
     if (!isReportDirty) return;
     const warn = (e: BeforeUnloadEvent) => {
@@ -33,40 +40,70 @@ export function ExplorerRail() {
     return () => window.removeEventListener("beforeunload", warn);
   }, [isReportDirty]);
 
-  // Volta pra a página inicial "Análises detalhadas". Com mudanças não salvas,
-  // confirma antes — e descarta o rascunho ao sair.
-  const back = () => {
-    if (
-      isReportDirty &&
-      !window.confirm("Sair sem salvar? As mudanças deste painel serão perdidas.")
-    ) {
-      return;
-    }
-    // Sair de um rascunho o descarta (não fica "pendente" pra reabrir sozinho).
+  // Sai de fato: descarta o rascunho (não fica "pendente" pra reabrir sozinho) e
+  // volta pra a página inicial "Análises detalhadas".
+  const leave = React.useCallback(() => {
     if (isDraft) clearDraft();
     router.push("/settings/consumo-e-custos");
+  }, [isDraft, clearDraft, router]);
+
+  // "Voltar": com mudanças não salvas, abre o modal de confirmação; sem mudanças,
+  // sai direto.
+  const back = () => {
+    if (isReportDirty) setConfirmLeave(true);
+    else leave();
   };
 
   return (
-    <aside
-      className={cn(
-        "flex h-full shrink-0 flex-col overflow-y-auto border-r border-(--border-subtle) bg-(--bg-canvas) transition-[width] duration-aw-base ease-aw-out",
-        collapsed ? "w-14" : "w-[280px]",
-      )}
-      aria-label="Relatórios e navegação do explorador"
-    >
-      {collapsed ? (
-        <div className="flex flex-col items-center gap-4 px-2 pt-5">
-          <RailToggle collapsed onToggle={() => setCollapsed(false)} />
-        </div>
-      ) : (
-        <div className="flex flex-col gap-7 px-6 pb-10 pt-5">
-          <Header onBack={back} onCollapse={() => setCollapsed(true)} />
-          <DimensionList />
-          <SavedReportsSection />
-        </div>
-      )}
-    </aside>
+    <>
+      <aside
+        className={cn(
+          "flex h-full shrink-0 flex-col overflow-y-auto border-r border-(--border-subtle) bg-(--bg-canvas) transition-[width] duration-aw-base ease-aw-out",
+          collapsed ? "w-14" : "w-[280px]",
+        )}
+        aria-label="Relatórios e navegação do explorador"
+      >
+        {collapsed ? (
+          <div className="flex flex-col items-center gap-4 px-2 pt-5">
+            <RailToggle collapsed onToggle={() => setCollapsed(false)} />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-7 px-6 pb-10 pt-5">
+            <Header onBack={back} onCollapse={() => setCollapsed(true)} />
+            <DimensionList />
+            <SavedReportsSection />
+          </div>
+        )}
+      </aside>
+
+      <AwModal
+        open={confirmLeave}
+        onClose={() => setConfirmLeave(false)}
+        size="md"
+        title="Sair sem salvar?"
+        footer={
+          <div className="flex w-full items-center justify-end gap-2">
+            <AwButton variant="ghost" onClick={() => setConfirmLeave(false)}>
+              Continuar editando
+            </AwButton>
+            <AwButton
+              variant="danger"
+              onClick={() => {
+                setConfirmLeave(false);
+                leave();
+              }}
+            >
+              Sair sem salvar
+            </AwButton>
+          </div>
+        }
+      >
+        <p className="m-0 body-sm text-(--fg-secondary)">
+          As mudanças deste painel — lente, período, filtros e gráficos — serão
+          perdidas. Salve antes se quiser guardá-las.
+        </p>
+      </AwModal>
+    </>
   );
 }
 
@@ -99,8 +136,9 @@ function Header({
 }) {
   const { periodLabel, reportType, activeReport } = useConsumo();
   const def = reportType ? reportTypeDef(reportType) : null;
-  // Identidade do relatório: nome salvo > título do tipo > genérico.
-  const title = activeReport?.name ?? def?.title ?? "Explorar custos";
+  // Identidade do relatório: nome salvo > título do tipo > o nome do espaço
+  // (mesmo rótulo da página inicial, pra não introduzir um terceiro nome).
+  const title = activeReport?.name ?? def?.title ?? "Análises detalhadas";
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
@@ -237,7 +275,7 @@ function SavedReportsSection() {
                     </button>
                   }
                   items={[
-                    { id: "view", label: "Visualizar", icon: "visibility", onSelect: () => applyReport(r.id) },
+                    { id: "view", label: "Abrir", icon: "arrow_forward", onSelect: () => applyReport(r.id) },
                     { id: "rename", label: "Renomear", icon: "edit", onSelect: () => openRename(r.id, r.name) },
                     { id: "del", label: "Excluir", icon: "delete", danger: true, onSelect: () => openDelete(r.id, r.name) },
                   ]}
