@@ -11,6 +11,12 @@ import { AwModal } from "@/components/ui/AwModal";
 import { AwPlanIcon } from "@/components/ui/AwPlanIcon";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { useToast } from "@/components/ui/AwToast";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Icon } from "@/components/ui/Icon";
 import { ONBOARDING_ORG, fmtBRL } from "@/app/primeiro-acesso/_data";
 import { SectionHeading, SettingsPageHeader } from "../_components/shared";
@@ -80,12 +86,6 @@ export default function OrganizationSettingsPage() {
   const [draftLogo, setDraftLogo] = useState<string>(ONBOARDING_ORG.logo);
   const logoFileRef = useRef<HTMLInputElement | null>(null);
 
-  const openEdit = () => {
-    setDraftName(orgName);
-    setDraftLogo(logoSrc);
-    setSaving(false);
-    setEditOpen(true);
-  };
   const editDirty =
     draftName.trim() !== orgName || draftLogo !== logoSrc;
   const saveEdit = () => {
@@ -176,18 +176,7 @@ export default function OrganizationSettingsPage() {
         </div>
 
         <AwCard className="p-0!">
-          <div className="flex items-center justify-between gap-4 px-6 pt-5 pb-3">
-            <h6 className="m-0 text-(--fg-primary)">Identificação</h6>
-            <AwButton
-              size="sm"
-              variant="primary"
-              iconLeft="edit"
-              onClick={openEdit}
-            >
-              Editar
-            </AwButton>
-          </div>
-          <ul className="m-0 flex list-none flex-col gap-1 px-4 pb-4">
+          <ul className="m-0 flex list-none flex-col gap-1 p-4">
             {INFO_ROWS.map((row) => (
               <li key={row.label}>
                 {row.href ? (
@@ -226,6 +215,7 @@ export default function OrganizationSettingsPage() {
           title="Dados contratuais"
           description="Definidos pela Aswork no contrato. Para alterar, fale com o seu Account Manager."
         />
+        <TooltipProvider delayDuration={120}>
         <AwCard className="p-0!">
           <dl className="m-0">
             {COMPANY_ROWS.map((row, i) => (
@@ -257,20 +247,25 @@ export default function OrganizationSettingsPage() {
                   )}
                   {row.value}
                 </dd>
-                <span
-                  className="text-(--fg-tertiary)"
-                  title="Campo somente leitura — definido em contrato"
-                >
-                  <Icon name="lock" size={14} />
-                </span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="cursor-default text-(--fg-tertiary)">
+                      <Icon name="lock" size={14} />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="left"
+                    className="max-w-[260px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+                  >
+                    Informação definida no seu contrato com a Aswork — somente
+                    leitura por aqui. Para atualizar, fale com o time da Aswork.
+                  </TooltipContent>
+                </Tooltip>
               </div>
             ))}
           </dl>
         </AwCard>
-        <p className="m-0 mt-3 inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
-          <Icon name="lock" size={14} />
-          O cadeado marca campos definidos no contrato — somente leitura aqui.
-        </p>
+        </TooltipProvider>
         <div className="mt-1 flex items-center justify-between gap-4 py-2">
           <button
             type="button"
