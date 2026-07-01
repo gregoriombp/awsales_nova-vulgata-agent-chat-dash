@@ -9,6 +9,10 @@ import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwFileIcon } from "@/components/ui/AwFileIcon";
 import { AwDropdownMenu, type AwDropdownItem } from "@/components/ui/AwDropdownMenu";
 import {
+  AwFacetFilter,
+  type AwFacetGroup,
+} from "@/components/ui/AwFacetFilter";
+import {
   AwEmpty,
   AwEmptyDescription,
   AwEmptyHeader,
@@ -196,6 +200,12 @@ type OrgEvent = {
   role: string;
   type: EventCategory;
   action: string;
+  /** Ação canônica do evento (verbo + objeto), sem a instância — alimenta o
+   *  filtro de Ação. Ex.: "Convidou membro", "Conectou integração". */
+  actionLabel: string;
+  /** Entidade concreta afetada: a tag técnica (mono) + a instância específica.
+   *  Alimenta o filtro de Entidade. Ex.: `membro` · "Mariana Castro". */
+  entity: { tag: string; label: string };
   /** Identificador técnico do evento — o que o backend registra. Aparece só
    *  no detalhe, em mono, para quem precisa investigar. */
   code: string;
@@ -216,6 +226,8 @@ const ORG_EVENTS: OrgEvent[] = [
     role: "Administrador",
     type: "Membros",
     action: "convidou Mariana Castro",
+    actionLabel: "Convidou membro",
+    entity: { tag: "membro", label: "Mariana Castro" },
     code: "membro.convidado",
     meta: "Convite enviado para mariana.castro@fyntra.com.br",
   },
@@ -229,6 +241,8 @@ const ORG_EVENTS: OrgEvent[] = [
     role: "Administrador",
     type: "Funções",
     action: "alterou a função de Carlos Lima para Editor",
+    actionLabel: "Alterou função",
+    entity: { tag: "funcao", label: "Carlos Lima" },
     code: "funcao.alterada",
     meta: "Antes: Visualizador",
   },
@@ -242,6 +256,8 @@ const ORG_EVENTS: OrgEvent[] = [
     role: "Administrador",
     type: "Integrações",
     action: "conectou a integração do WhatsApp",
+    actionLabel: "Conectou integração",
+    entity: { tag: "integracao", label: "WhatsApp" },
     code: "integracao.conectada",
     meta: "Número +55 11 4002-8922",
     integrationId: "whatsapp",
@@ -256,6 +272,8 @@ const ORG_EVENTS: OrgEvent[] = [
     role: "Editor",
     type: "Agentes",
     action: "publicou o agente Atlas",
+    actionLabel: "Publicou agente",
+    entity: { tag: "agente", label: "Atlas" },
     code: "agente.publicado",
     meta: "Versão 4 · disponível para a equipe",
   },
@@ -269,6 +287,8 @@ const ORG_EVENTS: OrgEvent[] = [
     role: "Administrador",
     type: "Segurança",
     action: "ativou a verificação em duas etapas para a organização",
+    actionLabel: "Ativou 2FA obrigatório",
+    entity: { tag: "politica", label: "Verificação em duas etapas" },
     code: "seguranca.2fa_obrigatorio",
     meta: "Obrigatória para todos os membros a partir de hoje",
   },
@@ -282,6 +302,8 @@ const ORG_EVENTS: OrgEvent[] = [
     role: "Encarregada de dados",
     type: "Dados",
     action: "exportou o histórico de atividade",
+    actionLabel: "Exportou dados",
+    entity: { tag: "export", label: "Histórico de atividade" },
     code: "dados.exportados",
     meta: "Arquivo enviado por e-mail para greg@awsales.io",
   },
@@ -295,6 +317,8 @@ const ORG_EVENTS: OrgEvent[] = [
     role: "Administrador",
     type: "Membros",
     action: "removeu o acesso de João Pereira",
+    actionLabel: "Removeu membro",
+    entity: { tag: "membro", label: "João Pereira" },
     code: "membro.removido",
     meta: "Saída registrada · sessões encerradas",
   },
@@ -307,6 +331,8 @@ const ORG_EVENTS: OrgEvent[] = [
     role: "Webhook externo",
     type: "Integrações",
     action: "sincronizou 312 contatos do CRM",
+    actionLabel: "Sincronizou via webhook",
+    entity: { tag: "integracao", label: "HubSpot" },
     code: "webhook.sincronizacao",
     meta: "Origem: hubspot.com · evento contact.updated",
     integrationId: "hubspot",
@@ -320,6 +346,8 @@ const ORG_EVENTS: OrgEvent[] = [
     role: "Automático",
     type: "Segurança",
     action: "encerrou sessões inativas há mais de 30 dias",
+    actionLabel: "Encerrou sessões inativas",
+    entity: { tag: "sessao", label: "Sessões inativas" },
     code: "sistema.sessoes_expiradas",
     meta: "4 sessões encerradas automaticamente",
   },
@@ -332,6 +360,8 @@ const ORG_EVENTS: OrgEvent[] = [
     role: "aws_live_8f3a…",
     type: "Dados",
     action: "consultou registros de conversas via API",
+    actionLabel: "Consultou conversas via API",
+    entity: { tag: "conversa", label: "Registros de conversas" },
     code: "api.leitura_conversas",
     meta: "Chave aws_live_8f3a… · 1.204 registros lidos",
   },
@@ -432,6 +462,66 @@ const HUMAN_PEOPLE: Person[] = ALL_PEOPLE.filter((p) =>
   HUMAN_ACTOR_KINDS.has(p.kind),
 );
 const HUMAN_ACTOR_NAMES: string[] = HUMAN_PEOPLE.map((p) => p.actor);
+
+/* ---------- facetas de Ação e Entidade ---------- */
+
+/** Id estável de uma entidade — a mesma instância pode reaparecer em vários
+ *  eventos, então deduplicamos por tag + rótulo. */
+function entityId(entity: { tag: string; label: string }): string {
+  return `${entity.tag}:${entity.label}`;
+}
+
+/** Ações distintas por área, no formato de grupos do AwFacetFilter. O cabeçalho
+ *  do grupo reaproveita o ícone da categoria (mesma identidade do filtro Área). */
+function buildActionGroups(events: OrgEvent[]): AwFacetGroup[] {
+  return ALL_CATEGORIES.map((cat): AwFacetGroup => {
+    const seen = new Map<string, string>();
+    for (const e of events) {
+      if (e.type === cat && !seen.has(e.actionLabel)) {
+        seen.set(e.actionLabel, e.actionLabel);
+      }
+    }
+    return {
+      id: cat,
+      label: cat,
+      icon: TYPE_META[cat].icon,
+      options: Array.from(seen.keys()).map((label) => ({ id: label, label })),
+    };
+  }).filter((g) => g.options.length > 0);
+}
+
+/** Entidades concretas (tag mono + instância) por área. */
+function buildEntityGroups(events: OrgEvent[]): AwFacetGroup[] {
+  return ALL_CATEGORIES.map((cat): AwFacetGroup => {
+    const seen = new Map<string, OrgEvent["entity"]>();
+    for (const e of events) {
+      if (e.type === cat) {
+        const id = entityId(e.entity);
+        if (!seen.has(id)) seen.set(id, e.entity);
+      }
+    }
+    return {
+      id: cat,
+      label: cat,
+      icon: TYPE_META[cat].icon,
+      options: Array.from(seen.entries()).map(([id, entity]) => ({
+        id,
+        label: entity.label,
+        tag: entity.tag,
+        searchText: `${entity.label} ${entity.tag}`,
+      })),
+    };
+  }).filter((g) => g.options.length > 0);
+}
+
+const ACTION_GROUPS: AwFacetGroup[] = buildActionGroups(ORG_EVENTS);
+const ENTITY_GROUPS: AwFacetGroup[] = buildEntityGroups(ORG_EVENTS);
+const ALL_ACTION_IDS: string[] = ACTION_GROUPS.flatMap((g) =>
+  g.options.map((o) => o.id),
+);
+const ALL_ENTITY_IDS: string[] = ENTITY_GROUPS.flatMap((g) =>
+  g.options.map((o) => o.id),
+);
 
 /* ---------- solicitações de dados ---------- */
 
@@ -892,6 +982,11 @@ function HistoricoTab() {
   const [selectedIntegrations, setSelectedIntegrations] = React.useState<
     string[]
   >(ACCOUNT_INTEGRATIONS.map((i) => i.id));
+  // Facetas de Ação e Entidade — subtrativas: tudo marcado = sem filtro.
+  const [selectedActions, setSelectedActions] =
+    React.useState<string[]>(ALL_ACTION_IDS);
+  const [selectedEntities, setSelectedEntities] =
+    React.useState<string[]>(ALL_ENTITY_IDS);
   const [query, setQuery] = React.useState("");
   const [period, setPeriod] = React.useState<PeriodPreset>("todo");
   const [customFrom, setCustomFrom] = React.useState("");
@@ -910,6 +1005,8 @@ function HistoricoTab() {
       // a integração estiver marcada no filtro.
       if (e.integrationId && !selectedIntegrations.includes(e.integrationId))
         return false;
+      if (!selectedActions.includes(e.actionLabel)) return false;
+      if (!selectedEntities.includes(entityId(e.entity))) return false;
       const n = eventDateNumber(e.date);
       if (from !== null && n < from) return false;
       if (to !== null && n > to) return false;
@@ -922,7 +1019,7 @@ function HistoricoTab() {
         return false;
       return true;
     });
-  }, [selectedTypes, selectedActors, selectedKinds, selectedIntegrations, query, period, customFrom, customTo]);
+  }, [selectedTypes, selectedActors, selectedKinds, selectedIntegrations, selectedActions, selectedEntities, query, period, customFrom, customTo]);
 
   // Paginação: 50 por página (a escala real é dezenas de milhares de eventos).
   const PAGE_SIZE = 50;
@@ -936,13 +1033,15 @@ function HistoricoTab() {
   // Voltar para a página 1 sempre que o filtro mudar o conjunto.
   React.useEffect(() => {
     setPage(1);
-  }, [selectedTypes, selectedActors, selectedKinds, selectedIntegrations, query, period, customFrom, customTo]);
+  }, [selectedTypes, selectedActors, selectedKinds, selectedIntegrations, selectedActions, selectedEntities, query, period, customFrom, customTo]);
 
   const clearAll = () => {
     setSelectedTypes(ALL_CATEGORIES);
     setSelectedActors(ALL_ACTOR_NAMES);
     setSelectedKinds(ALL_ACTOR_KINDS);
     setSelectedIntegrations(ACCOUNT_INTEGRATIONS.map((i) => i.id));
+    setSelectedActions(ALL_ACTION_IDS);
+    setSelectedEntities(ALL_ENTITY_IDS);
     setQuery("");
     setPeriod("todo");
     setCustomFrom("");
@@ -954,6 +1053,8 @@ function HistoricoTab() {
     selectedActors.length !== ALL_ACTOR_NAMES.length ||
     selectedKinds.length !== ALL_ACTOR_KINDS.length ||
     selectedIntegrations.length !== ACCOUNT_INTEGRATIONS.length ||
+    selectedActions.length !== ALL_ACTION_IDS.length ||
+    selectedEntities.length !== ALL_ENTITY_IDS.length ||
     period !== "todo" ||
     query.trim().length > 0;
 
@@ -978,6 +1079,10 @@ function HistoricoTab() {
         onKindsChange={setSelectedKinds}
         selectedIntegrations={selectedIntegrations}
         onIntegrationsChange={setSelectedIntegrations}
+        selectedActions={selectedActions}
+        onActionsChange={setSelectedActions}
+        selectedEntities={selectedEntities}
+        onEntitiesChange={setSelectedEntities}
         query={query}
         onQueryChange={setQuery}
         period={period}
@@ -1103,6 +1208,10 @@ function Toolbar({
   onKindsChange,
   selectedIntegrations,
   onIntegrationsChange,
+  selectedActions,
+  onActionsChange,
+  selectedEntities,
+  onEntitiesChange,
   query,
   onQueryChange,
   period,
@@ -1122,6 +1231,10 @@ function Toolbar({
   onKindsChange: (v: ActorKind[]) => void;
   selectedIntegrations: string[];
   onIntegrationsChange: (v: string[]) => void;
+  selectedActions: string[];
+  onActionsChange: (v: string[]) => void;
+  selectedEntities: string[];
+  onEntitiesChange: (v: string[]) => void;
   query: string;
   onQueryChange: (v: string) => void;
   period: PeriodPreset;
@@ -1198,6 +1311,26 @@ function Toolbar({
         options={ALL_CATEGORIES}
         selected={selectedTypes}
         onToggle={toggleType}
+      />
+      <AwFacetFilter
+        triggerIcon="bolt"
+        triggerLabel="Ação"
+        aria-label="Filtrar por ação"
+        searchPlaceholder="Buscar ação…"
+        emptyLabel="Nenhuma ação encontrada."
+        groups={ACTION_GROUPS}
+        selected={selectedActions}
+        onChange={onActionsChange}
+      />
+      <AwFacetFilter
+        triggerIcon="category"
+        triggerLabel="Entidade"
+        aria-label="Filtrar por entidade"
+        searchPlaceholder="Buscar entidade…"
+        emptyLabel="Nenhuma entidade encontrada."
+        groups={ENTITY_GROUPS}
+        selected={selectedEntities}
+        onChange={onEntitiesChange}
       />
       {hasFilters && (
         <AwButton
