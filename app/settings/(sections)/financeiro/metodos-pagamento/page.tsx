@@ -36,7 +36,7 @@ function methodTitle(m: PaymentMethod): string {
     case "boleto":
       return "Boleto bancário";
     case "pix":
-      return "Pix automático";
+      return "Pix";
   }
 }
 
@@ -236,6 +236,10 @@ export default function MetodosPagamentoPage() {
           setAddForcesPrincipal(false);
         }}
         onAdd={addMethod}
+        // Boleto e Pix são únicos: trava os tipos que a conta já tem.
+        takenKinds={methods
+          .filter((m) => m.kind === "boleto" || m.kind === "pix")
+          .map((m) => m.kind)}
       />
 
       <RemovePaymentMethodModal
@@ -360,7 +364,7 @@ function DefaultCardHero(props: MethodCardProps) {
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           {padraoBadge}
           <p className="m-0 body-lg font-medium text-(--fg-primary)">
-            {isPix ? "Pix automático" : "Boleto bancário"}
+            {isPix ? "Pix" : "Boleto bancário"}
           </p>
           <p className="m-0 truncate body-sm text-(--fg-tertiary)">{subtitle}</p>
         </div>
@@ -408,7 +412,7 @@ function SecondaryCard(props: MethodCardProps) {
         <AwBrandLogo brand={isPix ? "pix" : "boleto"} size="md" />
         <div className="min-w-0 flex-1">
           <p className="m-0 body-sm font-medium text-(--fg-primary)">
-            {isPix ? "Pix automático" : "Boleto bancário"}
+            {isPix ? "Pix" : "Boleto bancário"}
           </p>
           <p className="m-0 mt-0.5 truncate body-xs text-(--fg-tertiary)">
             {subtitle}

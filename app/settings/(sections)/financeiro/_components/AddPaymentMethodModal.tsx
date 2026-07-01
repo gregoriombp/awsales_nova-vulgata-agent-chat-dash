@@ -12,9 +12,10 @@ import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
+import { AwQrPlaceholder } from "@/components/ui/AwQrPlaceholder";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { Icon } from "@/components/ui/Icon";
-import { BR_STATES, type CardBrand } from "./data";
+import { BILLING_PROFILE, BR_STATES, type CardBrand } from "./data";
 
 const COUNTRIES = ["Brasil", "Estados Unidos", "Portugal", "Argentina", "Chile"];
 
@@ -24,13 +25,21 @@ export type NewPaymentMethod =
   | { kind: "boleto"; holder: string; taxId: string }
   | { kind: "pix"; keyType: string; key: string };
 
-type MethodKind = "card" | "boleto" | "pix";
+export type MethodKind = "card" | "boleto" | "pix";
 
+// Quais tipos aceitam apenas UM método na conta. Só cartão pode repetir; boleto
+// e Pix são únicos (regra do Greg).
+const SINGLE_INSTANCE_KINDS: MethodKind[] = ["boleto", "pix"];
+
+// Boleto e Pix não são adicionados aqui — são definidos pelo administrador da
+// Store e já vêm na conta como métodos alternativos (regra do Greg). O usuário
+// só adiciona cartão de crédito; PayPal entra como "em breve".
 const KIND_OPTIONS: {
-  id: MethodKind;
+  id: MethodKind | "paypal";
   label: string;
   description: string;
   brand: string;
+  comingSoon?: boolean;
 }[] = [
   {
     id: "card",
@@ -39,16 +48,11 @@ const KIND_OPTIONS: {
     brand: "card",
   },
   {
-    id: "boleto",
-    label: "Boleto bancário",
-    description: "A cada ciclo, enviamos um boleto por e-mail. Compensa em até 3 dias úteis.",
-    brand: "boleto",
-  },
-  {
-    id: "pix",
-    label: "Pix automático",
-    description: "Débito recorrente autorizado via chave Pix.",
-    brand: "pix",
+    id: "paypal",
+    label: "PayPal",
+    description: "Em breve disponível para esta organização.",
+    brand: "paypal",
+    comingSoon: true,
   },
 ];
 
@@ -58,10 +62,14 @@ export function AddPaymentMethodModal({
   open,
   onClose,
   onAdd,
+  takenKinds = [],
 }: {
   open: boolean;
   onClose: () => void;
   onAdd: (method: NewPaymentMethod, asDefault: boolean) => void;
+  /** Tipos únicos (boleto/Pix) que a conta JÁ possui — ficam desabilitados no
+   *  seletor, já que só pode haver um de cada. */
+  takenKinds?: MethodKind[];
 }) {
   const [step, setStep] = React.useState<Step>("type");
   const [kind, setKind] = React.useState<MethodKind>("card");
@@ -73,8 +81,8 @@ export function AddPaymentMethodModal({
   const [cardName, setCardName] = React.useState("");
 
   // --- boleto ---
-  const [holder, setHolder] = React.useState("");
-  const [taxId, setTaxId] = React.useState("");
+  // Sem coleta: o boleto usa os dados de faturamento que a organização já tem
+  // (titular + CNPJ). O usuário só revisa e confirma — daí não há estado aqui.
 
   // --- pix ---
   const [pixKeyType, setPixKeyType] = React.useState("CNPJ");
@@ -106,8 +114,6 @@ export function AddPaymentMethodModal({
     setExp("");
     setCvc("");
     setCardName("");
-    setHolder("");
-    setTaxId("");
     setPixKeyType("CNPJ");
     setPixKey("");
     setCountry(COUNTRIES[0]);
@@ -141,13 +147,6 @@ export function AddPaymentMethodModal({
     cvc: cvc.length < 3 ? "Informe o CVC." : undefined,
     name: cardName.trim().length === 0 ? "Informe o nome no cartão." : undefined,
   };
-  const boletoErrors = {
-    holder: holder.trim().length === 0 ? "Informe o titular." : undefined,
-    taxId:
-      taxId.replace(/\D/g, "").length < 11
-        ? "Informe um CPF ou CNPJ válido."
-        : undefined,
-  };
   const pixErrors = {
     key: pixKey.trim().length === 0 ? "Informe a chave Pix." : undefined,
   };
@@ -163,7 +162,7 @@ export function AddPaymentMethodModal({
     kind === "card"
       ? Object.values(cardErrors).every((e) => !e)
       : kind === "boleto"
-        ? Object.values(boletoErrors).every((e) => !e)
+        ? true // só revisão dos dados da organização — nada a validar
         : Object.values(pixErrors).every((e) => !e);
 
   // Endereço de cobrança só existe pro cartão (boleto/Pix não têm esse passo) —
@@ -199,7 +198,12 @@ export function AddPaymentMethodModal({
         expiresAt: `${expDigits.slice(0, 2)}/20${expDigits.slice(2, 4)}`,
       };
     } else if (kind === "boleto") {
-      payload = { kind: "boleto", holder: holder.trim(), taxId: taxId.trim() };
+      // Dados de faturamento da própria organização (não coletados do usuário).
+      payload = {
+        kind: "boleto",
+        holder: BILLING_PROFILE.legalName,
+        taxId: BILLING_PROFILE.taxId,
+      };
     } else {
       payload = { kind: "pix", keyType: pixKeyType, key: pixKey.trim() };
     }
@@ -311,7 +315,11 @@ export function AddPaymentMethodModal({
         {step === "success" && added ? (
           <SuccessStep method={added.method} asDefault={added.asDefault} />
         ) : step === "type" ? (
-          <TypeStep kind={kind} onKindChange={setKind} />
+          <TypeStep
+            kind={kind}
+            onKindChange={setKind}
+            takenKinds={takenKinds}
+          />
         ) : step === "details" ? (
           kind === "card" ? (
             <CardStep
@@ -327,11 +335,6 @@ export function AddPaymentMethodModal({
             />
           ) : kind === "boleto" ? (
             <BoletoStep
-              holder={holder}
-              onHolder={setHolder}
-              taxId={taxId}
-              onTaxId={setTaxId}
-              errors={showErrors ? boletoErrors : {}}
               setAsDefault={setAsDefault}
               onSetAsDefaultChange={setSetAsDefault}
             />
@@ -371,7 +374,7 @@ export function AddPaymentMethodModal({
 }
 
 function detailsLabel(kind: MethodKind): string {
-  if (kind === "card") return "Forma de pagamento";
+  if (kind === "card") return "Detalhes do Pagamento";
   if (kind === "boleto") return "Boleto";
   return "Pix";
 }
@@ -398,7 +401,7 @@ function SuccessStep({
     method.kind === "card"
       ? `${method.brand} •••• ${method.last4}`
       : isPix
-        ? "Pix automático"
+        ? "Pix"
         : "Boleto bancário";
   const sub =
     method.kind === "card"
@@ -407,7 +410,7 @@ function SuccessStep({
         ? `Chave ${method.keyType} · ${method.key}`
         : method.holder;
   const note = isPix
-    ? "Confirme a primeira autorização no app do seu banco. Os próximos ciclos são cobrados automaticamente."
+    ? "Escaneie o QR Code no app do seu banco para autorizar o débito recorrente. Os próximos ciclos são cobrados automaticamente."
     : method.kind === "boleto"
       ? "A cada ciclo, o boleto chega nos e-mails de faturamento."
       : "Já pode ser usado nas próximas cobranças desta organização.";
@@ -415,16 +418,18 @@ function SuccessStep({
   return (
     <div className="flex flex-col items-center gap-4 py-2 text-center">
       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-(--bg-surface) text-(--accent-success)">
-        <Icon name="check_circle" size={28} />
+        <Icon name={isPix ? "qr_code_2" : "check_circle"} size={28} />
       </span>
       <div>
         <p className="m-0 body-md font-medium text-(--fg-primary)">
-          Método adicionado
+          {isPix ? "Autorize o Pix automático" : "Método adicionado"}
         </p>
         <p className="m-0 mt-1 max-w-[320px] body-xs text-(--fg-secondary)">
           {note}
         </p>
       </div>
+
+      {isPix && method.kind === "pix" && <PixAuthorization pixKey={method.key} />}
 
       <div className="flex w-full items-center gap-3 rounded-xl border border-(--border-subtle) bg-(--bg-raised) p-3 text-left">
         {method.kind === "card" ? (
@@ -454,6 +459,50 @@ function SuccessStep({
           </span>
         )}
       </div>
+    </div>
+  );
+}
+
+/** Autorização do Pix automático — mesmo padrão do checkout de Pix em
+ *  histórico de faturas: QR + "copia e cola" pra aprovar no app do banco.
+ *  O payload é um placeholder determinístico (o BR Code real vem do back). */
+function PixAuthorization({ pixKey }: { pixKey: string }) {
+  const copyPaste = "00020126580014br.gov.bcb.pix0136aswork-auth-" + pixKey;
+  return (
+    <div className="flex w-full flex-col items-center gap-3">
+      <AwQrPlaceholder px={168} ariaLabel="QR Code de autorização do Pix" />
+      <CopyField label="Pix copia e cola" value={copyPaste} />
+      <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
+        <Icon name="schedule" size={14} />
+        Aguardando a autorização…
+      </span>
+    </div>
+  );
+}
+
+/** Campo só-leitura com botão de copiar (mesmo do checkout de faturas). */
+function CopyField({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = React.useState(false);
+  const copy = () => {
+    navigator.clipboard?.writeText(value).then(
+      () => {
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 1600);
+      },
+      () => {},
+    );
+  };
+  return (
+    <div className="flex w-full items-center gap-2 rounded-lg border border-(--border-subtle) bg-(--bg-muted) px-3 py-2">
+      <div className="min-w-0 flex-1 text-left">
+        <p className="m-0 body-xs text-(--fg-tertiary)">{label}</p>
+        <p className="m-0 truncate body-xs font-medium tabular-nums text-(--fg-primary)">
+          {value}
+        </p>
+      </div>
+      <AwButton size="sm" variant="ghost" iconLeft={copied ? "check" : "content_copy"} onClick={copy}>
+        {copied ? "Copiado" : "Copiar"}
+      </AwButton>
     </div>
   );
 }
@@ -529,9 +578,11 @@ function StepIndicator({
 function TypeStep({
   kind,
   onKindChange,
+  takenKinds,
 }: {
   kind: MethodKind;
   onKindChange: (k: MethodKind) => void;
+  takenKinds: MethodKind[];
 }) {
   return (
     <>
@@ -546,42 +597,68 @@ function TypeStep({
       >
         {KIND_OPTIONS.map((opt) => {
           const selected = opt.id === kind;
+          // PayPal ainda não está disponível — fica desabilitado como "em breve".
+          const comingSoon = opt.comingSoon === true;
+          // Boleto e Pix são únicos (se um dia voltarem ao seletor): trava se já
+          // existe. Hoje o seletor só tem cartão + PayPal, então isto não dispara.
+          const taken =
+            !comingSoon &&
+            SINGLE_INSTANCE_KINDS.includes(opt.id as MethodKind) &&
+            takenKinds.includes(opt.id as MethodKind);
+          const disabled = comingSoon || taken;
           return (
             <button
               key={opt.id}
               type="button"
               role="radio"
               aria-checked={selected}
-              onClick={() => onKindChange(opt.id)}
+              disabled={disabled}
+              aria-disabled={disabled}
+              onClick={() => !disabled && onKindChange(opt.id as MethodKind)}
               className={
                 "flex items-center gap-3 rounded-xl border p-3 text-left transition-colors duration-aw-fast " +
-                (selected
-                  ? "border-(--border-strong) bg-(--bg-hover)"
-                  : "border-(--border-subtle) hover:border-(--border-default) hover:bg-(--bg-hover)")
+                (disabled
+                  ? "cursor-not-allowed border-(--border-subtle) opacity-55"
+                  : selected
+                    ? "border-(--border-strong) bg-(--bg-hover)"
+                    : "border-(--border-subtle) hover:border-(--border-default) hover:bg-(--bg-hover)")
               }
             >
               <AwBrandLogo brand={opt.brand} size="md" />
               <div className="min-w-0 flex-1">
-                <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                <p className="m-0 flex items-center gap-2 body-sm font-medium text-(--fg-primary)">
                   {opt.label}
+                  {comingSoon ? (
+                    <span className="rounded-full bg-(--bg-muted) px-1.5 py-0.5 body-xs font-normal text-(--fg-tertiary)">
+                      Em breve
+                    </span>
+                  ) : taken ? (
+                    <span className="rounded-full bg-(--bg-muted) px-1.5 py-0.5 body-xs font-normal text-(--fg-tertiary)">
+                      Já adicionado
+                    </span>
+                  ) : null}
                 </p>
                 <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
-                  {opt.description}
+                  {taken
+                    ? "Só é possível ter um por conta. Remova o atual para trocar."
+                    : opt.description}
                 </p>
               </div>
-              <span
-                aria-hidden="true"
-                className={
-                  "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors duration-aw-fast " +
-                  (selected
-                    ? "border-(--fg-primary) bg-(--fg-primary)"
-                    : "border-(--border-default)")
-                }
-              >
-                {selected && (
-                  <span className="h-1.5 w-1.5 rounded-full bg-(--bg-raised)" />
-                )}
-              </span>
+              {!disabled && (
+                <span
+                  aria-hidden="true"
+                  className={
+                    "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors duration-aw-fast " +
+                    (selected
+                      ? "border-(--fg-primary) bg-(--fg-primary)"
+                      : "border-(--border-default)")
+                  }
+                >
+                  {selected && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-(--bg-raised)" />
+                  )}
+                </span>
+              )}
             </button>
           );
         })}
@@ -733,38 +810,14 @@ function SetAsDefaultToggle({
 }
 
 function BoletoStep({
-  holder,
-  onHolder,
-  taxId,
-  onTaxId,
-  errors,
   setAsDefault,
   onSetAsDefaultChange,
 }: {
-  holder: string;
-  onHolder: (v: string) => void;
-  taxId: string;
-  onTaxId: (v: string) => void;
-  errors: Partial<Record<"holder" | "taxId", string>>;
   setAsDefault: boolean;
   onSetAsDefaultChange: (v: boolean) => void;
 }) {
-  // Máscara leve de CPF/CNPJ conforme a quantidade de dígitos.
-  const formatTaxId = (v: string) => {
-    const d = v.replace(/\D/g, "").slice(0, 14);
-    if (d.length <= 11) {
-      return d
-        .replace(/(\d{3})(\d)/, "$1.$2")
-        .replace(/(\d{3})(\d)/, "$1.$2")
-        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-    }
-    return d
-      .replace(/(\d{2})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d)/, "$1/$2")
-      .replace(/(\d{4})(\d{1,2})$/, "$1-$2");
-  };
-
+  // Boleto não coleta nada: usamos os dados de faturamento que a organização já
+  // tem. O usuário só revisa (read-only) e confirma.
   return (
     <>
       <p className="m-0 body-xs text-(--fg-secondary)">
@@ -772,27 +825,29 @@ function BoletoStep({
         faturamento. O pagamento compensa em até 3 dias úteis.
       </p>
 
-      <section className="flex flex-col gap-3">
-        <AwField label="Titular" htmlFor="boleto-holder" error={errors.holder}>
-          <AwInput
-            id="boleto-holder"
-            placeholder="Razão social ou nome completo"
-            invalid={!!errors.holder}
-            value={holder}
-            onChange={(e) => onHolder(e.target.value)}
-            autoFocus
-          />
-        </AwField>
-        <AwField label="CPF / CNPJ" htmlFor="boleto-taxid" error={errors.taxId}>
-          <AwInput
-            id="boleto-taxid"
-            placeholder="00.000.000/0000-00"
-            inputMode="numeric"
-            invalid={!!errors.taxId}
-            value={taxId}
-            onChange={(e) => onTaxId(formatTaxId(e.target.value))}
-          />
-        </AwField>
+      <section className="flex flex-col gap-2">
+        <span className="aw-eyebrow text-(--fg-tertiary)">
+          Dados de faturamento da organização
+        </span>
+        <dl className="m-0 flex flex-col">
+          <div className="flex items-center justify-between gap-4 border-t border-(--border-subtle) py-2.5 first:border-t-0">
+            <dt className="body-sm text-(--fg-tertiary)">Titular</dt>
+            <dd className="m-0 body-sm font-medium text-(--fg-primary)">
+              {BILLING_PROFILE.legalName}
+            </dd>
+          </div>
+          <div className="flex items-center justify-between gap-4 border-t border-(--border-subtle) py-2.5">
+            <dt className="body-sm text-(--fg-tertiary)">CPF / CNPJ</dt>
+            <dd className="m-0 body-sm font-medium tabular-nums text-(--fg-primary)">
+              {BILLING_PROFILE.taxId}
+            </dd>
+          </div>
+        </dl>
+        <p className="m-0 flex items-start gap-1.5 body-xs text-(--fg-tertiary)">
+          <Icon name="info" size={13} className="mt-px shrink-0" />
+          Usamos os dados de faturamento da organização. Para alterá-los, edite o
+          perfil de faturamento.
+        </p>
       </section>
 
       <SetAsDefaultToggle
