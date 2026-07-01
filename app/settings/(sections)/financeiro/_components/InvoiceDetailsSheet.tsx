@@ -23,7 +23,9 @@ export function paymentBrandId(method: string): AwCardBrandId {
   return "unknown";
 }
 
-function statusVariant(status: InvoiceHistoryRow["status"]): AwPillVariant {
+/** Status da fatura → variant do AwPill. Exportado pra as telas de fatura
+ *  (histórico, ciclos) falarem a mesma língua de cor. */
+export function statusVariant(status: InvoiceHistoryRow["status"]): AwPillVariant {
   switch (status) {
     case "Paga":
       return "live";

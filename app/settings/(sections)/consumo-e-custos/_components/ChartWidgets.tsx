@@ -69,7 +69,15 @@ function dayLabel(
   index: number,
   totalDays: number,
   period: SpendingPeriod,
+  /** Início de um range CUSTOM (ex.: o ciclo na aba Por ciclos) — com ele, os
+   *  rótulos seguem o range real em vez de ancorar pra trás do "hoje". */
+  customFrom?: Date | null,
 ): string {
+  if (customFrom) {
+    const d = new Date(customFrom);
+    d.setDate(d.getDate() + index);
+    return ddmm(d);
+  }
   if (period === "today") return ddmm(CHART_ANCHOR);
   if (period === "this-month") {
     return ddmm(
@@ -191,7 +199,7 @@ export function ConsumoChartWidget({
   dragHandle,
   menu,
 }: WidgetChrome) {
-  const { chartModel, chartIds, chartPeriod, grouping, accumulated, metaIncluded, surface, reportKind } =
+  const { chartModel, chartIds, chartPeriod, grouping, accumulated, metaIncluded, surface, reportKind, selection } =
     useConsumo();
   // Nota "bate com o Analytics" só vale na visão por DATA DE USO — nunca no
   // recorte de fatura/ciclo, onde os valores seguem a data de pagamento
@@ -233,7 +241,7 @@ export function ConsumoChartWidget({
     () =>
       chartModel.data.map((day, i) => {
         const row: Record<string, number | string> = {
-          day: dayLabel(i, totalDays, chartPeriod),
+          day: dayLabel(i, totalDays, chartPeriod, selection.kind === "custom" ? selection.from : null),
         };
         chartModel.categories.forEach((cat, c) => {
           row[cat.id] = day[c] ?? 0;
@@ -833,7 +841,7 @@ function useUsadoSeries() {
   const data = React.useMemo(
     () =>
       series.map((d, i) => ({
-        day: dayLabel(i, bars, chartPeriod),
+        day: dayLabel(i, bars, chartPeriod, selection.kind === "custom" ? selection.from : null),
         wc: d.wc,
         meta: metaIncluded ? d.meta : 0,
         charged: d.charged,
@@ -1028,7 +1036,7 @@ export function ProvedorWidget({
 type GastoLineKey = "total" | "aswork" | "meta";
 
 export function GastoTotalCard({ onHide }: { onHide?: () => void } = {}) {
-  const { payerDaily, chartPeriod, metaIncluded, accumulated } = useConsumo();
+  const { payerDaily, chartPeriod, metaIncluded, accumulated, selection } = useConsumo();
   // Linha em foco no hover. As demais somem suavemente; a focada ganha um
   // "fio condutor": um segmento claro (grayscale + alpha) que percorre a curva
   // em loop e CLAREIA a própria cor da série por baixo (mix-blend overlay) —
@@ -1059,7 +1067,7 @@ export function GastoTotalCard({ onHide }: { onHide?: () => void } = {}) {
   // React, que o Recharts deriva do dataKey).
   const data = React.useMemo(() => {
     const base = payerDaily.map((d, i) => ({
-      day: dayLabel(i, payerDaily.length, chartPeriod),
+      day: dayLabel(i, payerDaily.length, chartPeriod, selection.kind === "custom" ? selection.from : null),
       aswork: d.aswork,
       meta: d.meta,
       total: Math.round((d.aswork + d.meta) * 100) / 100,
