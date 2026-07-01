@@ -99,8 +99,12 @@ export type ReportTypeDef = {
   accentVar: string;
   /** Lente padrão ao criar. */
   grouping: SpendingGrouping;
-  /** Widgets removidos por padrão neste tipo. */
+  /** Widgets removidos por padrão neste tipo (podem ser READICIONADOS). */
   hidden: string[];
+  /** Widgets que este tipo NÃO oferece — fora do board E do "Adicionar
+   *  gráfico" (cmt-b0869104 + cmt-44007d84: incompatíveis com o modelo do
+   *  relatório, não só escondidos). */
+  excluded?: string[];
   /** Ordem inicial do board (widgets ocultos podem ficar no fim). */
   order: string[];
 };
@@ -114,11 +118,13 @@ export const REPORT_TYPES: ReportTypeDef[] = [
     desc: "Veja quanto cada serviço e agente consumiu no período.",
     accentVar: "var(--aw-blue-500)",
     grouping: "service",
-    // Tira a cobrança do provedor de pagamento: não é desse relatório. E o gráfico
-    // "usado-cobrado" (Custo Aswork × Meta por dia) sai por padrão — sobrepunha o
-    // "Evolução do uso" (cmt-c1a2dccb). Fica disponível pra readicionar como comparativo.
-    hidden: ["provedor", "usado-cobrado"],
-    order: ["consumo", "composicao", "usado-cobrado", "detalhamento", "provedor"],
+    // "Uso do período" (usado-cobrado) duplicava a leitura do uso e o "Valor
+    // atribuído ao provedor" é assunto de cobrança — os dois são INCOMPATÍVEIS
+    // com o modelo "Uso de variáveis" (cmt-b0869104 + cmt-44007d84): fora do
+    // board e do "Adicionar gráfico" deste tipo, não apenas ocultos.
+    hidden: [],
+    excluded: ["usado-cobrado", "provedor"],
+    order: ["consumo", "composicao", "detalhamento"],
   },
   {
     type: "faturas",

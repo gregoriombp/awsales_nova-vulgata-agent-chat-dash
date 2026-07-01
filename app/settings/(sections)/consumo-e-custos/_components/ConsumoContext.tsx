@@ -91,19 +91,19 @@ const MAX_AGENT_CHART_SERIES = 9;
  * ./report-types (importados/reexportados acima) pra a taxonomia de relatórios
  * ficar num lugar só, sem ciclo de import. */
 
-const BOARD_ORDER_KEY = "consumo-dash-order-v3";
-const BOARD_SPANS_KEY = "consumo-dash-spans-v3";
+const BOARD_ORDER_KEY = "consumo-dash-order-v4";
+const BOARD_SPANS_KEY = "consumo-dash-spans-v4";
 
 /* ---------- relatórios salvos ---------- */
 
-// v2: o relatório ganhou proprietário (com foto) e organização (com logo). Bump
-// da chave pra descartar dados antigos (sem esses campos) e re-semear no formato
-// novo — a feature é recente, então é seguro.
-const REPORTS_KEY = "aw:consumo-explorer:reports:v2";
+// v3: presets ganharam `excluded` (widgets fora do tipo) e o board mudou de
+// composição — bump descarta snapshots antigos e re-semeia no formato novo
+// (a feature é recente, então é seguro; mesmo racional do v2).
+const REPORTS_KEY = "aw:consumo-explorer:reports:v3";
 // Rascunho pendente (entrou por um card, ainda não salvou). Persistido pra
 // sobreviver à navegação inicial→explorador (o shell de Configurações remonta o
 // provider) e a um refresh — sem isso o tipo/recorte do rascunho se perderia.
-const DRAFT_KEY = "aw:consumo-explorer:draft:v2";
+const DRAFT_KEY = "aw:consumo-explorer:draft:v3";
 
 function serializeSelection(s: PeriodSelection): StoredSelection {
   return s.kind === "custom"
@@ -237,6 +237,8 @@ type ConsumoContextValue = {
 
   /* widgets removidos da visualização atual */
   hiddenWidgets: Set<string>;
+  /** Widgets que o TIPO ativo não oferece (fora do board e do AddWidget). */
+  excludedWidgets: Set<string>;
   /** Só os widgets escondidos pelo usuário além do preset (alimenta o banner). */
   userHiddenWidgets: Set<string>;
   toggleWidgetHidden: (id: string) => void;
@@ -1043,6 +1045,13 @@ export function ConsumoProvider({
 
   const selectInvoice = React.useCallback((id: string) => setInvoiceId(id), []);
 
+  // Widgets que o TIPO ativo não oferece (cmt-b0869104/cmt-44007d84): ficam
+  // fora do board e do "Adicionar gráfico" — exclusão de verdade, não hidden.
+  const excludedWidgets = React.useMemo(
+    () => new Set(reportType ? reportTypeDef(reportType).excluded ?? [] : []),
+    [reportType],
+  );
+
   const value: ConsumoContextValue = {
     surface,
     grouping,
@@ -1083,6 +1092,7 @@ export function ConsumoProvider({
     selectPayers,
     metaIncluded,
     hiddenWidgets: hidden,
+    excludedWidgets,
     userHiddenWidgets,
     toggleWidgetHidden,
     restoreAllWidgets,

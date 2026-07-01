@@ -27,7 +27,7 @@ import {
   UsadoCobradoWidget,
 } from "./ChartWidgets";
 import { DetalhamentoWidget } from "./ExplorerTable";
-import { DraggableBoard, type BoardWidget, type Span } from "./WidgetBoard";
+import { DraggableBoard, type BoardWidget, type Span, type WidgetChrome } from "./WidgetBoard";
 import { useReportsUI } from "./SavedReports";
 
 /* ----------------------------------------------------------------------------
@@ -47,6 +47,7 @@ export function ExplorerMain() {
     isBoardCustomized,
     drill,
     hiddenWidgets,
+    excludedWidgets,
     userHiddenWidgets,
     toggleWidgetHidden,
     restoreAllWidgets,
@@ -78,14 +79,18 @@ export function ExplorerMain() {
   const isCustomized = isBoardCustomized;
 
   const widgets: BoardWidget[] = React.useMemo(
-    () => [
-      { id: "consumo", span: 2, label: "Uso por dia", icon: "bar_chart", render: (c) => <ConsumoChartWidget {...c} /> },
-      { id: "composicao", span: 1, label: "Composição do período", icon: "donut_small", render: (c) => <ComposicaoWidget {...c} /> },
-      { id: "usado-cobrado", span: 1, label: "Custo Aswork × Meta por dia", icon: "sync_alt", render: (c) => <UsadoCobradoWidget {...c} /> },
-      { id: "provedor", span: 1, label: "Valor atribuído ao provedor", icon: "account_balance", render: (c) => <ProvedorWidget {...c} /> },
-      { id: "detalhamento", span: 2, label: "Detalhamento", icon: "table_rows", render: (c) => <DetalhamentoWidget {...c} /> },
-    ],
-    [],
+    () =>
+      [
+        { id: "consumo", span: 2 as const, label: "Uso por dia", icon: "bar_chart", render: (c: WidgetChrome) => <ConsumoChartWidget {...c} /> },
+        { id: "composicao", span: 1 as const, label: "Composição do período", icon: "donut_small", render: (c: WidgetChrome) => <ComposicaoWidget {...c} /> },
+        { id: "usado-cobrado", span: 1 as const, label: "Custo Aswork × Meta por dia", icon: "sync_alt", render: (c: WidgetChrome) => <UsadoCobradoWidget {...c} /> },
+        { id: "provedor", span: 1 as const, label: "Valor atribuído ao provedor", icon: "account_balance", render: (c: WidgetChrome) => <ProvedorWidget {...c} /> },
+        { id: "detalhamento", span: 2 as const, label: "Detalhamento", icon: "table_rows", render: (c: WidgetChrome) => <DetalhamentoWidget {...c} /> },
+        // Widgets fora do TIPO ativo somem de verdade: nem board, nem AddWidget
+        // (cmt-b0869104 + cmt-44007d84 — ex.: "Uso de variáveis" não oferece
+        // usado-cobrado/provedor; em "Cobranças" eles continuam).
+      ].filter((w) => !excludedWidgets.has(w.id)),
+    [excludedWidgets],
   );
 
   return (
