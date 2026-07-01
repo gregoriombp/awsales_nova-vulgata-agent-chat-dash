@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AwAlert } from "@/components/ui/AwAlert";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
@@ -111,24 +111,21 @@ function StatusBadge({ status }: { status: ExportStatus }) {
     status === "Pronto"
       ? {
           icon: "check_circle",
-          className:
-            "border-(--aw-emerald-300) bg-(--aw-emerald-100) text-(--aw-emerald-800)",
+          className: "bg-(--aw-emerald-100) text-(--aw-emerald-800)",
         }
       : status === "Expirado"
         ? {
             icon: "link_off",
-            className:
-              "border-(--border-subtle) bg-(--bg-muted) text-(--fg-tertiary)",
+            className: "bg-(--bg-muted) text-(--fg-tertiary)",
           }
         : {
             icon: "schedule",
-            className:
-              "border-(--aw-amber-300) bg-(--aw-amber-100) text-(--aw-amber-700)",
+            className: "bg-(--aw-amber-100) text-(--aw-amber-700)",
           };
   return (
     <span
       className={
-        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 body-xs font-medium " +
+        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 body-xs font-medium " +
         meta.className
       }
     >
@@ -139,6 +136,7 @@ function StatusBadge({ status }: { status: ExportStatus }) {
 }
 
 export default function MeusDadosPage() {
+  const router = useRouter();
   const [requests, setRequests] = useState(INITIAL_REQUESTS);
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"confirm" | "stepup" | "done">("confirm");
@@ -245,7 +243,7 @@ export default function MeusDadosPage() {
             </p>
           </div>
           {readyCount > 0 && (
-            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-(--aw-emerald-300) bg-(--aw-emerald-100) px-2.5 py-0.5 body-xs font-medium text-(--aw-emerald-800)">
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-(--aw-emerald-100) px-2.5 py-0.5 body-xs font-medium text-(--aw-emerald-800)">
               <Icon name="check_circle" size={13} />
               {readyCount} pronta{readyCount === 1 ? "" : "s"}
             </span>
@@ -260,50 +258,51 @@ export default function MeusDadosPage() {
           <AwTable className="mt-3">
             <thead>
               <tr>
-                <th>Data</th>
+                <th>Solicitação</th>
                 <th>Status</th>
-                <th className="w-12" aria-label="Ações" />
+                <th>Disponibilidade</th>
+                {/* Coluna de ação sem título (pedido do Greg — cmt-f106757c). */}
+                <th className="w-48" aria-label="Ação" />
               </tr>
             </thead>
             <tbody>
               {requests.map((r) => (
                 <tr key={r.id}>
-                  <td>
-                    <p className="m-0 body-sm tabular-nums text-(--fg-primary)">
-                      {r.requestedAt}
-                    </p>
-                    {r.status === "Pronto" && r.expiresInDays !== undefined && (
-                      <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
-                        link expira em {r.expiresInDays}{" "}
-                        {r.expiresInDays === 1 ? "dia" : "dias"}
-                      </p>
-                    )}
+                  <td className="body-sm tabular-nums text-(--fg-primary)">
+                    {r.requestedAt}
                   </td>
                   <td>
                     <StatusBadge status={r.status} />
                   </td>
-                  <td className="text-right">
+                  <td className="body-sm text-(--fg-secondary)">
+                    {r.status === "Pronto"
+                      ? `Expira em ${r.expiresInDays ?? 0} ${
+                          (r.expiresInDays ?? 0) === 1 ? "dia" : "dias"
+                        }`
+                      : r.status === "Processando"
+                        ? "Avisaremos por e-mail"
+                        : "Link indisponível"}
+                  </td>
+                  <td>
                     {r.status === "Pronto" ? (
-                      <AwButton
-                        size="sm"
-                        variant="ghost"
-                        iconOnly="download"
-                        aria-label="Baixar cópia"
-                        title="Baixar cópia"
-                      />
+                      <button
+                        type="button"
+                        className="inline-flex items-center gap-1.5 whitespace-nowrap body-sm font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:text-(--accent-brand)"
+                      >
+                        <Icon name="outgoing_mail" size={15} />
+                        Reenviar link
+                      </button>
                     ) : r.status === "Expirado" ? (
-                      <AwButton
-                        size="sm"
-                        variant="ghost"
-                        iconOnly="refresh"
-                        aria-label="Pedir uma nova cópia"
-                        title="Pedir uma nova cópia"
+                      <button
+                        type="button"
                         onClick={openConfirm}
-                      />
+                        className="inline-flex items-center gap-1.5 whitespace-nowrap body-sm font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:text-(--accent-brand)"
+                      >
+                        <Icon name="refresh" size={15} />
+                        Solicitar novamente
+                      </button>
                     ) : (
-                      <span className="inline-flex h-8 w-8 items-center justify-center text-(--fg-tertiary)">
-                        <Icon name="hourglass_top" size={16} />
-                      </span>
+                      <span className="body-sm text-(--fg-tertiary)">—</span>
                     )}
                   </td>
                 </tr>
@@ -313,36 +312,40 @@ export default function MeusDadosPage() {
         )}
       </section>
 
-      {/* Remover dados — nota discreta no rodapé, sem peso de card (ação rara). */}
-      <div className="mt-8 flex items-start gap-3 border-t border-(--border-subtle) pt-6">
-        <Icon
-          name="manage_accounts"
-          size={18}
-          className="mt-0.5 shrink-0 text-(--fg-tertiary)"
-        />
-        <div className="min-w-0 flex-1">
-          <p className="m-0 body-sm font-medium text-(--fg-secondary)">
-            Remover dados
-          </p>
-          <p className="m-0 mt-0.5 max-w-[640px] body-xs text-(--fg-tertiary)">
-            Para excluir permanentemente sua conta e os dados associados, fale
-            com um administrador ou escreva para{" "}
-            <a
-              href="mailto:suporte@awsales.io"
-              className="font-medium text-(--fg-secondary) underline decoration-dotted underline-offset-2 transition-colors duration-aw-fast hover:text-(--accent-brand)"
-            >
-              suporte@awsales.io
-            </a>
-            .
-          </p>
-          <Link
-            href="/settings/seguranca"
-            className="mt-1.5 inline-flex w-fit items-center gap-1 body-xs font-medium text-(--fg-tertiary) underline-offset-2 transition-colors duration-aw-fast hover:text-(--accent-brand) hover:underline"
-          >
-            Privacidade e segurança
-            <Icon name="arrow_forward" size={13} />
-          </Link>
+      {/* Excluir conta e dados — card sem stroke, bg vermelho bem claro (pedido
+          do Greg / cmt-d7ee82e7). Ícone em círculo + ação à direita, seguindo o DS. */}
+      <div className="mt-8 flex flex-col gap-4 rounded-xl bg-(--aw-red-100) p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-4">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-(--bg-raised) text-(--aw-red-600)">
+            <Icon name="delete" size={20} />
+          </span>
+          <div className="min-w-0">
+            <p className="m-0 body-sm font-semibold text-(--fg-primary)">
+              Excluir conta e dados
+            </p>
+            <p className="m-0 mt-0.5 max-w-[560px] body-xs text-(--fg-secondary)">
+              A exclusão é permanente e não pode ser desfeita. Para solicitar a
+              exclusão da sua conta e dos dados associados, fale com o
+              administrador da organização ou escreva para{" "}
+              <a
+                href="mailto:suporte@awsales.io"
+                className="font-medium text-(--fg-primary) underline decoration-dotted underline-offset-2 transition-colors duration-aw-fast hover:no-underline"
+              >
+                suporte@awsales.io
+              </a>
+              .
+            </p>
+          </div>
         </div>
+        <AwButton
+          size="sm"
+          variant="secondary"
+          iconRight="arrow_forward"
+          className="shrink-0"
+          onClick={() => router.push("/settings/seguranca")}
+        >
+          Entender exclusão de dados e privacidade
+        </AwButton>
       </div>
 
       {/* Nota de rodapé — escopo do direito e portabilidade */}
